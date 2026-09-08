@@ -2,7 +2,8 @@
 	import LayoutDashboard from '@lucide/svelte/icons/layout-dashboard';
 	import Activity from '@lucide/svelte/icons/activity';
 	import Settings from '@lucide/svelte/icons/settings';
-	import Sparkles from '@lucide/svelte/icons/sparkles';
+	import { appConfig } from '$lib/config/app';
+	import { assets } from '../../../assets.config';
 	import ChevronsUpDown from '@lucide/svelte/icons/chevrons-up-down';
 	import Check from '@lucide/svelte/icons/check';
 	import ChevronRight from '@lucide/svelte/icons/chevron-right';
@@ -33,14 +34,12 @@
 		<a
 			href={resolve('/apps/dashboard')}
 			class="flex min-h-12 items-center gap-3 rounded-xl px-2"
-			aria-label="Starter home"
+			aria-label={`${appConfig.name} home`}
 		>
-			<span class="grid size-9 place-items-center rounded-xl bg-primary text-primary-foreground"
-				><Sparkles class="size-4" /></span
-			>
+			<img src={assets.logo.path} alt="" width="36" height="36" class="size-9 rounded-xl" />
 			<span class="min-w-0"
-				><strong class="block truncate text-sm">Svelte Convex</strong><span
-					class="block truncate text-xs text-muted-foreground">Runes starter</span
+				><strong class="block truncate text-sm">{appConfig.shortName}</strong><span
+					class="block truncate text-xs text-muted-foreground">{appConfig.tagline}</span
 				></span
 			>
 		</a>

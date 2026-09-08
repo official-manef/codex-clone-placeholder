@@ -23,6 +23,8 @@
 		"src/**/*.svelte",
 		"slices/**/*.ts",
 		"slices/**/*.svelte",
+		"assets.config.ts",
+		"scripts/**/*.ts",
 		"vite.config.ts"
 	]
 	// Path aliases are handled by https://svelte.dev/docs/kit/configuration#alias

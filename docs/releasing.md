@@ -1,30 +1,47 @@
 # Releasing and upgrading
 
-`version.json` is the release manifest. `package.json.version` mirrors it for tooling.
-Dashboard versions derive from package metadata; do not hardcode them in components.
+`version.json` is the template release manifest; `package.json.version` mirrors it.
+UI versions derive from repository metadata. The version command never commits, tags,
+pushes or publishes, and `bun run check` rejects inconsistent manifests.
 
 ## Maintainer release
 
-1. Start from a clean tree and create a release branch.
-2. Run `bun run version:bump <MAJOR.MINOR.PATCH>`.
-3. Move notable Unreleased changes into a dated changelog entry; include migration steps.
-4. Run `bun install` if metadata changed, then `bun run verify` and `bun run test:e2e`.
-5. Complete [CHECKLIST.md](../CHECKLIST.md), commit and merge through a PR with green CI.
-6. Tag the exact commit `v<version>` and publish a GitHub release using the changelog entry.
+1. Inspect the worktree and preserve unrelated changes. Follow the repository's review policy.
+2. Run `bun run version:bump <MAJOR.MINOR.PATCH>` and add a dated changelog entry with migration notes.
+3. If brand/catalog inputs changed, run `assets:generate`, `assets:prompts` and `assets:check`.
+   Confirm custom artwork is preserved and commit generated outputs with their inputs.
+4. Regenerate `bun.lock` with the declared Bun version when dependency/package metadata requires it.
+5. Run `bun install --frozen-lockfile`, `bun run verify` and `bun run test:e2e`.
+6. Complete [CHECKLIST.md](../CHECKLIST.md), commit and obtain green CI on the exact release revision.
+7. Tag that commit `v<version>` and publish its GitHub release from the changelog within the authorized scope.
 
-The version command never commits, tags, pushes or publishes. `bun run check` rejects
-mismatched manifests. Runtime upgrades must update `packageManager` or `.node-version`,
-engine ranges and the technology guide together. Regenerate the lockfile with the declared Bun.
+Runtime changes update `packageManager`/`.node-version`, engine ranges and compatibility
+guidance together. Stable release names use MAJOR.MINOR.PATCH. During 0.x, minor releases
+may change template structure; patch releases are compatible fixes. Do not label a
+prerelease stable or count mock-only transport checks as a completed provider lifecycle.
 
-Stable versions use MAJOR.MINOR.PATCH. During 0.x, minor releases may change structure;
-patch releases are compatible fixes. Do not label prereleases stable.
+## Upgrade a generated product
 
-## Upgrade a generated repository
+GitHub templates create independent repositories. Read upstream release notes, compare
+affected files and port the relevant changes onto an application branch. Do not force-merge
+unrelated histories or replace customized features with a fresh scaffold.
 
-GitHub templates create independent repositories, with no merge relationship to upstream history.
-Read release notes, compare affected files, and port changes onto an application branch.
-Do not force-merge unrelated histories or overwrite customized features with a fresh scaffold.
-Update local release metadata when adopting a version and run all gates plus your app's auth/data tests.
+The generated product owns its release version. Record the upstream template version
+adopted in its changelog; do not reset the product's version to match this template.
+Run the product's auth/data/integration checks as well as the template gates.
 
-The public initial release preserves the existing VPS starter history. The separate Next.js
-`template-convex-starter` repository remains a separate project.
+For the 0.4 migration from 0.3:
+
+- Move shared public branding into `src/lib/config/app.ts`; review locale, route metadata
+  and the production `PUBLIC_SITE_URL`. Previews should leave the origin unset.
+- Adopt the catalog-driven asset references and generated outputs together. Mark existing
+  custom artwork `custom` before generation so it is preserved.
+- Port optional transports only when useful. They remain disabled and do not replace
+  a product's existing order/email/auth implementation or transaction history.
+- Read the canonical `AGENTS.md`, `DESIGN.md` and focused implementation guides. Adapt
+  the PRD to the product instead of importing historical example requirements.
+
+The base Convex schema remains empty, so this template release adds no data migration.
+A generated product with its own tables must review schema and runtime compatibility.
+Provider changes need explicit handling for old transactions, callbacks and identities;
+see [integrations](integrations.md).

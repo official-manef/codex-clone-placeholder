@@ -1,4 +1,48 @@
 import { expect, test } from '@playwright/test';
+import { assets, assetMimeType } from '../assets.config';
+import { appConfig } from '../src/lib/config/app';
+
+test('branding, sharing metadata and asset files agree across navigation', async ({
+	page,
+	request
+}) => {
+	await page.goto('/');
+	await expect(page.locator('html')).toHaveAttribute('lang', appConfig.locale);
+	await expect(page.locator('meta[name="robots"]')).toHaveAttribute('content', 'index,follow');
+	await expect(page.locator('link[rel="canonical"]')).toHaveAttribute(
+		'href',
+		'https://starter.example/'
+	);
+	await expect(page.locator('link[rel="icon"]')).toHaveAttribute(
+		'type',
+		assetMimeType(assets.favicon.path)
+	);
+	await expect(page.locator('meta[property="og:image"]')).toHaveAttribute(
+		'content',
+		`https://starter.example${assets.socialImage.path}`
+	);
+	for (const asset of Object.values(assets)) {
+		const response = await request.get(asset.path);
+		expect(response.status()).toBe(200);
+		expect(response.headers()['content-type']).toContain(assetMimeType(asset.path));
+	}
+	const manifest = await (await request.get('/site.webmanifest')).json();
+	expect(manifest.name).toBe(appConfig.name);
+	expect(manifest.icons[0]).toMatchObject({
+		src: assets.appIcon.path,
+		sizes: `${assets.appIcon.width}x${assets.appIcon.height}`
+	});
+	await page.getByRole('link', { name: appConfig.landing.action }).click();
+	await expect(page.locator('meta[property="og:title"]')).toHaveAttribute(
+		'content',
+		`Dashboard · ${appConfig.name}`
+	);
+	await expect(page.locator('link[rel="canonical"]')).toHaveAttribute(
+		'href',
+		'https://starter.example/apps/dashboard'
+	);
+	await expect(page.locator('meta[name="robots"]')).toHaveAttribute('content', 'noindex,nofollow');
+});
 
 test('fresh clone boots, opens live-data and preserves keyboard navigation', async ({
 	page

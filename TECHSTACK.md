@@ -1,37 +1,45 @@
 # Technology contract
 
-Versions were checked against registry metadata and official docs on 2026-09-08.
-`package.json` defines compatibility; `bun.lock` records exact installed versions.
+`package.json` declares supported dependencies and runtime ranges; `bun.lock` records
+the exact installation and `.node-version` selects the tooling runtime. Read those files
+for version numbers rather than maintaining another version list here.
 
-| Layer           | Choice                                                 |
-| --------------- | ------------------------------------------------------ |
-| Package manager | Bun 1.4.2                                              |
-| Tooling runtime | Node 22.23.2; supported alternatives in `engines.node` |
-| Framework       | Svelte 5.57.0 + SvelteKit 2.70.3                       |
-| Language        | TypeScript 6.0.3                                       |
-| Build           | Vite 8.2.2                                             |
-| UI              | Tailwind 4.3.3 + shadcn-svelte 1.5.1 + Bits UI 2.19.0  |
-| Backend         | Convex 1.45.0 + convex-svelte 0.14.0                   |
-| Deploy          | @sveltejs/adapter-vercel 6.3.4                         |
-| Tests           | Vitest 4.1.11 + Playwright 1.62.1                      |
+| Layer               | Choice / responsibility                                                           |
+| ------------------- | --------------------------------------------------------------------------------- |
+| Package manager     | Bun; one committed `bun.lock`                                                     |
+| Framework           | Svelte 5 Runes and SvelteKit                                                      |
+| Language / build    | Strict TypeScript, Vite                                                           |
+| UI                  | Tailwind CSS 4, source-owned shadcn-svelte, Bits UI and Lucide                    |
+| Backend             | Convex with `convex-svelte`; frontend connection optional                         |
+| Deploy              | Vercel adapter; server functions use its supported Node runtime                   |
+| Asset tooling       | Development-only resvg renders SVG placeholders to PNG; files are committed       |
+| Verification        | Svelte/TypeScript checks, Prettier, ESLint, Vitest, Playwright and GitHub Actions |
+| Optional transports | DOKU Checkout and Resend using server-side fetch and Node crypto where needed     |
 
-## Compatibility over indiscriminate upgrades
+## Compatibility and updates
 
-SvelteKit 2.70.3 supports TypeScript `^5.3.3 || ^6.0.0`; TypeScript 6.0.3 stays within
-that range. Core framework dependencies stay pinned. Dependabot opens reviewed minor/patch
-updates and separate major updates; unsupported TypeScript/Node-type major updates are excluded.
+Core framework dependencies remain pinned. Review official compatibility before a
+major upgrade, including TypeScript, Vite, the Svelte plugin, adapter and Node runtime.
+Regenerate the lockfile with the declared Bun version and verify the complete build.
+Dependabot proposes minor/patch updates and separate majors; unsupported TypeScript
+and Node-type major updates are excluded by the checked-in policy.
 
-Bun is the package manager and script launcher. Some CLIs still use Node, and Vercel server
-functions run on Node. Installing Bun alone does not satisfy those toolchain requirements.
+Bun is the package manager and script launcher. Some CLIs still execute through Node,
+and Vercel functions are not a Bun HTTP server. Installing Bun alone does not satisfy
+the documented toolchain. Adding another package manager or lockfile is not required.
 
-## Backend and UI boundaries
+## Boundaries
 
-Convex linking is optional for frontend startup. Generated API types are committed.
-Auth remains a deliberate product integration. See [architecture](docs/architecture.md).
+The app starts without credentials. Convex generated types are committed; its base
+schema is empty. Private data, authentication and tenant permissions are product work.
+Payment/email transports are disabled building blocks verified with mocked HTTP,
+not complete business flows. Auth and GCP are recipes with explicit unsupported
+resolver states. See [integrations](docs/integrations.md).
 
-shadcn-svelte and Bits UI own accessible controls. Shared `app-ui` components own layout
-patterns; feature slices compose them; SvelteKit routes adapt them.
-See [UIUX.md](UIUX.md) for the existing responsive interaction contract.
+shadcn-svelte/Bits UI own accessible controls; shared `app-ui` components own layout;
+feature slices compose them; routes adapt SvelteKit. Public app config and the asset
+catalog drive branding. Private integration config never belongs in browser data.
+See [architecture](docs/architecture.md) and [design](DESIGN.md).
 
 Official references: [SvelteKit](https://svelte.dev/docs/kit),
 [Convex Svelte](https://docs.convex.dev/client/svelte/overview),

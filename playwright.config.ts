@@ -6,6 +6,7 @@ const baseURL = `http://127.0.0.1:${port}`;
 export default defineConfig({
 	testMatch: '**/*.e2e.{ts,js}',
 	webServer: {
+		env: { PUBLIC_CONVEX_URL: '', PUBLIC_SITE_URL: 'https://starter.example' },
 		command: `bun run build && bun run preview -- --host 127.0.0.1 --port ${port}`,
 		url: baseURL,
 		reuseExistingServer: false
