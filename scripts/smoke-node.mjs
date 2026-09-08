@@ -35,17 +35,28 @@ try {
 	}
 	assert.ok(ready, 'Node server did not start');
 	for (const path of ['/', '/apps/dashboard', '/apps/notes', '/apps/assistant']) {
-		const response = await fetch(`${origin}${path}`);
+		const response = await fetch(`${origin}${path}`, { signal: AbortSignal.timeout(5000) });
 		assert.equal(response.status, 200, path);
-		assert.match(await response.text(), /noindex,nofollow/, path);
+		const html = await response.text();
+		assert.match(html, /noindex,nofollow/, path);
+		if (path === '/') {
+			const asset = html.match(/(_app\/immutable\/[^"'\s<>]+\.js)/)?.[1];
+			assert.ok(asset, 'HTML must reference the client entry');
+			const script = await fetch(`${origin}/${asset}`, { signal: AbortSignal.timeout(5000) });
+			assert.equal(script.status, 200);
+			assert.match(script.headers.get('content-type') ?? '', /javascript/);
+		}
 	}
-	const config = await fetch(`${origin}/api/ai/config`);
+	const config = await fetch(`${origin}/api/ai/config`, { signal: AbortSignal.timeout(5000) });
 	assert.deepEqual(await config.json(), {
 		ai: { enabled: false, providers: [] },
 		mcp: { enabled: false, servers: [] }
 	});
 	assert.equal(config.headers.get('cache-control'), 'no-store');
-	assert.equal((await fetch(`${origin}/apps/missing`)).status, 404);
+	assert.equal(
+		(await fetch(`${origin}/apps/missing`, { signal: AbortSignal.timeout(5000) })).status,
+		404
+	);
 	console.log('Standalone Node routes, private-cache headers and disabled capabilities passed.');
 } finally {
 	child.kill('SIGTERM');
