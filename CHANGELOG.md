@@ -21,6 +21,7 @@ During 0.x, minor releases may change template structure; patch releases are com
 - Allowed root feature slices through Vite's development filesystem boundary so their client modules load; unrelated root files remain outside the allowlist.
 - Segmented controls and the workspace menu stay disabled until hydration so early keyboard/click input is not silently lost.
 - Native disclosures retain an early open state across hydration; removed their unused controlled-state API.
+- Updated CI actions for the supported runner runtime, pinned their release commits and disabled persisted checkout credentials.
 
 ### Migration notes
 

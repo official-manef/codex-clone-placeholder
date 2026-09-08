@@ -20,6 +20,9 @@ guidance together. Stable release names use MAJOR.MINOR.PATCH. During 0.x, minor
 may change template structure; patch releases are compatible fixes. Do not label a
 prerelease stable or count mock-only transport checks as a completed provider lifecycle.
 
+CI actions use full commit pins with release-version comments. Review the existing
+Dependabot updates against upstream release notes and keep both values synchronized.
+
 ## Upgrade a generated product
 
 GitHub templates create independent repositories. Read upstream release notes, compare
