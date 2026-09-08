@@ -93,7 +93,7 @@ test('settings use local modes and progressive disclosure', async ({ page }) => 
 	await page.goto('/apps/settings');
 	await page.getByRole('button', { name: 'Interface' }).click();
 	await expect(page.getByText('App-first mobile', { exact: true })).toBeVisible();
-	await page.getByRole('button', { name: 'Workspace' }).click();
+	await page.getByRole('button', { name: 'Workspace', exact: true }).click();
 	await page.getByText('Advanced template rules').click();
 	await expect(page.getByText(/Keep user customization in data\/config/)).toBeVisible();
 });

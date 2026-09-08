@@ -147,6 +147,10 @@ On a new Linux CI machine, use `bunx playwright install --with-deps chromium` fo
 system dependencies too. CI runs unlinked unit/browser checks without deployment credentials.
 A live backend check is a separate validation after linking Convex.
 
+On Windows, the Vercel adapter needs permission to create symbolic links. If production
+builds fail with `EPERM ... symlink`, run the build and browser gate in WSL/Linux or a Windows
+environment with symlink support. The development server does not generate Vercel output.
+
 ## Deploy
 
 The default adapter is **Vercel**. Import your generated repository, select SvelteKit,
