@@ -3,6 +3,26 @@
 Notable template changes follow [Semantic Versioning](https://semver.org/).
 During 0.x, minor releases may change template structure; patch releases are compatible fixes.
 
+## [0.6.0] - 2026-09-08
+
+### Added
+
+- Type-aware async/exhaustiveness linting, runtime/slice import boundaries and official
+  Convex validator/index/table-ID rules, with executable regression fixtures.
+- Optional Google OIDC login, encrypted bounded sessions and owner-scoped Convex notes CRUD.
+- Optional BYOK AI chat (OpenAI, Anthropic, Google) and official MCP SDK client/server,
+  configured model/tool allowlists, manual execution review and Composio guidance.
+- Node adapter and nonroot container target for VPS/Cloud Run deployment.
+
+### Changed
+
+- Override transitive cookie to patched 0.7.2; auth/browser checks cover the compatible API.
+- Feature screens load on demand while retaining initial SSR; navigation/data waiting
+  use accessible skeletons, render retry boundaries and safe error correlation IDs.
+- Agent contract and focused guides cover auth, AI/MCP, typed lint and deployment limits.
+- Auth recipe placeholders are replaced by actual Google settings; all new capabilities
+  remain off in a clean clone. No provider credentials or private project source is included.
+
 ## Unreleased
 
 ## 0.5.0 — 2026-09-08

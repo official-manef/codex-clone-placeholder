@@ -2,6 +2,58 @@ import { expect, test } from '@playwright/test';
 import { assets, assetMimeType } from '../assets.config';
 import { appConfig } from '../src/lib/config/app';
 
+test('optional features explain setup and expose no credentials in a clean clone', async ({
+	page,
+	request
+}) => {
+	await page.goto('/apps/notes');
+	await expect(page.getByText('Sign-in is not configured.', { exact: false })).toBeVisible();
+	const response = await request.get('/api/ai/config');
+	expect(response.status()).toBe(200);
+	expect(response.headers()['cache-control']).toBe('no-store');
+	expect(response.headers()['x-request-id']).toMatch(/^[a-f0-9-]{36}$/);
+	expect(await response.json()).toEqual({
+		ai: { enabled: false, providers: [] },
+		mcp: { enabled: false, servers: [] }
+	});
+	expect((await request.get('/auth/login')).status()).toBe(404);
+	expect((await request.post('/api/mcp/server', { data: {} })).status()).toBe(404);
+	await page.goto('/apps/assistant');
+	await expect(page.getByRole('heading', { name: 'Assistant', exact: true })).toBeVisible();
+	await expect(page.getByText('AI chat is disabled', { exact: false })).toBeVisible();
+});
+
+test('navigation loads feature code on demand and announces the pending screen', async ({
+	page
+}, testInfo) => {
+	await page.goto('/apps/dashboard');
+	await expect(page.getByRole('button', { name: 'Interaction kit' })).toBeEnabled();
+	let release!: () => void;
+	const gate = new Promise<void>((resolve) => {
+		release = resolve;
+	});
+	let requested = 0;
+	await page.route('**/_app/immutable/chunks/*.js', async (route) => {
+		requested++;
+		await gate;
+		await route.continue();
+	});
+	const nav = page.getByRole('navigation', {
+		name: testInfo.project.name === 'desktop' ? 'Apps' : 'Mobile app dock'
+	});
+	try {
+		const navigation = nav.getByRole('link', { name: 'Assistant', exact: true }).click();
+		await expect(page.getByRole('status')).toContainText('Loading Assistant');
+		expect(requested).toBeGreaterThan(0);
+		release();
+		await navigation;
+		await expect(page.getByRole('heading', { name: 'Assistant', exact: true })).toBeVisible();
+	} finally {
+		release();
+		await page.unrouteAll({ behavior: 'wait' });
+	}
+});
+
 test('branding, sharing metadata and asset files agree across navigation', async ({
 	page,
 	request

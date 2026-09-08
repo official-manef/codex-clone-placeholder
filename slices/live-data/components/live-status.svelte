@@ -19,13 +19,17 @@
 	</Card.Header>
 	<Card.Content>
 		{#if status.isLoading}
-			<div class="space-y-2" aria-label="Loading Convex status">
+			<div class="space-y-2" role="status" aria-label="Loading Convex status">
+				<span class="sr-only">Loading Convex status</span>
 				<Skeleton class="h-5 w-52" /><Skeleton class="h-4 w-72 max-w-full" />
 			</div>
 		{:else if status.error}
 			<p role="alert" class="text-sm text-destructive">
 				Could not reach the backend. Check your connection and Convex deployment, then reload.
 			</p>
+			<button type="button" class="mt-3 text-sm underline" onclick={() => window.location.reload()}
+				>Reload connection</button
+			>
 		{:else}
 			<p class="text-sm font-medium">{status.data.stack}</p>
 			<p class="mt-1 text-xs text-muted-foreground">

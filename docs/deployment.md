@@ -1,98 +1,170 @@
 # Deployment
 
-The checked-in adapter targets Vercel. Bun manages packages and scripts; deployed
-server functions use the adapter's supported Node runtime. Other hosts require their
-own compatible adapter and verification; the template does not deploy a Bun HTTP server.
+The starter builds for Vercel by default or a standalone Node server when
+`DEPLOY_TARGET=node`. Set this variable in the shell or hosting **build environment**;
+an empty or unsupported value fails configuration instead of choosing another host.
+Bun manages dependencies and build scripts. Production server code runs on Node.
 
-## Frontend or separately managed backend
+| Target                             | Build selection                  | Output / runtime                                   |
+| ---------------------------------- | -------------------------------- | -------------------------------------------------- |
+| Vercel                             | Unset or `DEPLOY_TARGET=vercel`  | Vercel adapter output and supported Node functions |
+| VPS, container host, GCP Cloud Run | `DEPLOY_TARGET=node`             | `build/`, started with `node build`                |
+| Cloudflare Workers                 | Product integration recipe below | No supported build target in this template yet     |
 
-Import the generated repository into Vercel:
+Run the repository gates before publishing an image or deployment. Commit regenerated
+artwork, prompts and manifests first: verification checks asset freshness and does not
+create final artwork. See [assets](assets.md) and [the release checklist](../CHECKLIST.md).
 
-| Setting         | Value                                                                        |
-| --------------- | ---------------------------------------------------------------------------- |
-| Framework       | SvelteKit                                                                    |
-| Root directory  | Repository root                                                              |
-| Install command | `bun install --frozen-lockfile`                                              |
-| Build command   | `bun run verify`                                                             |
-| Node runtime    | Supported Node major, with minimum patch in `.node-version` / `engines.node` |
+## Vercel
 
-Install devDependencies: verification and asset tooling need them. Leave
-`PUBLIC_CONVEX_URL` unset for the unlinked scaffold or select an already-deployed backend.
-This build command does not deploy Convex. No credentials are needed for the unlinked app.
+Import the generated repository with SvelteKit as the framework and the repository root
+as the root directory. Install with `bun install --frozen-lockfile`; build with
+`bun run verify`. Install devDependencies because validation and build tooling need them.
+Select a supported Node major with the minimum patch listed in `engines.node` and
+`.node-version`.
 
-Set `PUBLIC_SITE_URL` in **Production** to the final HTTPS origin, without path, query,
-fragment or credentials. It produces canonical and absolute social-image URLs. Leave it
-unset on previews to omit canonical tags. `PUBLIC_SEO_INDEXABLE` defaults false;
-set it true only in Production when the public site should be indexed. Keep it false
-on previews even if they have a canonical origin. The `/apps/*` examples
-remain noindex even with an origin; a public product page must make its own deliberate
-indexability decision. Metadata directives are not access control.
+Leave `PUBLIC_CONVEX_URL` unset for the unlinked scaffold or select an already-deployed
+backend. This build does not deploy Convex and needs no credentials for the unlinked app.
 
-Commit regenerated artwork, prompts and manifests before building. `bun run verify`
-validates asset freshness; it does not generate final artwork or repair stale config.
-See [the asset workflow](assets.md).
+## Standalone Node and Docker
 
-## Deploy web and Convex together
+On a Linux host with the repository's Bun and supported Node installed:
 
-1. Create the application's own Convex project with development and production deployments.
-2. Set `CONVEX_DEPLOY_KEY` in Vercel **Production only** to that deployment's production key.
-3. Set the Build Command to `bun run build:deploy`.
-4. Deploy and verify the intended frontend/backend revision and real configured flow.
+```sh
+bun install --frozen-lockfile
+DEPLOY_TARGET=node bun run verify
+HOST=127.0.0.1 PORT=3000 ORIGIN=http://localhost:3000 node build
+```
+
+For a separate runtime directory, ship `build/`, `package.json` and `bun.lock`, then
+install production dependencies with
+`bun install --production --frozen-lockfile --ignore-scripts`. The ignore flag avoids
+running the source project's prepare hook in a directory containing only build output.
+Start it with `node build`; the runtime does not need Bun after dependency installation.
+Production Node does not automatically read `.env` files. Supply host-managed variables,
+or use Node's `--env-file=/path/to/runtime.env` with a private file outside the repository.
+
+The included [Dockerfile](../Dockerfile) builds the Node target, installs the exact Bun
+version from `packageManager`, and copies only build output and production dependencies
+into a non-root Node runtime. `.dockerignore` excludes local environments and build
+artifacts. No service credentials or public production origin are baked into the image.
+
+```sh
+docker build --pull -t svelte-convex-starter:local .
+docker run --rm --name svelte-convex-starter-local \
+  -p 127.0.0.1:3000:3000 \
+  -e ORIGIN=http://localhost:3000 \
+  svelte-convex-starter:local
+```
+
+The default base tracks the supported Node 22 image. For reproducible production
+images, pass `--build-arg NODE_IMAGE=<reviewed-node-image@sha256:digest>` and deliberately
+update that digest for runtime security patches. Build on the target architecture or
+use the host's supported multi-platform builder.
+
+Put a TLS reverse proxy or managed ingress in front of the Node server. Set `ORIGIN`
+to its final HTTPS origin and `PUBLIC_SITE_URL` to the same public origin. `ORIGIN`
+controls SvelteKit request URLs and form-origin checks; `PUBLIC_SITE_URL` controls app
+metadata and configured authentication redirects. Prefer explicit `ORIGIN` over
+trusting arbitrary forwarded host/protocol headers. Configure trusted-proxy address
+headers only when the proxy strips/replaces client-supplied values.
+
+Preserve streaming responses through the proxy for AI chat; buffering the entire
+response defeats incremental output. Run the Node process under the host's supervisor
+or container lifecycle, and keep runtime files ephemeral: persistent data belongs in
+Convex or an explicitly implemented storage integration.
+
+## GCP Cloud Run
+
+Use the same Node container image. Cloud Run is a hosting choice; it does not replace
+Convex or require enabling optional GCP application services.
+
+Publish the image to the product's registry and configure a Cloud Run **service** with
+that image, its public origin, and runtime secrets. The server binds `0.0.0.0` and
+honors the injected `PORT`; Cloud Run terminates TLS. Set `ORIGIN` and `PUBLIC_SITE_URL`
+to the service's final public HTTPS origin before enabling authentication. Map secrets
+through the platform's secret facilities, not build arguments.
+
+Set the host's request timeout to accommodate the app's bounded streaming requests,
+and use `SHUTDOWN_TIMEOUT=8` to finish adapter shutdown within Cloud Run's termination
+window. Verify the configured origin, cookie behavior, response streaming and backend
+connection on an actual revision. Container portability is not evidence that a GCP
+account, IAM policy, domain or live service has been deployed.
+
+The starter's in-memory abuse counters are per instance. Configure shared quotas/rate
+limits when the product needs enforcement across scaled instances; do not treat one
+process's counter as a distributed limit.
+
+## Cloudflare options
+
+Cloudflare DNS/CDN can front the Node deployment without changing its adapter. Keep
+authenticated responses private and preserve streaming and origin behavior.
+
+Deploying the app inside **Workers** requires a separate verified integration. Use the
+maintained `@sveltejs/adapter-cloudflare`, a Wrangler configuration with an explicit
+compatibility date and `nodejs_compat`, then validate build size, runtime bindings and
+the APIs used by OIDC, crypto, AI and HTTP MCP clients. Node compatibility includes
+partial implementations and stubs; the flag alone is not a compatibility guarantee.
+Run local Worker tests and a product preview covering enabled flows before adding
+`cloudflare` to the accepted targets. The template deliberately has no untested
+Wrangler deployment file or Workers support claim.
+
+## Web and Convex deployment
+
+For linked deployment, create the application's own Convex project and separate
+development/production deployments. In Vercel Production, set that deployment's
+`CONVEX_DEPLOY_KEY` and use `bun run build:deploy` as the build command.
 
 The command runs the full offline gate, including a frontend build, before contacting
 Convex. Then `convex deploy` runs the linked web build with `PUBLIC_CONVEX_URL` injected.
-Remove a manually configured URL pointing at a different deployment; the CLI supplies
-the URL for this build. A passing build does not validate auth or provider configuration.
+For an explicitly selected Node build, the same command produces `build/`; shipping or
+running that artifact is still the host's deployment step. Remove a manually configured
+URL pointing at another backend. A passing build does not validate provider settings.
 
-## Preview isolation
+The deploy guard requires a preview key in Vercel Preview and a production key in
+Production, rejecting mismatches before remote changes. On other hosts, the operator
+must select the intended deployment key explicitly; the Vercel environment guard does
+not identify those hosts. Prefer separately managed Convex deployment and Node image
+publishing when the hosting pipeline needs that separation.
 
-Use a Convex **preview** deploy key in Vercel **Preview** only for isolated preview
-backends. The deploy guard requires a preview key in Vercel Preview and a production
-key in Production, rejecting mismatches before checks or remote changes. If isolated
-preview backends are unavailable, use a separate frontend-only preview project.
+Use isolated Convex preview backends with preview credentials. If they are unavailable,
+use an unlinked frontend preview. CI receives no production credentials. Keep backend
+keys, provider keys and private data out of untrusted preview environments.
 
-GitHub Actions receives no deployment credentials and runs checks only. Keep production
-provider keys, backend keys and private data out of preview environments. Apply the
-repository's review/branch policy before production updates.
+## Runtime environment and indexing
 
-## Environment ownership
+Set public and private app variables on the frontend host. For Convex actions, configure
+secrets on the intended Convex deployment separately; host variables do not transfer
+there automatically. Consult `.env.example`, the [environment consumer matrix](environment.md),
+and [integrations](integrations.md) for activation requirements. Do not expose resolved
+private config through page data, logs or public endpoints.
 
-| Values                              | Configure in                                   | Visibility / behavior                              |
-| ----------------------------------- | ---------------------------------------------- | -------------------------------------------------- |
-| `PUBLIC_SITE_URL`                   | Frontend host; optionally local `.env.local`   | Public HTTPS canonical origin; empty means noindex |
-| `PUBLIC_CONVEX_URL`                 | Local `.env.local` or injected linked build    | Public deployment URL                              |
-| `CONVEX_DEPLOYMENT`                 | Local `.env.local`, written by CLI             | Local CLI deployment selection                     |
-| `CONVEX_DEPLOY_KEY`                 | Scoped hosting secret environment              | Deployment secret; never `PUBLIC_*`                |
-| Payment/email flags and credentials | Runtime executing the adapter                  | Private; disabled by default                       |
-| Auth/GCP/Cloudflare settings        | Runtime of the implemented product integration | Flags alone do not implement these capabilities    |
+`PUBLIC_SITE_URL` is a public HTTP(S) origin without path, query, fragment or credentials;
+production uses HTTPS. It supplies canonical and absolute social-image URLs. Leave it
+unset on previews to omit canonical tags. `PUBLIC_SEO_INDEXABLE` defaults false; enable
+it only when the public production site should be indexed. Demo `/apps/*` routes remain
+noindex. These directives do not provide access control.
 
-For SvelteKit server execution, configure the frontend host's private environment. For
-Convex actions, set secrets on the intended Convex deployment; frontend host variables
-do not automatically transfer there. Consult `.env.example` for names and
-[the environment consumer matrix](environment.md) and [integrations](integrations.md)
-for provider settings, optional SEO metadata and activation requirements.
-Never commit live values or expose resolved private config through page data.
-
-DOKU/Resend transports are not safe public endpoints by themselves. Complete authorization,
-durable operation records, callback handling and sandbox lifecycle checks before enabling
-them for product users. Auth and GCP require implementation before their resolver accepts
-enabled use. No live provider lifecycle is established by the template's mock tests.
+Optional credentials and features remain disabled until configured. Test the enabled
+authentication, private-data, AI/MCP and provider flows in their real environment.
+DOKU/Resend transports still need durable operation records, callback handling and
+sandbox lifecycle verification before becoming a product's public payment/email flow.
 
 ## Verify and recover
 
-Verify that the host reports the expected commit as ready. Exercise the landing, main
-app routes, unknown routes, keyboard/mobile behavior and metadata on the actual domain.
-Confirm that all sharing images resolve and that previews remain noindex.
+Verify the expected commit, landing/app/error routes, keyboard/mobile behavior,
+metadata and sharing images on the deployed domain. Confirm preview noindex behavior
+and the intended Convex deployment/version. Exercise success, rejection, cancellation
+and expiry paths for the product's enabled capabilities.
 
-For changed Convex functions, invoke them against the intended development/local
-deployment and inspect real results before releasing. After deployment, verify the
-frontend is connected to the intended backend and both expose the expected version.
-Product auth/data/provider flows need their own acceptance evidence.
-
-Redeploy a known-good commit for frontend rollback. Check backend compatibility before
-rolling back functions or schema. Data migrations need a separate recovery plan;
-frontend rollback does not restore data or undo external payments/emails. Preserve
+Roll back the frontend to a known-good image or commit. Check backend compatibility
+before rolling back functions or schema. Data migrations need a separate recovery plan;
+frontend rollback cannot restore data or undo external payments/emails. Preserve
 operation IDs and reconcile uncertain provider outcomes during incidents.
 
-References: [SvelteKit Vercel adapter](https://svelte.dev/docs/kit/adapter-vercel),
+References: [Node adapter](https://svelte.dev/docs/kit/adapter-node),
+[Vercel adapter](https://svelte.dev/docs/kit/adapter-vercel),
+[Cloud Run container contract](https://docs.cloud.google.com/run/docs/container-contract),
+[Cloudflare adapter](https://svelte.dev/docs/kit/adapter-cloudflare),
+[Workers Node compatibility](https://developers.cloudflare.com/workers/runtime-apis/nodejs/),
 [Convex on Vercel](https://docs.convex.dev/production/hosting/vercel).

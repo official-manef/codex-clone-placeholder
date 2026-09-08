@@ -24,7 +24,9 @@ and the [Svelte 5 migration guide](https://svelte.dev/docs/svelte/v5-migration-g
 ## Routing and feature boundaries
 
 Root `slices/<slug>/` owns feature UI and behavior. Routes adapt framework params,
-loading, HTTP errors and metadata, then render slice exports. Cross-slice access uses
+loading, HTTP errors and metadata, then render slice exports. The registry stores a
+`loadScreen` dynamic import; the universal loader awaits it so SSR still renders content.
+Do not eagerly export screen components from metadata barrels. Cross-slice access uses
 `$features/<slug>` barrels; do not reach through another slice's private directories.
 Reuse the app registry for the existing `/apps/[slug]` page family. Different route
 behavior may justify a different route; a dynamic route is not a universal router.
@@ -87,3 +89,10 @@ Follow [DESIGN.md](../DESIGN.md) for keyboard, mobile, heading, focus and failur
 checks. Review the rendered document title, metadata and asset paths after changing
 product configuration. Test actual navigation and hydration rather than inspecting
 only static component source.
+
+Use the shared loading state for navigation and data waiting, with a descriptive live
+status and reduced-motion support. `svelte:boundary` handles rendering failures only;
+async event handlers and streams need explicit try/catch, cancellation and safe recovery.
+Keep recoverable drafts and partial output after errors. See [Svelte boundaries](https://svelte.dev/docs/svelte/svelte-boundary)
+and [universal loading](https://svelte.dev/docs/kit/load#Universal-vs-server).
+Typed async/import safeguards are documented in [linting.md](linting.md).

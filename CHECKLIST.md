@@ -7,7 +7,7 @@ that the template or a generated product has already passed each item.
 
 - [ ] `bun install --frozen-lockfile` succeeds with the declared runtimes.
 - [ ] `bun run verify`, `bun run test:e2e` and `bun run test:dev` pass without ignored errors.
-- [ ] Landing, dashboard, live data, settings and unknown routes behave correctly.
+- [ ] Landing, dashboard, live data, private notes, assistant, settings and unknown routes behave correctly.
 - [ ] Desktop, narrow phone, keyboard, menu focus and contained scrolling are verified.
 - [ ] Public identity, locale, page titles and metadata reflect the product configuration.
 - [ ] Assets and prompts are regenerated when config changes; custom assets survive regeneration.
@@ -18,7 +18,7 @@ that the template or a generated product has already passed each item.
 - [ ] Version manifest, package metadata and changelog agree.
 - [ ] README commands and agent guides match implemented behavior and known limitations.
 - [ ] New-session entry points link the current contract and relevant guides; no duplicate skill dump or stale project decision remains.
-- [ ] Environment values identify their actual consumer; recipe-only cloud/auth settings do not claim working features.
+- [ ] Environment values identify their actual consumer; recipe-only cloud service settings do not claim working features.
 - [ ] GitHub CI passes for the exact release commit and the release tag points to it.
 
 ## Activated product capabilities
@@ -40,3 +40,15 @@ Apply only the rows relevant to the product; record omissions explicitly in its 
 Mocked transport checks do not complete provider lifecycle rows. Follow the product
 [PRD](docs/prd-template.md), [integration](docs/integrations.md) and
 [deployment](docs/deployment.md) guides for the corresponding evidence.
+
+## Optional capability acceptance
+
+- [ ] Keep disabled capabilities credential-free and cover denied access before enabling them.
+- [ ] Google: register the exact callback, configure matching Convex audience, test real login,
+      refresh/logout and two-user isolation on the selected deployment.
+- [ ] AI/MCP: verify model access, cancellation, provider errors, exact tool review and key
+      clearing with a disposable scoped credential; no request-body logging.
+- [ ] Run the Node/container smoke test when shipping that target; configure trusted origin
+      and verify proxy streaming. Workers is a separate acceptance target.
+- [ ] Payment/email products implement durable state, deduplication/reconciliation and sandbox
+      lifecycle acceptance before exposing transport calls to users.

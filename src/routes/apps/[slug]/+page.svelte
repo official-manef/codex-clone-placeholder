@@ -1,6 +1,7 @@
 <script lang="ts">
-	import { AppShell, type AppSlug } from '$features/app-shell';
-	let { data }: { data: { slug: AppSlug } } = $props();
+	import { AppShell } from '$features/app-shell';
+	import type { PageProps } from './$types';
+	let { data }: PageProps = $props();
 </script>
 
-<AppShell activeSlug={data.slug} />
+<AppShell activeSlug={data.slug} screen={data.screen} />

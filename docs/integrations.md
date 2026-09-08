@@ -1,16 +1,20 @@
 # Optional integrations
 
-The default app uses Convex only. Payments, email, authentication, GCP and Cloudflare are disabled. This template includes callable **server-only transport adapters** for basic DOKU Checkout and Resend, tested with mocked HTTP responses. It does **not** include a payment ledger, webhook route, fulfillment system, email outbox, login flow or cloud deployment. No provider sandbox lifecycle has been run for these adapters. Complete the application requirements below before enabling them for users.
+Convex is the default backend. Google auth/private notes and BYOK AI/MCP are implemented,
+optional features: follow [auth.md](auth.md) and [ai-mcp.md](ai-mcp.md). Node/Vercel hosting
+is covered in [deployment.md](deployment.md). DOKU Checkout and Resend remain callable
+server transport adapters, tested with mocked HTTP. Product checkout/email workflows
+need their own durable state, authorization and actual merchant/mail acceptance.
 
 ## Configuration and boundaries
 
-`src/lib/server/integrations/config.ts` is the only resolver for private integration settings. Pass an environment record explicitly. It reads only the requested capability, validates enabled providers, and never accesses the environment at import time. Disabled services need no credentials; calling one throws instead of pretending to succeed. Unknown providers fail closed. A preferred provider is not automatically activated by the presence of a key.
+`src/lib/server/integrations/config.ts` resolves payment/email transports and guards optional cloud service recipes. Pass an environment record explicitly. It reads only the requested capability, validates enabled providers, and never accesses the environment at import time. Disabled services need no credentials; calling one throws instead of pretending to succeed. Unknown providers fail closed. A preferred provider is not automatically activated by the presence of a key.
 
 | Capability     | Activation              | Preferred provider / required settings                                                                        |
 | -------------- | ----------------------- | ------------------------------------------------------------------------------------------------------------- |
 | Payments       | `PAYMENTS_ENABLED=true` | `PAYMENT_PROVIDER=doku`, `DOKU_ENVIRONMENT=sandbox`, `DOKU_CLIENT_ID`, `DOKU_SECRET_KEY`                      |
 | Email          | `EMAIL_ENABLED=true`    | `EMAIL_PROVIDER=resend`, `RESEND_API_KEY`, `EMAIL_FROM`                                                       |
-| Authentication | Off                     | The resolver rejects `AUTH_ENABLED=true` until an application auth integration is implemented                 |
+| Authentication | `AUTH_ENABLED=true`     | Google OIDC; use [auth.md](auth.md) for actual settings and Convex audience.                                  |
 | GCP            | Off                     | The resolver rejects `GCP_ENABLED=true` until a concrete Google Cloud integration is implemented              |
 | Cloudflare     | Off                     | The resolver rejects `CLOUDFLARE_ENABLED=true` until a concrete Cloudflare service integration is implemented |
 
@@ -18,7 +22,7 @@ These flags alone do not activate features. Validation happens when the correspo
 
 `DOKU_ENVIRONMENT` accepts only `sandbox` or `production`; default is sandbox. Boolean settings accept `true` or `false`. Keep every key above private: never use a `PUBLIC_` prefix, expose the resolved config in page data, or log credentials/provider response bodies.
 
-In SvelteKit server code, pass `env` from `$env/dynamic/private` to the relevant function. SvelteKit protects the `$lib/server` directory against browser imports. Do not re-export these modules from public feature barrels. In a Convex **Node action** (`"use node"`), import the needed file by relative path and pass deployment `process.env`; install the secrets in the Convex deployment, not only the frontend host. Convex HTTP actions run in the default runtime: receive the raw body there and call an internal Node action for the Node-crypto signature utility. Never expose that internal bridge as a public signing or sending action.
+In SvelteKit server code, pass `env` from `$env/dynamic/private` to the relevant function. SvelteKit protects the `$lib/server` directory against browser imports. Do not re-export these modules from public feature barrels. To run a transport in a Convex **Node action** (`"use node"`), first move/extract its runtime-neutral implementation into a backend-owned module. The lint boundary forbids Convex imports from `src/lib/server`; pass the deployment environment after extraction and install secrets on that deployment. Convex HTTP actions run in the default runtime: receive the raw body there and call an internal Node action for the Node-crypto signature utility. Never expose that internal bridge as a public signing or sending action.
 
 Call `createCheckout(env, input)` from `payments.ts` or `sendEmail(env, input)` from `email.ts`. These are the service boundaries; there is no generic plugin engine. Both use fixed provider endpoints, reject redirects, abort requests after ten seconds, validate responses, and perform no automatic retries. A timeout can have an unknown external outcome: reconcile before retrying with the same logical attempt/delivery identity.
 
@@ -46,13 +50,12 @@ Application acceptance tests must cover duplicate/concurrent events, amount/curr
 
 Before exposing any email-triggering feature, implement authorization, recipient derivation, rate limits, a durable outbox/delivery record and retry ownership. Use a stable key such as `receipt/<order-id>` with an immutable payload; Resend remembers keys for 24 hours, so provider idempotency alone does not prevent duplicates forever. Same-key/different-payload conflicts require correcting the workflow; do not blindly generate another key. Bounce, complaint and delivery webhooks need their own signature checks and state handling when the product requires them. [Resend idempotency](https://resend.com/docs/dashboard/emails/idempotency-keys)
 
-## Authentication recipe
+## Authentication
 
-Choose auth when the PRD introduces private data. `convex-svelte` documents `setupAuth` and `useAuth`; hosted OIDC providers can supply a reactive state and token getter. Convex Auth and Better Auth have community-maintained Svelte adapters: check current compatibility before installing one. Implement one approach, including provider token issuer/audience configuration, refresh/sign-out, SSR token handling and login UI. Do not install React auth providers in Svelte. [Svelte authentication](https://docs.convex.dev/client/svelte/authentication)
-
-The optional `AUTH_PROVIDER=oidc`, `AUTH_ISSUER_URL`, `AUTH_AUDIENCE`, `AUTH_CLIENT_ID` and `AUTH_CLIENT_SECRET` names are planning conventions, not a universal auth SDK contract. Map only the settings required by the chosen library. For Convex OIDC, the configured issuer must exactly match token `iss`, and the application ID must match `aud`; do not assume OAuth client ID and token audience are interchangeable. A client secret belongs only to a confidential server-side client; never pass it to browser auth code. Configure exact callback URLs and the provider's supported secure authorization flow. [Convex custom OIDC](https://docs.convex.dev/auth/advanced/custom-auth)
-
-Every private Convex query/mutation/action must authenticate and enforce tenant/owner permissions on the server. Hiding navigation or waiting for `useAuth` is not authorization. Never use one mutable authenticated Convex client across SSR requests. Test anonymous, wrong-owner, wrong-tenant, revoked/expired token and sign-out flows before changing the auth resolver from its deliberate unsupported state.
+The optional Google OIDC implementation now lives in [auth.md](auth.md), including
+session/CSRF protections, Convex audience configuration and owner-scoped CRUD. Additional
+providers need a real integration and subject migration, not just a changed config value.
+AI and MCP use a Google session or a private operator token; provider keys remain BYOK.
 
 ## GCP recipe
 

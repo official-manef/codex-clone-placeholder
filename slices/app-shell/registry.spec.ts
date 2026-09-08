@@ -14,7 +14,7 @@ describe('app registry SSOT', () => {
 		for (const item of APP_REGISTRY) {
 			expect(item.label.length).toBeGreaterThan(0);
 			expect(item.description.length).toBeGreaterThan(0);
-			expect(item.screen).toBeTypeOf('function');
+			expect(item.loadScreen).toBeTypeOf('function');
 		}
 	});
 });

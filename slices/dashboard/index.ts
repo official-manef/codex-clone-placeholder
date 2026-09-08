@@ -1,7 +1,7 @@
-export { default as DashboardScreen } from './components/dashboard-screen.svelte';
 export const dashboardFeature = {
 	slug: 'dashboard',
 	label: 'Dashboard',
 	description: 'Full-width overview built from one root vertical slice.',
-	icon: 'dashboard'
+	icon: 'dashboard',
+	loadScreen: () => import('./components/dashboard-screen.svelte').then((module) => module.default)
 } as const;

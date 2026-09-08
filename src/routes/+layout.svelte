@@ -5,11 +5,39 @@
 	import { pageMetadata, pageIndexable, seoSettings } from '$lib/config/metadata';
 	import { page } from '$app/state';
 	import { env } from '$env/dynamic/public';
-	import { setupConvex } from 'convex-svelte';
+	import { setupConvex, setupAuth } from 'convex-svelte';
+	import type { LayoutProps } from './$types';
 
-	let { children } = $props();
+	let { children, data }: LayoutProps = $props();
 	const convexUrl = env.PUBLIC_CONVEX_URL;
-	if (convexUrl) setupConvex(convexUrl);
+	if (convexUrl) {
+		setupConvex(convexUrl);
+		setupAuth(() => ({
+			isLoading: false,
+			isAuthenticated: Boolean(data.auth.session),
+			fetchAccessToken: async ({ forceRefreshToken }) => {
+				if (!data.auth.session) return null;
+				try {
+					const response = await fetch('/auth/token', {
+						method: 'POST',
+						headers: { 'content-type': 'application/json' },
+						body: JSON.stringify({ forceRefreshToken }),
+						signal: AbortSignal.timeout(15_000)
+					});
+					if (!response.ok) return null;
+					const result: unknown = await response.json();
+					return result &&
+						typeof result === 'object' &&
+						'idToken' in result &&
+						typeof result.idToken === 'string'
+						? result.idToken
+						: null;
+				} catch {
+					return null;
+				}
+			}
+		}));
+	}
 	const seo = seoSettings(env);
 	const metadata = $derived(
 		pageMetadata(

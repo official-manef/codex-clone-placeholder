@@ -21,6 +21,8 @@ conversation history is supporting context, not a substitute for current files.
 | Schema, functions and private data | [Convex](docs/convex-best-practices.md)                                  |
 | Layout, accessibility and identity | [Design](DESIGN.md), [assets](docs/assets.md)                            |
 | Payment, email, auth or cloud      | [Integrations](docs/integrations.md), [environment](docs/environment.md) |
+| Auth, private notes, AI or MCP     | [Auth](docs/auth.md), [AI/MCP](docs/ai-mcp.md)                           |
+| Type-aware lint or import rules    | [Linting](docs/linting.md)                                               |
 | Deployment or release              | [Deployment](docs/deployment.md), [releasing](docs/releasing.md)         |
 
 ## Work within the contract

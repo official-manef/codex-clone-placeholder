@@ -45,7 +45,20 @@ For the 0.4 migration from 0.3:
 - Read the canonical `AGENTS.md`, `DESIGN.md` and focused implementation guides. Adapt
   the PRD to the product instead of importing historical example requirements.
 
-The base Convex schema remains empty, so this template release adds no data migration.
+The historical 0.4 baseline had an empty Convex schema and added no data migration.
 A generated product with its own tables must review schema and runtime compatibility.
 Provider changes need explicit handling for old transactions, callbacks and identities;
 see [integrations](integrations.md).
+
+## Updating from 0.5 to 0.6
+
+The template adds an optional owner-scoped `notes` table and Google auth configuration.
+Review name collisions before merging into a product with existing data. Set matching
+Google client IDs on frontend and Convex only when enabling auth; an unset ID preserves
+the unlinked baseline. Regenerate Convex types after merging schema/functions.
+
+Feature barrels now export metadata and `loadScreen`, not eager screen components.
+Update custom registry entries to the lazy API. New typed lint/import checks can reveal
+existing Promise or boundary issues; fix those boundaries rather than disabling the gate.
+Google settings replace the old auth recipe fields. AI/MCP remain disabled until models,
+endpoints, scopes and credentials are configured. Node hosting is selected at build time.

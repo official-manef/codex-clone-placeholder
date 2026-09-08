@@ -8,6 +8,10 @@ export default defineConfig({
 	testMatch: '**/*.e2e.{ts,js}',
 	webServer: {
 		env: {
+			AUTH_ENABLED: 'false',
+			AI_ENABLED: 'false',
+			MCP_CLIENT_ENABLED: 'false',
+			MCP_SERVER_ENABLED: 'false',
 			PUBLIC_CONVEX_URL: '',
 			PUBLIC_SITE_URL: 'https://starter.example',
 			PUBLIC_SEO_INDEXABLE: 'true',

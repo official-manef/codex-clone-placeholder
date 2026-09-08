@@ -1,9 +1,9 @@
 # Convex best practices
 
 Read `src/convex/schema.ts` and the existing functions before editing. `convex.json`
-selects this backend directory. The base schema is empty and `starter.status` exposes
-public build metadata only. The starter does not contain private CRUD or production
-authentication; do not infer either from its workspace UI.
+selects this backend directory. `starter.status` exposes public build metadata; the
+`notes` table and CRUD functions require verified identity and indexed ownership.
+Optional Google auth is described in [auth.md](auth.md). Workspace UI grants no permissions.
 
 ## Types, validation and visibility
 
@@ -29,7 +29,7 @@ or SvelteKit route gate cannot grant access. Apply equivalent checks to actions 
 calling external services. Public exceptions must be explicit and disclose no private
 data, as in `starter.status`.
 
-Choose an auth provider compatible with the current Svelte integration. `setupAuth`
+The included Google OIDC provider uses the current Svelte integration. `setupAuth`
 and `useAuth` are the documented client boundary; an adapter may be community-maintained.
 Verify issuer/audience configuration, token refresh, sign-out, unauthenticated denial
 and cross-user isolation. SSR credentials belong to the current request, never a
@@ -78,8 +78,9 @@ See [actions](https://docs.convex.dev/functions/actions) and
 Secrets for Convex code belong in that Convex deployment's environment; SvelteKit
 environment values do not automatically appear there. Do not use SvelteKit aliases
 such as `$lib/server` or SvelteKit environment modules in Convex. Node-compatible
-integration modules can be imported by relative path from a Node action as described
-in [integrations](integrations.md). Shared domain/config modules must stay runtime-neutral.
+integration code must first be moved/extracted into a backend-owned runtime-neutral
+module before a Node action imports it; `src/lib/server` stays inside the SvelteKit boundary.
+See [integrations](integrations.md). Shared domain/config modules must stay runtime-neutral.
 Separate development, preview and production credentials.
 
 Use Convex storage first for product uploads. Persist storage IDs, resolve URLs when

@@ -1,5 +1,9 @@
 <script lang="ts">
-	import { onMount } from 'svelte';
+	import { onMount, type Component } from 'svelte';
+	import { navigating } from '$app/state';
+	import FileText from '@lucide/svelte/icons/file-text';
+	import MessageSquare from '@lucide/svelte/icons/message-square';
+	import { LoadingState } from '$lib/components/app-ui';
 	import LayoutDashboard from '@lucide/svelte/icons/layout-dashboard';
 	import Activity from '@lucide/svelte/icons/activity';
 	import Settings from '@lucide/svelte/icons/settings';
@@ -14,14 +18,22 @@
 	import { APP_REGISTRY, getApp, type AppSlug } from '../registry';
 	import type { FeatureIcon } from '../types';
 
-	let { activeSlug }: { activeSlug: AppSlug } = $props();
+	let { activeSlug, screen: Screen }: { activeSlug: AppSlug; screen: Component } = $props();
 	let ready = $state(false);
 	onMount(() => {
 		ready = true;
 	});
 	const activeApp = $derived(getApp(activeSlug) ?? APP_REGISTRY[0]);
-	const Screen = $derived(activeApp.screen);
-	const icons = { dashboard: LayoutDashboard, activity: Activity, settings: Settings } as const;
+	const icons = {
+		dashboard: LayoutDashboard,
+		activity: Activity,
+		settings: Settings,
+		notes: FileText,
+		assistant: MessageSquare
+	} as const;
+	const loadingLabel = $derived(
+		`Loading ${getApp(navigating.to?.params?.slug ?? '')?.label ?? 'page'}`
+	);
 	const workspaces = [
 		{ id: 'starter', label: 'Starter workspace' },
 		{ id: 'preview', label: 'Preview workspace' }
@@ -103,8 +115,21 @@
 			</DropdownMenu.Root>
 		</header>
 
-		<section data-app-scroll class="app-content-scroll">
-			<Screen />
+		<section data-app-scroll class="app-content-scroll" aria-busy={Boolean(navigating.to)}>
+			{#if navigating.to}<LoadingState label={loadingLabel} />{/if}
+			<div hidden={Boolean(navigating.to)}>
+				{#key activeSlug}
+					<svelte:boundary>
+						<Screen />
+						{#snippet failed(_error, reset)}
+							<div role="alert" class="space-y-3">
+								<p>This section could not be displayed.</p>
+								<Button onclick={reset}>Try again</Button>
+							</div>
+						{/snippet}
+					</svelte:boundary>
+				{/key}
+			</div>
 		</section>
 	</main>
 

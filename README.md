@@ -19,22 +19,26 @@ Start without credentials; connect your own Convex deployment when the product n
 - Desktop rail, mobile dock, accessible menu and shared shadcn-svelte/app UI primitives.
 - Public brand configuration, canonical/social metadata and eight replaceable asset placeholders.
 - Asset generation/check commands and brand-aware prompts for final artwork.
-- Optional Convex connection, committed generated types and a validated public status query.
+- Optional Convex connection, committed generated types, public status and owner-scoped notes.
+- Optional Google sign-in, BYOK chat and manually reviewed MCP calls using maintained SDKs.
+- Lazy feature screens with initial server rendering, dynamic skeletons and safe error recovery.
 - Disabled server transport adapters for basic DOKU Checkout/signature verification and Resend email.
-- Prettier, ESLint, Vitest, Playwright, GitHub Actions, version checks and MIT licensing.
+- Type-aware ESLint/import boundaries, Vitest, Playwright, CI, version checks and MIT licensing.
 
-| Capability              | Included                                                               | Product work still required                                                                    |
-| ----------------------- | ---------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------- |
-| Backend                 | Convex status query; empty schema; frontend works unlinked             | Product schema, authorized reads/writes and real deployment                                    |
-| Payments                | DOKU transport and signature utility; mocked HTTP tests                | Orders, webhook route, deduplication, fulfillment, reconciliation and merchant sandbox testing |
-| Email                   | Resend send transport with required idempotency key; mocked HTTP tests | Authorized triggers, sender setup, durable delivery/outbox handling and real delivery testing  |
-| Auth / GCP / Cloudflare | Integration recipes and explicit unsupported resolver states           | Select and implement a compatible auth provider or a specific cloud service                    |
+| Capability     | Included                                                         | Configuration or product acceptance                                                                 |
+| -------------- | ---------------------------------------------------------------- | --------------------------------------------------------------------------------------------------- |
+| Backend / auth | Public status, Google OIDC and owner-scoped notes CRUD           | Own Convex deployment, Google web client and matching audience; tenant sharing is product-specific. |
+| AI chatbot     | BYOK OpenAI/Anthropic/Google streaming, cancel and recovery      | Approve current model IDs; users provide their own keys.                                            |
+| MCP            | Official SDK client, manual tool review, read-only status server | Configure private HTTPS aliases and exact tools; Composio direct-tool setup is documented.          |
+| Payments       | DOKU transport and signature verification                        | Orders, webhook deduplication, fulfillment and merchant sandbox acceptance.                         |
+| Email          | Resend transport with required idempotency key                   | Authorized triggers, verified sender and durable delivery/outbox acceptance.                        |
+| Hosting        | Vercel and Node/container targets                                | VPS/Cloud Run deployment settings; Cloudflare Workers/services are separate recipes.                |
 
-Payments, email, authentication, GCP and Cloudflare are **disabled by default**. Provider selection
-is not feature activation. Auth/cloud resolvers reject enabled settings when called until
-their application integration exists. Workspace switching and settings are local examples,
-not accounts, tenancy or durable preferences. No complete provider sandbox lifecycle has
-been exercised by this template. [Read the integration boundaries](docs/integrations.md).
+All optional capabilities are **disabled by default**. BYOK credentials and conversation
+history stay in current request/tab memory; no shared server key pays for user requests.
+Workspace switching/settings remain local examples. Product-specific provider credentials,
+account setup and real external acceptance are required before public activation.
+[Read the integration boundaries](docs/integrations.md).
 
 ## Quick start
 
@@ -58,6 +62,8 @@ Open [localhost:5173](http://localhost:5173). No environment file is required.
 | `/`               | Starter entry page                        |
 | `/apps/dashboard` | Stack versions and interaction examples   |
 | `/apps/live-data` | Convex setup state or live backend status |
+| `/apps/notes`     | Google sign-in/setup and private notes    |
+| `/apps/assistant` | Optional BYOK chat and MCP tools          |
 | `/apps/settings`  | Local form state and template version     |
 | `/apps/<unknown>` | Real HTTP 404                             |
 
@@ -107,7 +113,8 @@ PUBLIC_CONVEX_URL=https://your-deployment.convex.cloud
 ```
 
 Restart the web server and open `/apps/live-data`. The status query returns public
-build metadata; it is not a database or authentication example. After changing backend
+build metadata. For the authenticated CRUD example, follow [Google auth setup](docs/auth.md)
+and open `/apps/notes`. After changing backend
 functions, run `bun run convex:codegen` and commit the generated types. Read
 [Convex best practices](docs/convex-best-practices.md) before adding private data.
 
@@ -162,7 +169,7 @@ separate. On Windows, Vercel output needs symlink permission: if builds fail wit
 └── .github/                     # CI and contributor templates
 ```
 
-`$features/*` resolves to root `slices/*`. Add a slice, export its screen/definition,
+`$features/*` resolves to root `slices/*`. Add a slice, export its metadata and lazy `loadScreen`,
 then register it once. [Architecture](docs/architecture.md) explains the boundaries.
 
 ## Guides
@@ -176,10 +183,13 @@ then register it once. [Architecture](docs/architecture.md) explains the boundar
 | Svelte / Convex implementation          | [Svelte](docs/svelte-best-practices.md), [Convex](docs/convex-best-practices.md)            |
 | Branding and generated artwork          | [Assets](docs/assets.md), [prompts](docs/assets-prompts.md)                                 |
 | Payment, email, auth and cloud          | [Optional integrations](docs/integrations.md), [environment](docs/environment.md)           |
+| Auth and BYOK AI/MCP                    | [Google/notes](docs/auth.md), [AI/MCP and Composio](docs/ai-mcp.md)                         |
+| Typed lint and runtime boundaries       | [Linting](docs/linting.md)                                                                  |
 | Hosting, release and upgrades           | [Deployment](docs/deployment.md), [releasing](docs/releasing.md), [checklist](CHECKLIST.md) |
 | Contributions and security              | [Contributing](CONTRIBUTING.md), [security policy](SECURITY.md)                             |
 
-The default adapter targets Vercel. Use `bun run verify` for a frontend build or
+The default adapter targets Vercel; `DEPLOY_TARGET=node` builds a standalone Node app,
+and the Dockerfile supplies a portable nonroot container. Use `bun run verify` for a frontend build or
 `bun run build:deploy` with correctly scoped Convex keys for a linked deployment.
 Generated repositories have independent histories; review upstream release notes and
 selectively port changes instead of replacing customized product code.
