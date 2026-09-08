@@ -48,6 +48,11 @@ Access browser APIs only in a browser-safe lifecycle and never during SSR module
 initialization. See [state management](https://svelte.dev/docs/kit/state-management)
 and [server-only modules](https://svelte.dev/docs/kit/server-only-modules).
 
+Controls that only work with JavaScript stay disabled until their handlers are ready;
+keep native links and server forms usable before hydration. The shared segmented
+control uses `onMount` for this boundary. Test readiness and keyboard input without
+fixed sleeps; see [hydration testing](https://playwright.dev/docs/navigations#hydration).
+
 ## Data, forms and errors
 
 Initialize the Convex client at the existing layout boundary. `useQuery` supplies a
@@ -75,7 +80,8 @@ personal data. The disabled/unlinked state is distinct from a failed request.
 Run `bun run check` and `bun run lint` after changes. Use Svelte's current
 [AI tooling](https://svelte.dev/docs/ai/overview) or autofixer when available, then
 verify behavior; an autofixer is not an acceptance test. Add a focused regression test
-for non-trivial behavior. Before release run `bun run verify` and `bun run test:e2e`.
+for non-trivial behavior. Release gates include `bun run verify`, `bun run test:e2e`
+and `bun run test:dev`.
 
 Follow [DESIGN.md](../DESIGN.md) for keyboard, mobile, heading, focus and failure-state
 checks. Review the rendered document title, metadata and asset paths after changing

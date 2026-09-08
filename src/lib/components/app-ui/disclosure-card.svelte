@@ -6,12 +6,11 @@
 	let {
 		summary,
 		children,
-		open = $bindable(false),
 		class: className
-	}: { summary: string; children: Snippet; open?: boolean; class?: string } = $props();
+	}: { summary: string; children: Snippet; class?: string } = $props();
 </script>
 
-<details bind:open class={cn('app-disclosure-card', className)}>
+<details class={cn('app-disclosure-card group', className)}>
 	<summary>
 		<span>{summary}</span>
 		<ChevronDown class="size-4 transition-transform group-open:rotate-180" />

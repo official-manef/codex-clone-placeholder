@@ -12,11 +12,15 @@ During 0.x, minor releases may change template structure; patch releases are com
 - A compact session entry point and maintained `CONTRACT.md`, with task-specific context loading and practical Ponytail/Caveman/optional RTK guidance.
 - An environment consumer matrix and optional OIDC, GCP and Cloudflare configuration examples; Cloudflare has the same explicit unsupported guard as the auth/GCP recipes.
 - Explicit SEO indexing opt-in, optional Google/Bing verification and Twitter/X attribution, plus robots and sitemap endpoints driven by shared settings.
+- A development-server browser smoke check in CI alongside production browser coverage.
 
 ### Changed
 
 - Design guidance addresses concrete copy, truthful state, accessible controls and context-dependent visual choices. Landing, settings and Convex setup copy reflect actual behavior.
 - Removed the unused Svelte Testing Library dependency; browser and existing unit checks remain the verification tools.
+- Allowed root feature slices through Vite's development filesystem boundary so their client modules load; unrelated root files remain outside the allowlist.
+- Segmented controls and the workspace menu stay disabled until hydration so early keyboard/click input is not silently lost.
+- Native disclosures retain an early open state across hydration; removed their unused controlled-state API.
 
 ### Migration notes
 

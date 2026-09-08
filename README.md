@@ -120,6 +120,7 @@ functions, run `bun run convex:codegen` and commit the generated types. Read
 | `bun run lint` / `bun run format`                 | Check style and syntax / format files                          |
 | `bun run test`                                    | Run Vitest unit tests                                          |
 | `bun run test:e2e`                                | Build and exercise browser flows                               |
+| `bun run test:dev`                                | Check development modules and keyboard navigation              |
 | `bun run build` / `bun run preview`               | Build production output / preview it locally                   |
 | `bun run verify`                                  | Check → lint → unit tests → production build                   |
 | `bun run assets:generate`                         | Generate placeholders/manifests while preserving custom assets |
@@ -135,6 +136,7 @@ required. Before releasing:
 bun run verify
 bunx playwright install chromium
 bun run test:e2e
+bun run test:dev
 ```
 
 On a new Linux CI machine use `bunx playwright install --with-deps chromium`. GitHub CI

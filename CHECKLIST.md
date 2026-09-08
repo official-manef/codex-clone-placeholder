@@ -6,7 +6,7 @@ that the template or a generated product has already passed each item.
 ## Template and application baseline
 
 - [ ] `bun install --frozen-lockfile` succeeds with the declared runtimes.
-- [ ] `bun run verify` and `bun run test:e2e` pass without ignored errors.
+- [ ] `bun run verify`, `bun run test:e2e` and `bun run test:dev` pass without ignored errors.
 - [ ] Landing, dashboard, live data, settings and unknown routes behave correctly.
 - [ ] Desktop, narrow phone, keyboard, menu focus and contained scrolling are verified.
 - [ ] Public identity, locale, page titles and metadata reflect the product configuration.

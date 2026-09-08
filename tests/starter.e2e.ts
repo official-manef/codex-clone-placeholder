@@ -65,6 +65,9 @@ test('fresh clone boots, opens live-data and preserves keyboard navigation', asy
 }, testInfo) => {
 	const errors: string[] = [];
 	page.on('pageerror', (error) => errors.push(error.message));
+	page.on('response', (response) => {
+		if (response.status() >= 400) errors.push(`HTTP ${response.status()}: ${response.url()}`);
+	});
 	const response = await page.goto('/');
 	expect(response?.status()).toBe(200);
 	await expect(page).toHaveTitle('Svelte Convex Starter');
@@ -72,6 +75,7 @@ test('fresh clone boots, opens live-data and preserves keyboard navigation', asy
 	expect(response?.headers()['x-content-type-options']).toBe('nosniff');
 	await page.getByRole('link', { name: 'Open starter' }).click();
 	const modes = page.getByRole('group', { name: 'Dashboard reference mode' });
+	await expect(modes.getByRole('button', { name: 'Architecture' })).toBeEnabled();
 	await modes.getByRole('button', { name: 'Architecture' }).focus();
 	await page.keyboard.press('Tab');
 	await page.keyboard.press('Enter');
@@ -93,6 +97,36 @@ test('fresh clone boots, opens live-data and preserves keyboard navigation', asy
 		page.getByRole('button', { name: 'Switch workspace: Starter workspace' })
 	).toBeFocused();
 	expect(errors).toEqual([]);
+});
+
+test('client controls wait for hydration', async ({ page }) => {
+	let resumeScripts!: () => void;
+	const scriptsReady = new Promise<void>((resolve) => (resumeScripts = resolve));
+	await page.route('**/*', async (route) => {
+		if (route.request().resourceType() === 'script') await scriptsReady;
+		await route.continue();
+	});
+	try {
+		await page.goto('/apps/settings', { waitUntil: 'commit' });
+		const menu = page.getByRole('button', { name: 'Switch workspace: Starter workspace' });
+		const mode = page.getByRole('button', { name: 'Interface', exact: true });
+		await expect(menu).toBeDisabled();
+		await expect(mode).toBeDisabled();
+		await page.getByLabel('Workspace name').fill('Typed before hydration');
+		await page.getByText('Advanced template rules', { exact: true }).click();
+		await expect(page.locator('details')).toHaveAttribute('open', '');
+		resumeScripts();
+		await expect(menu).toBeEnabled();
+		await expect(page.getByLabel('Workspace name')).toHaveValue('Typed before hydration');
+		await expect(page.getByText('Typed before hydration', { exact: true })).toBeVisible();
+		await expect(page.locator('details')).toHaveAttribute('open', '');
+		await mode.click();
+		await expect(mode).toHaveAttribute('aria-pressed', 'true');
+		await menu.click();
+		await expect(page.getByRole('menu')).toBeVisible();
+	} finally {
+		resumeScripts();
+	}
 });
 
 test('dynamic app shell stays responsive and semantic', async ({ page }, testInfo) => {

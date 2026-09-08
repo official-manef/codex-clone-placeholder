@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { onMount } from 'svelte';
 	import LayoutDashboard from '@lucide/svelte/icons/layout-dashboard';
 	import Activity from '@lucide/svelte/icons/activity';
 	import Settings from '@lucide/svelte/icons/settings';
@@ -14,6 +15,10 @@
 	import type { FeatureIcon } from '../types';
 
 	let { activeSlug }: { activeSlug: AppSlug } = $props();
+	let ready = $state(false);
+	onMount(() => {
+		ready = true;
+	});
 	const activeApp = $derived(getApp(activeSlug) ?? APP_REGISTRY[0]);
 	const Screen = $derived(activeApp.screen);
 	const icons = { dashboard: LayoutDashboard, activity: Activity, settings: Settings } as const;
@@ -79,6 +84,7 @@
 
 			<DropdownMenu.Root>
 				<DropdownMenu.Trigger
+					disabled={!ready}
 					class="app-workspace-trigger"
 					aria-label={`Switch workspace: ${workspace.label}`}
 				>

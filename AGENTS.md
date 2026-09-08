@@ -33,7 +33,7 @@ or required behavior with a shortcut. Do not invent completed features or test r
 ## Finish with evidence
 
 Run checks appropriate to the change; release work runs `bun run verify`,
-`bun run test:e2e` and [CHECKLIST.md](CHECKLIST.md). Review full relevant diffs and
+`bun run test:e2e`, `bun run test:dev` and [CHECKLIST.md](CHECKLIST.md). Review full relevant diffs and
 unfiltered gate results; summarized output alone is not release evidence.
 
 Update [CONTRACT.md](CONTRACT.md) when a shared invariant or source of truth changes.

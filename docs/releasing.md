@@ -11,7 +11,7 @@ pushes or publishes, and `bun run check` rejects inconsistent manifests.
 3. If brand/catalog inputs changed, run `assets:generate`, `assets:prompts` and `assets:check`.
    Confirm custom artwork is preserved and commit generated outputs with their inputs.
 4. Regenerate `bun.lock` with the declared Bun version when dependency/package metadata requires it.
-5. Run `bun install --frozen-lockfile`, `bun run verify` and `bun run test:e2e`.
+5. Run `bun install --frozen-lockfile`, `bun run verify`, `bun run test:e2e` and `bun run test:dev`.
 6. Complete [CHECKLIST.md](../CHECKLIST.md), commit and obtain green CI on the exact release revision.
 7. Tag that commit `v<version>` and publish its GitHub release from the changelog within the authorized scope.
 

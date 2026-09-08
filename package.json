@@ -37,6 +37,7 @@
 		"assets:prompts": "bun scripts/assets.ts prompts",
 		"test:unit": "vitest run",
 		"test:e2e": "playwright test",
+		"test:dev": "playwright test --config playwright.dev.config.ts",
 		"test": "bun run test:unit",
 		"convex:dev": "convex dev",
 		"convex:codegen": "convex codegen",
