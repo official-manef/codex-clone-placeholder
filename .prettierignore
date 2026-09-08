@@ -5,6 +5,9 @@ yarn.lock
 bun.lock
 bun.lockb
 
+# Local agent state and evidence
+.agent/
+
 # Miscellaneous
 /static/
 src/convex/_generated/
