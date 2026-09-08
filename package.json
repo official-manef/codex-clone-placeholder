@@ -1,14 +1,33 @@
 {
 	"name": "svelte-convex-starter",
 	"private": true,
-	"version": "0.2.0",
+	"version": "0.3.0",
+	"description": "Svelte 5 Runes, SvelteKit, Bun and Convex starter with typed feature slices and an adaptive app shell.",
+	"license": "MIT",
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/rahmanef63/template-svelte-convex-starter.git"
+	},
+	"bugs": {
+		"url": "https://github.com/rahmanef63/template-svelte-convex-starter/issues"
+	},
+	"homepage": "https://github.com/rahmanef63/template-svelte-convex-starter#readme",
+	"keywords": [
+		"svelte",
+		"sveltekit",
+		"bun",
+		"convex",
+		"typescript",
+		"starter",
+		"template"
+	],
 	"type": "module",
 	"scripts": {
 		"dev": "vite dev",
 		"build": "vite build",
 		"preview": "vite preview",
-		"prepare": "svelte-kit sync || echo ''",
-		"check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
+		"prepare": "svelte-kit sync",
+		"check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json && tsc --noEmit -p src/convex && node scripts/version.mjs --check",
 		"check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch",
 		"lint": "prettier --check . && eslint . && bun run lint:svelte5",
 		"lint:svelte5": "node scripts/check-svelte5.mjs",
@@ -18,6 +37,8 @@
 		"test": "bun run test:unit",
 		"convex:dev": "convex dev",
 		"convex:codegen": "convex codegen",
+		"build:deploy": "bun run verify && convex deploy --cmd 'bun run build' --cmd-url-env-var-name PUBLIC_CONVEX_URL",
+		"version:bump": "node scripts/version.mjs",
 		"verify": "bun run check && bun run lint && bun run test && bun run build"
 	},
 	"devDependencies": {
@@ -48,9 +69,10 @@
 		"vite": "8.2.2",
 		"vitest": "4.1.11"
 	},
-	"packageManager": "bun@1.4.0",
+	"packageManager": "bun@1.4.2",
 	"engines": {
-		"bun": ">=1.4.0 <2"
+		"bun": ">=1.4.2 <2",
+		"node": "^22.23.2 || ^24.15.0"
 	},
 	"dependencies": {
 		"@lucide/svelte": "^1.37.0",

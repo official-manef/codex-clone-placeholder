@@ -4,11 +4,11 @@ This is the single source of truth for AI-assisted coding in this repository.
 
 ## Active stack
 
-Reviewed against official docs and registry releases on 2026-08-31:
+Reviewed against official docs and registry releases on 2026-09-08. Exact versions live in `package.json` and `bun.lock`; compatibility decisions live in `TECHSTACK.md`:
 
 - Svelte 5.57.0 — **Runes only for new code**
 - SvelteKit 2.70.3
-- Bun 1.4.0 — only package manager / lockfile
+- Bun — only package manager / lockfile; Node CLI/runtime support is pinned in `.node-version`
 - TypeScript 6.0.3 — latest version compatible with SvelteKit 2.70.3
 - Vite 8.2.2
 - Tailwind CSS 4.3.3
@@ -46,7 +46,7 @@ When an API may have changed, consult the official Svelte docs and use Svelte's 
 
 The clone must boot without Convex credentials. Once linked, use `convex-svelte` directly. `useQuery()` is already reactive; do not wrap it in `$derived` merely to make it reactive.
 
-Every public Convex function validates args. Any user-owned write must authenticate and authorize ownership server-side. Growing reads are indexed and bounded/paginated. After a deployment is linked, run codegen and prefer generated `api`/data-model types over handwritten duplicates.
+Every registered Convex function validates args and returns. User-owned reads and writes authenticate and authorize ownership server-side. Growing reads are indexed and bounded/paginated. Use generated `api`/data-model types; regenerate with the official CLI and commit them. Never edit `_generated` by hand. The public `starter.status` query exposes build metadata only; do not copy its public access policy into private features.
 
 Do not transplant React auth providers into Svelte. `convex-svelte` exposes `setupAuth`/`useAuth`; choose an auth adapter only after verifying its current Svelte support and label community-maintained adapters honestly.
 
@@ -64,7 +64,11 @@ Before shipping run:
 bun run verify
 ```
 
-Then drive `/`, `/apps/dashboard`, `/apps/live-data`, `/apps/settings`, an invalid `/apps/...`, the mobile sheet, and bottom navigation in a real browser at mobile and desktop widths. A green typecheck is not browser proof.
+Then run `bun run test:e2e` and drive `/`, `/apps/dashboard`, `/apps/live-data`, `/apps/settings`, an invalid `/apps/...`, the workspace menu, and bottom navigation at mobile and desktop widths. A green typecheck is not browser proof. See `CHECKLIST.md` before release.
+
+## Repository and releases
+
+`version.json` is the template version source. Use `bun run version:bump <MAJOR.MINOR.PATCH>` to synchronize `package.json`, and update `CHANGELOG.md`. `bun run check` verifies consistency. UI versions derive from `src/lib/version.ts`. Keep environment examples empty by default so copying them preserves the unlinked demo. Follow `docs/releasing.md`; generated repositories have independent Git histories.
 
 ## Dynamic UI kit contract
 

@@ -1,5 +1,37 @@
 import { expect, test } from '@playwright/test';
 
+test('fresh clone boots, opens live-data and preserves keyboard navigation', async ({
+	page
+}, testInfo) => {
+	const errors: string[] = [];
+	page.on('pageerror', (error) => errors.push(error.message));
+	const response = await page.goto('/');
+	expect(response?.status()).toBe(200);
+	expect(response?.headers()['x-content-type-options']).toBe('nosniff');
+	await page.getByRole('link', { name: 'Open starter' }).click();
+	const modes = page.getByRole('group', { name: 'Dashboard reference mode' });
+	await modes.getByRole('button', { name: 'Architecture' }).focus();
+	await page.keyboard.press('Tab');
+	await page.keyboard.press('Enter');
+	await expect(modes.getByRole('button', { name: 'Interaction kit' })).toHaveAttribute(
+		'aria-pressed',
+		'true'
+	);
+	const nav = page.getByRole('navigation', {
+		name: testInfo.project.name === 'desktop' ? 'Apps' : 'Mobile app dock'
+	});
+	await nav.getByRole('link', { name: 'Live data' }).click();
+	await expect(page.getByText('Convex is ready to link')).toBeVisible();
+	await page.getByRole('button', { name: 'Switch workspace: Starter workspace' }).click();
+	await expect(page.getByRole('menu')).toBeVisible();
+	await page.keyboard.press('Escape');
+	await expect(page.getByRole('menu')).toBeHidden();
+	await expect(
+		page.getByRole('button', { name: 'Switch workspace: Starter workspace' })
+	).toBeFocused();
+	expect(errors).toEqual([]);
+});
+
 test('dynamic app shell stays responsive and semantic', async ({ page }, testInfo) => {
 	await page.goto('/apps/dashboard');
 	await expect(page.getByRole('heading', { name: 'Dashboard' })).toBeVisible();
@@ -22,7 +54,7 @@ test('dynamic app shell stays responsive and semantic', async ({ page }, testInf
 		scroll: node.scrollWidth
 	}));
 
-	if (testInfo.project.name === 'mobile') {
+	if (testInfo.project.name !== 'desktop') {
 		await expect(page.getByRole('navigation', { name: 'Mobile app dock' })).toBeVisible();
 		await expect(page.getByRole('navigation', { name: 'Apps' })).toBeHidden();
 		expect(rail.scroll).toBeGreaterThan(rail.client);
@@ -32,13 +64,13 @@ test('dynamic app shell stays responsive and semantic', async ({ page }, testInf
 		expect(rail.scroll).toBeLessThanOrEqual(rail.client + 1);
 	}
 
-	await page.getByRole('tab', { name: 'Interaction kit' }).click();
+	await page.getByRole('button', { name: 'Interaction kit' }).click();
 	await expect(page.getByText('Adaptive grid', { exact: true })).toBeVisible();
 	const interactionGrid = page.locator('.app-feature-grid').first();
 	const columns = await interactionGrid.evaluate(
 		(node) => getComputedStyle(node).gridTemplateColumns.split(' ').filter(Boolean).length
 	);
-	if (testInfo.project.name === 'mobile') expect(columns).toBe(1);
+	if (testInfo.project.name !== 'desktop') expect(columns).toBe(1);
 	else expect(columns).toBeGreaterThan(1);
 });
 
@@ -56,9 +88,9 @@ test('workspace utility is separate from breadcrumb state', async ({ page }) => 
 
 test('settings use local modes and progressive disclosure', async ({ page }) => {
 	await page.goto('/apps/settings');
-	await page.getByRole('tab', { name: 'Interface' }).click();
+	await page.getByRole('button', { name: 'Interface' }).click();
 	await expect(page.getByText('App-first mobile', { exact: true })).toBeVisible();
-	await page.getByRole('tab', { name: 'Workspace' }).click();
+	await page.getByRole('button', { name: 'Workspace' }).click();
 	await page.getByText('Advanced template rules').click();
 	await expect(page.getByText(/Keep user customization in data\/config/)).toBeVisible();
 });

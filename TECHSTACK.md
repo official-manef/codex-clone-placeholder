@@ -1,39 +1,38 @@
 # Technology contract
 
-| Layer                     | Choice                                                      |
-| ------------------------- | ----------------------------------------------------------- |
-| Runtime / package manager | Bun 1.4.0                                                   |
-| Framework                 | Svelte 5.57.0 + SvelteKit 2.70.3                            |
-| Language                  | TypeScript 6.0.3 (latest SvelteKit-compatible)              |
-| Build                     | Vite 8.2.2                                                  |
-| UI                        | Tailwind CSS 4.3.3 + shadcn-svelte 1.5.1 + Bits UI + Lucide |
-| Backend                   | Convex 1.45.0 + convex-svelte 0.14.0                        |
-| Deploy                    | @sveltejs/adapter-vercel 6.3.4                              |
-| Tests                     | Vitest 4.1.11 + Playwright 1.62.1                           |
+Versions were checked against registry metadata and official docs on 2026-09-08.
+`package.json` defines compatibility; `bun.lock` records exact installed versions.
 
-## Why TypeScript 6 instead of 7?
+| Layer           | Choice                                                 |
+| --------------- | ------------------------------------------------------ |
+| Package manager | Bun 1.4.2                                              |
+| Tooling runtime | Node 22.23.2; supported alternatives in `engines.node` |
+| Framework       | Svelte 5.57.0 + SvelteKit 2.70.3                       |
+| Language        | TypeScript 6.0.3                                       |
+| Build           | Vite 8.2.2                                             |
+| UI              | Tailwind 4.3.3 + shadcn-svelte 1.5.1 + Bits UI 2.19.0  |
+| Backend         | Convex 1.45.0 + convex-svelte 0.14.0                   |
+| Deploy          | @sveltejs/adapter-vercel 6.3.4                         |
+| Tests           | Vitest 4.1.11 + Playwright 1.62.1                      |
 
-TypeScript 7.0.2 is newer globally, but SvelteKit 2.70.3 declares support for TypeScript `^5.3.3 || ^6.0.0`. This starter chooses the latest compatible release, 6.0.3, instead of shipping an invalid "latest everything" combination.
+## Compatibility over indiscriminate upgrades
 
-## Convex linking
+SvelteKit 2.70.3 supports TypeScript `^5.3.3 || ^6.0.0`; TypeScript 6.0.3 stays within
+that range. Core framework dependencies stay pinned. Dependabot opens reviewed minor/patch
+updates and separate major updates; unsupported TypeScript/Node-type major updates are excluded.
 
-The repository deliberately builds before a Convex project exists. Link it later:
+Bun is the package manager and script launcher. Some CLIs still use Node, and Vercel server
+functions run on Node. Installing Bun alone does not satisfy those toolchain requirements.
 
-```sh
-bunx convex dev
-```
+## Backend and UI boundaries
 
-That writes the deployment config and enables codegen. Expose the public client URL as `PUBLIC_CONVEX_URL`. The demo live-data slice activates automatically when the variable exists.
+Convex linking is optional for frontend startup. Generated API types are committed.
+Auth remains a deliberate product integration. See [architecture](docs/architecture.md).
 
-The working copy could not provision a dedicated cloud project during initial creation because the team was already at its Convex deployment quota; no existing project was reused or mutated as a workaround.
+shadcn-svelte and Bits UI own accessible controls. Shared `app-ui` components own layout
+patterns; feature slices compose them; SvelteKit routes adapt them.
+See [UIUX.md](UIUX.md) for the existing responsive interaction contract.
 
-## UI interaction layer
-
-The Svelte starter keeps framework primitives and product-layout primitives separate:
-
-- shadcn-svelte + Bits UI own low-level accessible controls;
-- `src/lib/components/app-ui/` owns reusable app composition such as adaptive grids, snap rails, segmented local modes, signal banners, disclosures, and measured viewport snap;
-- `slices/*` compose those primitives around feature tasks;
-- routes remain adapters only.
-
-This avoids a second breakpoint/layout system inside each feature and keeps the same structural contract portable across future Svelte slices without copying page markup.
+Official references: [SvelteKit](https://svelte.dev/docs/kit),
+[Convex Svelte](https://docs.convex.dev/client/svelte/overview),
+[Bun](https://bun.sh/docs), [shadcn-svelte](https://www.shadcn-svelte.com/docs).

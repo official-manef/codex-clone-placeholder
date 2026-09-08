@@ -1,10 +1,14 @@
-import { queryGeneric } from 'convex/server';
+import { v } from 'convex/values';
+import { query } from './_generated/server';
+import manifest from '../../../version.json';
 
-export const status = queryGeneric({
+// Public by design: this returns build metadata only, never user data.
+export const status = query({
 	args: {},
+	returns: v.object({ ok: v.literal(true), stack: v.string(), version: v.string() }),
 	handler: async () => ({
 		ok: true as const,
 		stack: 'Svelte 5 Runes + Bun + Convex',
-		generatedAt: Date.now()
+		version: manifest.version
 	})
 });

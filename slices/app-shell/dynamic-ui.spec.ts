@@ -33,7 +33,7 @@ describe('dynamic app UI contract', () => {
 		expect(snap).toContain('height >= viewport * 0.88');
 		expect(snap).toContain('$effect');
 		expect(segmented).toContain('$bindable');
-		expect(segmented).toContain('role="tablist"');
+		expect(segmented).toContain('aria-pressed={value === item.id}');
 		expect(segmented).toContain('onclick={() => select(item.id)}');
 	});
 });

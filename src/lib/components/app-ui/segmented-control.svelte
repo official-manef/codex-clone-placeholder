@@ -19,14 +19,9 @@
 	}
 </script>
 
-<div class="app-segmented-control" role="tablist" aria-label={label}>
+<div class="app-segmented-control" role="group" aria-label={label}>
 	{#each items as item (item.id)}
-		<button
-			type="button"
-			role="tab"
-			aria-selected={value === item.id}
-			onclick={() => select(item.id)}
-		>
+		<button type="button" aria-pressed={value === item.id} onclick={() => select(item.id)}>
 			{item.label}
 		</button>
 	{/each}

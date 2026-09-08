@@ -1,15 +1,11 @@
 <script lang="ts">
 	import { useQuery } from 'convex-svelte';
-	import { makeFunctionReference } from 'convex/server';
+	import { api } from '../../../src/convex/_generated/api';
 	import * as Card from '$lib/components/ui/card';
 	import { Badge } from '$lib/components/ui/badge';
 	import { Skeleton } from '$lib/components/ui/skeleton';
 
-	type StarterStatus = { ok: true; stack: string; generatedAt: number };
-	const statusRef = makeFunctionReference<'query', Record<string, never>, StarterStatus>(
-		'starter:status'
-	);
-	const status = useQuery(statusRef, {});
+	const status = useQuery(api.starter.status, {});
 </script>
 
 <Card.Root>
@@ -27,11 +23,13 @@
 				<Skeleton class="h-5 w-52" /><Skeleton class="h-4 w-72 max-w-full" />
 			</div>
 		{:else if status.error}
-			<p class="text-sm text-destructive">{status.error.message}</p>
+			<p role="alert" class="text-sm text-destructive">
+				Could not reach the backend. Check your connection and Convex deployment, then reload.
+			</p>
 		{:else}
 			<p class="text-sm font-medium">{status.data.stack}</p>
 			<p class="mt-1 text-xs text-muted-foreground">
-				Backend timestamp: {new Date(status.data.generatedAt).toLocaleString()}
+				Backend template version: {status.data.version}
 			</p>
 		{/if}
 	</Card.Content>

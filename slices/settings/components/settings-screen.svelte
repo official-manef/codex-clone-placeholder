@@ -2,6 +2,7 @@
 	import * as Card from '$lib/components/ui/card';
 	import { Input } from '$lib/components/ui/input';
 	import { Badge } from '$lib/components/ui/badge';
+	import { bunVersion, templateVersion } from '$lib/version';
 	import {
 		DisclosureCard,
 		FeatureGrid,
@@ -48,9 +49,10 @@
 				<Card.Content class="space-y-3 text-sm">
 					<div class="flex items-center justify-between gap-3">
 						<span class="text-muted-foreground">Package manager</span><code
-							class="rounded-lg bg-muted px-3 py-2">Bun 1.4+</code
+							class="rounded-lg bg-muted px-3 py-2">Bun {bunVersion}</code
 						>
 					</div>
+					<p class="text-muted-foreground">Template version {templateVersion}</p>
 					<div class="flex items-center justify-between gap-3">
 						<span class="text-muted-foreground">Svelte syntax</span><Badge variant="outline"
 							>Runes only</Badge

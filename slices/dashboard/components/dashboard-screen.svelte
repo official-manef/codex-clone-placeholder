@@ -1,6 +1,7 @@
 <script lang="ts">
 	import * as Card from '$lib/components/ui/card';
 	import { Badge } from '$lib/components/ui/badge';
+	import { stackVersions as metrics } from '$lib/version';
 	import {
 		DisclosureCard,
 		FeatureGrid,
@@ -11,12 +12,6 @@
 		type SegmentItem
 	} from '$lib/components/app-ui';
 
-	const metrics = [
-		{ label: 'Svelte', value: '5.57.0', hint: 'Runes mode' },
-		{ label: 'SvelteKit', value: '2.70.3', hint: 'Vercel adapter' },
-		{ label: 'Convex', value: '1.45.0', hint: 'Optional until linked' },
-		{ label: 'Bun', value: '1.4.0', hint: 'Package manager' }
-	] as const;
 	const modes = [
 		{ id: 'architecture', label: 'Architecture' },
 		{ id: 'interaction', label: 'Interaction kit' }

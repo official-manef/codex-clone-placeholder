@@ -22,8 +22,8 @@
 					></Card.Header
 				>
 				<Card.Content class="text-sm leading-6 text-muted-foreground"
-					>A fresh clone still builds without credentials. Once linked, generated Convex types
-					become the preferred client contract.</Card.Content
+					>A fresh clone still builds without credentials. Once linked, the generated API types keep
+					the client and backend in sync.</Card.Content
 				>
 			</Card.Root>
 		</FeatureGrid>
@@ -61,8 +61,8 @@
 						></Card.Header
 					>
 					<Card.Content class="text-sm leading-6 text-muted-foreground"
-						>Run Convex codegen, replace handwritten function references as features mature, and
-						keep growing reads indexed and bounded.</Card.Content
+						>Regenerate Convex types after adding functions, and keep growing reads indexed and
+						bounded.</Card.Content
 					>
 				</Card.Root>
 			</FeatureGrid>
