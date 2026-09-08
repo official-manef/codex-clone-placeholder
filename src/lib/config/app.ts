@@ -3,16 +3,15 @@ export const appConfig = {
 	name: 'Svelte Convex Starter',
 	shortName: 'Svelte Convex',
 	description:
-		'A Svelte 5, SvelteKit, Bun and Convex starter with typed feature slices and a responsive application shell.',
+		'A SvelteKit and Bun starter with example screens, Convex setup, and guides for building your application.',
 	locale: 'en',
 	themeColor: '#171717',
 	backgroundColor: '#fafafa',
-	tagline: 'Runes starter',
+	tagline: 'Application starter',
 	landing: {
-		badge: 'Svelte 5 Runes starter',
-		title: 'Full-stack Svelte, already structured for AI-assisted work.',
-		description:
-			'Bun + SvelteKit + shadcn-svelte + optional Convex, with root vertical slices and one dynamic page registry.',
+		badge: 'Svelte + Bun + Convex',
+		title: 'Build your Svelte app from here.',
+		description: 'Explore the example screens, then connect your own Convex backend.',
 		action: 'Open starter'
 	}
 } as const;

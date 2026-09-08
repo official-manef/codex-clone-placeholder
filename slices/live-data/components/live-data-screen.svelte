@@ -9,9 +9,8 @@
 
 <div class="space-y-5">
 	{#if configured}
-		<SignalBanner title="Convex is linked">
-			The reactive query below is live. Keep query state in convex-svelte instead of mirroring it
-			into duplicate local state.
+		<SignalBanner title="Convex URL configured">
+			Check the query result below to confirm that your backend is reachable.
 		</SignalBanner>
 		<FeatureGrid density="comfortable">
 			<LiveStatus />
@@ -28,16 +27,16 @@
 			</Card.Root>
 		</FeatureGrid>
 	{:else}
-		<SignalBanner title="Convex is optional at boot">
-			Ship the frontend scaffold first, then link a deployment when the feature actually needs
-			realtime persistence.
+		<SignalBanner title="Connect your backend">
+			The frontend works without a backend connection. Follow the steps below when you need data
+			from Convex.
 		</SignalBanner>
 		<ViewportSnapSection>
 			<FeatureGrid density="comfortable">
 				<Card.Root>
 					<Card.Header>
 						<Card.Title class="flex flex-wrap items-center gap-2"
-							>Convex is ready to link <Badge variant="outline">Optional boot</Badge></Card.Title
+							>Convex is ready to link <Badge variant="outline">Not configured</Badge></Card.Title
 						>
 						<Card.Description
 							>The frontend still builds cleanly before a Convex deployment exists.</Card.Description

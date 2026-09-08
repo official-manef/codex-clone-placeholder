@@ -22,7 +22,9 @@ This build command does not deploy Convex. No credentials are needed for the unl
 
 Set `PUBLIC_SITE_URL` in **Production** to the final HTTPS origin, without path, query,
 fragment or credentials. It produces canonical and absolute social-image URLs. Leave it
-unset on previews to keep them noindex and omit canonical tags. The `/apps/*` examples
+unset on previews to omit canonical tags. `PUBLIC_SEO_INDEXABLE` defaults false;
+set it true only in Production when the public site should be indexed. Keep it false
+on previews even if they have a canonical origin. The `/apps/*` examples
 remain noindex even with an origin; a public product page must make its own deliberate
 indexability decision. Metadata directives are not access control.
 
@@ -62,12 +64,13 @@ repository's review/branch policy before production updates.
 | `CONVEX_DEPLOYMENT`                 | Local `.env.local`, written by CLI             | Local CLI deployment selection                     |
 | `CONVEX_DEPLOY_KEY`                 | Scoped hosting secret environment              | Deployment secret; never `PUBLIC_*`                |
 | Payment/email flags and credentials | Runtime executing the adapter                  | Private; disabled by default                       |
-| Auth/GCP settings                   | Runtime of the implemented product integration | Flags alone do not implement these capabilities    |
+| Auth/GCP/Cloudflare settings        | Runtime of the implemented product integration | Flags alone do not implement these capabilities    |
 
 For SvelteKit server execution, configure the frontend host's private environment. For
 Convex actions, set secrets on the intended Convex deployment; frontend host variables
 do not automatically transfer there. Consult `.env.example` for names and
-[integrations](integrations.md) for provider settings and activation requirements.
+[the environment consumer matrix](environment.md) and [integrations](integrations.md)
+for provider settings, optional SEO metadata and activation requirements.
 Never commit live values or expose resolved private config through page data.
 
 DOKU/Resend transports are not safe public endpoints by themselves. Complete authorization,

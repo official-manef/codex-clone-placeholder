@@ -6,7 +6,14 @@ const baseURL = `http://127.0.0.1:${port}`;
 export default defineConfig({
 	testMatch: '**/*.e2e.{ts,js}',
 	webServer: {
-		env: { PUBLIC_CONVEX_URL: '', PUBLIC_SITE_URL: 'https://starter.example' },
+		env: {
+			PUBLIC_CONVEX_URL: '',
+			PUBLIC_SITE_URL: 'https://starter.example',
+			PUBLIC_SEO_INDEXABLE: 'true',
+			PUBLIC_GOOGLE_SITE_VERIFICATION: 'google-test-token',
+			PUBLIC_BING_SITE_VERIFICATION: 'BING_TEST_TOKEN',
+			PUBLIC_TWITTER_SITE: '@starter'
+		},
 		command: `bun run build && bun run preview -- --host 127.0.0.1 --port ${port}`,
 		url: baseURL,
 		reuseExistingServer: false

@@ -31,7 +31,7 @@
 						>Workspace <Badge variant="secondary">{cleanWorkspaceName}</Badge></Card.Title
 					>
 					<Card.Description
-						>State stays local in the starter until a real workspace slice owns persistence.</Card.Description
+						>This name is a local preview. It resets when you leave this page or reload.</Card.Description
 					>
 				</Card.Header>
 				<Card.Content>
@@ -42,8 +42,8 @@
 
 			<Card.Root>
 				<Card.Header
-					><Card.Title>Runtime contract</Card.Title><Card.Description
-						>One package manager and one modern Svelte mode.</Card.Description
+					><Card.Title>Runtime versions</Card.Title><Card.Description
+						>Bun manages packages and scripts. New Svelte code uses Runes.</Card.Description
 					></Card.Header
 				>
 				<Card.Content class="space-y-3 text-sm">

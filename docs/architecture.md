@@ -67,7 +67,7 @@ for disabled or unsupported usage. It does not validate all flags during app sta
 Payments prefer DOKU and email prefers Resend when enabled; unused services need no keys.
 
 The included transports/signature helper have mocked HTTP tests. They provide no public
-endpoints, order ledger, fulfillment, email outbox, login flow or GCP deployment. Auth/GCP
+endpoints, order ledger, fulfillment, email outbox, login flow or cloud deployment. Auth/GCP/Cloudflare
 remain recipes: their resolver rejects enabled use until implemented. A configuration
 flag cannot complete these flows or migrate old transactions to a new provider.
 
@@ -81,7 +81,10 @@ for transport constraints, webhook verification and lifecycle acceptance tests.
 
 The public app config and catalog drive page titles, descriptions, icons and sharing
 images. `PUBLIC_SITE_URL` supplies an explicit canonical origin; incoming host headers
-do not choose it. Unconfigured pages and the demo app routes are noindex.
+do not choose it. `PUBLIC_SEO_INDEXABLE` defaults false and requires that origin when
+enabled. Preview sites and demo app routes are noindex. The robots and sitemap endpoints
+use the same settings; only the shipped public landing URL is included in the sitemap.
+See [the environment consumer matrix](environment.md).
 
 The asset script writes committed placeholders, file fingerprints and a web manifest;
 it preserves entries marked `custom`. This is build tooling, not an AI client or an

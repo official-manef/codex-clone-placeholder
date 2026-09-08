@@ -1,19 +1,20 @@
 # Optional integrations
 
-The default app uses Convex only. Payments, email, authentication and GCP are disabled. This template includes callable **server-only transport adapters** for basic DOKU Checkout and Resend, tested with mocked HTTP responses. It does **not** include a payment ledger, webhook route, fulfillment system, email outbox, login flow or GCP deployment. No provider sandbox lifecycle has been run for these adapters. Complete the application requirements below before enabling them for users.
+The default app uses Convex only. Payments, email, authentication, GCP and Cloudflare are disabled. This template includes callable **server-only transport adapters** for basic DOKU Checkout and Resend, tested with mocked HTTP responses. It does **not** include a payment ledger, webhook route, fulfillment system, email outbox, login flow or cloud deployment. No provider sandbox lifecycle has been run for these adapters. Complete the application requirements below before enabling them for users.
 
 ## Configuration and boundaries
 
 `src/lib/server/integrations/config.ts` is the only resolver for private integration settings. Pass an environment record explicitly. It reads only the requested capability, validates enabled providers, and never accesses the environment at import time. Disabled services need no credentials; calling one throws instead of pretending to succeed. Unknown providers fail closed. A preferred provider is not automatically activated by the presence of a key.
 
-| Capability     | Activation              | Preferred provider / required settings                                                           |
-| -------------- | ----------------------- | ------------------------------------------------------------------------------------------------ |
-| Payments       | `PAYMENTS_ENABLED=true` | `PAYMENT_PROVIDER=doku`, `DOKU_ENVIRONMENT=sandbox`, `DOKU_CLIENT_ID`, `DOKU_SECRET_KEY`         |
-| Email          | `EMAIL_ENABLED=true`    | `EMAIL_PROVIDER=resend`, `RESEND_API_KEY`, `EMAIL_FROM`                                          |
-| Authentication | Off                     | The resolver rejects `AUTH_ENABLED=true` until an application auth integration is implemented    |
-| GCP            | Off                     | The resolver rejects `GCP_ENABLED=true` until a concrete Google Cloud integration is implemented |
+| Capability     | Activation              | Preferred provider / required settings                                                                        |
+| -------------- | ----------------------- | ------------------------------------------------------------------------------------------------------------- |
+| Payments       | `PAYMENTS_ENABLED=true` | `PAYMENT_PROVIDER=doku`, `DOKU_ENVIRONMENT=sandbox`, `DOKU_CLIENT_ID`, `DOKU_SECRET_KEY`                      |
+| Email          | `EMAIL_ENABLED=true`    | `EMAIL_PROVIDER=resend`, `RESEND_API_KEY`, `EMAIL_FROM`                                                       |
+| Authentication | Off                     | The resolver rejects `AUTH_ENABLED=true` until an application auth integration is implemented                 |
+| GCP            | Off                     | The resolver rejects `GCP_ENABLED=true` until a concrete Google Cloud integration is implemented              |
+| Cloudflare     | Off                     | The resolver rejects `CLOUDFLARE_ENABLED=true` until a concrete Cloudflare service integration is implemented |
 
-These flags alone do not activate features. Validation happens when the corresponding resolver or adapter is called.
+These flags alone do not activate features. Validation happens when the corresponding resolver or adapter is called. The [environment reference](environment.md) lists every setting, its consumer and whether it is implemented or a recipe. Filling recipe values does not install a provider or make SDK calls.
 
 `DOKU_ENVIRONMENT` accepts only `sandbox` or `production`; default is sandbox. Boolean settings accept `true` or `false`. Keep every key above private: never use a `PUBLIC_` prefix, expose the resolved config in page data, or log credentials/provider response bodies.
 
@@ -49,6 +50,8 @@ Before exposing any email-triggering feature, implement authorization, recipient
 
 Choose auth when the PRD introduces private data. `convex-svelte` documents `setupAuth` and `useAuth`; hosted OIDC providers can supply a reactive state and token getter. Convex Auth and Better Auth have community-maintained Svelte adapters: check current compatibility before installing one. Implement one approach, including provider token issuer/audience configuration, refresh/sign-out, SSR token handling and login UI. Do not install React auth providers in Svelte. [Svelte authentication](https://docs.convex.dev/client/svelte/authentication)
 
+The optional `AUTH_PROVIDER=oidc`, `AUTH_ISSUER_URL`, `AUTH_AUDIENCE`, `AUTH_CLIENT_ID` and `AUTH_CLIENT_SECRET` names are planning conventions, not a universal auth SDK contract. Map only the settings required by the chosen library. For Convex OIDC, the configured issuer must exactly match token `iss`, and the application ID must match `aud`; do not assume OAuth client ID and token audience are interchangeable. A client secret belongs only to a confidential server-side client; never pass it to browser auth code. Configure exact callback URLs and the provider's supported secure authorization flow. [Convex custom OIDC](https://docs.convex.dev/auth/advanced/custom-auth)
+
 Every private Convex query/mutation/action must authenticate and enforce tenant/owner permissions on the server. Hiding navigation or waiting for `useAuth` is not authorization. Never use one mutable authenticated Convex client across SSR requests. Test anonymous, wrong-owner, wrong-tenant, revoked/expired token and sign-out flows before changing the auth resolver from its deliberate unsupported state.
 
 ## GCP recipe
@@ -56,6 +59,16 @@ Every private Convex query/mutation/action must authenticate and enforce tenant/
 Keep Convex as the system of record. Add a named Google Cloud service only when the PRD needs it, such as Cloud Storage for an explicit storage requirement or Cloud Run for a workload outside Convex. Select the corresponding SvelteKit adapter/runtime if hosting the frontend there; do not assume the current Vercel adapter deploys to Cloud Run.
 
 Use Application Default Credentials for local development, a user-managed service account attached to Cloud Run with minimal IAM privileges in production, and workload identity federation for supported external workloads/CI. Do not commit service-account JSON keys or set `GOOGLE_APPLICATION_CREDENTIALS` on Cloud Run when using service identity. A Convex-hosted action is not automatically a GCP identity; select and verify its authentication bridge explicitly before enabling calls. [Cloud Run service identity](https://docs.cloud.google.com/run/docs/securing/service-identity), [external workload authentication](https://docs.cloud.google.com/run/docs/reference/authenticate-to-cloud-run-api)
+
+`GCP_PROJECT_ID`, `GCP_LOCATION` and `GCP_STORAGE_BUCKET` are unused until that service exists; a bucket name does not create storage or permissions. The commented `GOOGLE_APPLICATION_CREDENTIALS` example is an optional local path to an ADC credential configuration file, never JSON contents. Usually local `gcloud auth application-default login` supplies ADC without that override. [ADC search order](https://cloud.google.com/docs/authentication/application-default-credentials)
+
+## Cloudflare recipe
+
+Choose the actual purpose first: DNS/proxy management, a Worker-hosted frontend, or a product service. Simply placing a domain behind Cloudflare requires no Cloudflare API token in this app. `CLOUDFLARE_ACCOUNT_ID`, `CLOUDFLARE_ZONE_ID` and `CLOUDFLARE_API_TOKEN` are unused infrastructure planning settings until an integration calls the appropriate API. Use a scoped API token limited to the selected account/zone and required permissions; do not use a global API key. Keep infrastructure credentials in deployment tooling when the application has no operational need for them. [Cloudflare API tokens](https://developers.cloudflare.com/fundamentals/api/get-started/create-token/)
+
+For Workers hosting, replace the current Vercel adapter with the supported Cloudflare adapter, configure Wrangler and its compatibility settings, and test the generated Worker before deploying. Workers product bindings are runtime objects, not ordinary `.env` strings; access them through the adapter's platform context. A Convex action or Vercel server cannot access a Workers binding by setting its name in `.env`: it needs the service's authenticated HTTP API or a separately implemented bridge. Verify Node API compatibility before moving the existing Node-crypto adapter into Workers. [SvelteKit on Workers](https://developers.cloudflare.com/workers/framework-guides/web-apps/sveltekit/)
+
+R2, Turnstile, DNS mutations and Worker deployment are not installed. Add each service's required bindings/secrets and runtime validation only when the PRD selects it. Implement and verify the capability before replacing the resolver's deliberate unsupported state. These app flags do not constrain external vendor CLIs, which have their own environment/configuration rules.
 
 ## Changing a provider without losing state
 

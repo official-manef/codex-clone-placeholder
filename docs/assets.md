@@ -5,7 +5,9 @@ Edit `src/routes/layout.css` for UI design tokens; the browser theme color is br
 not a replacement for accessible light/dark UI tokens. Set `PUBLIC_SITE_URL` to your HTTPS
 origin when deploying. Titles and descriptions combine this identity with the page registry.
 Without an origin, canonical tags are omitted and indexing is disabled. App examples remain
-noindex. Never put secrets, user records or provider credentials in public configuration.
+noindex. Public production indexing also requires `PUBLIC_SEO_INDEXABLE=true`; previews
+keep it false even when they have an origin. See [environment settings](environment.md).
+Never put secrets, user records or provider credentials in public configuration.
 
 `assets.config.ts` owns asset paths, dimensions, placeholder/custom status and prompt briefs.
 The shell, favicon links, Open Graph/Twitter metadata and generated web manifest use this catalog.

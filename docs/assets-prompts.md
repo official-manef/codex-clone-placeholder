@@ -49,7 +49,7 @@ Create a maskable variant of the approved Svelte Convex Starter app icon. Essent
 - Canvas: 1200 × 630
 - Status: placeholder
 
-Create a social sharing illustration for Svelte Convex Starter: A Svelte 5, SvelteKit, Bun and Convex starter with typed feature slices and a responsive application shell.. Follow the approved brand mark and #171717 palette. Leave safe margins and room for the title. Do not generate text; overlay the exact app name with typography in a design tool after generation.
+Create a social sharing illustration for Svelte Convex Starter: A SvelteKit and Bun starter with example screens, Convex setup, and guides for building your application.. Follow the approved brand mark and #171717 palette. Leave safe margins and room for the title. Do not generate text; overlay the exact app name with typography in a design tool after generation.
 
 ## hero
 
@@ -57,7 +57,7 @@ Create a social sharing illustration for Svelte Convex Starter: A Svelte 5, Svel
 - Canvas: 1600 × 900
 - Status: placeholder
 
-Create a product hero illustration for Svelte Convex Starter: A Svelte 5, SvelteKit, Bun and Convex starter with typed feature slices and a responsive application shell.. Show only capabilities approved in the PRD. Use the approved visual direction and #171717 accent. No fake product screenshots, statistics, testimonials, logos, or text.
+Create a product hero illustration for Svelte Convex Starter: A SvelteKit and Bun starter with example screens, Convex setup, and guides for building your application.. Show only capabilities approved in the PRD. Use the approved visual direction and #171717 accent. No fake product screenshots, statistics, testimonials, logos, or text.
 
 ## emptyState
 

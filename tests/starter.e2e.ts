@@ -28,6 +28,22 @@ test('branding, sharing metadata and asset files agree across navigation', async
 	}
 	const manifest = await (await request.get('/site.webmanifest')).json();
 	expect(manifest.name).toBe(appConfig.name);
+	await expect(page.locator('meta[name="google-site-verification"]')).toHaveAttribute(
+		'content',
+		'google-test-token'
+	);
+	await expect(page.locator('meta[name="msvalidate.01"]')).toHaveAttribute(
+		'content',
+		'BING_TEST_TOKEN'
+	);
+	await expect(page.locator('meta[name="twitter:site"]')).toHaveAttribute('content', '@starter');
+	const robots = await request.get('/robots.txt');
+	expect(robots.status()).toBe(200);
+	expect(await robots.text()).toContain('Sitemap: https://starter.example/sitemap.xml');
+	const sitemap = await request.get('/sitemap.xml');
+	expect(sitemap.headers()['content-type']).toContain('application/xml');
+	expect(await sitemap.text()).toContain('<loc>https://starter.example/</loc>');
+	expect(await sitemap.text()).not.toContain('/apps/');
 	expect(manifest.icons[0]).toMatchObject({
 		src: assets.appIcon.path,
 		sizes: `${assets.appIcon.width}x${assets.appIcon.height}`
@@ -146,4 +162,5 @@ test('invalid registry slug is a real 404', async ({ page }) => {
 	const response = await page.goto('/apps/not-real');
 	expect(response?.status()).toBe(404);
 	await expect(page.getByRole('heading', { name: 'App not found' })).toBeVisible();
+	await expect(page.locator('meta[name="robots"]')).toHaveAttribute('content', 'noindex,nofollow');
 });

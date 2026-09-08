@@ -53,6 +53,7 @@ test('default integrations stay off without secrets or network access', async ()
 	expect(resolveIntegration('email', {})).toEqual({ enabled: false });
 	expect(resolveIntegration('auth', {})).toEqual({ enabled: false });
 	expect(resolveIntegration('gcp', {})).toEqual({ enabled: false });
+	expect(resolveIntegration('cloudflare', {})).toEqual({ enabled: false });
 	await expect(createCheckout({}, checkout)).rejects.toThrow('Payments are disabled');
 	await expect(sendEmail({}, email)).rejects.toThrow('Email is disabled');
 	expect(fetch).not.toHaveBeenCalled();
@@ -79,10 +80,36 @@ test('enabled capabilities fail on missing, unknown, malformed, or unimplemented
 	expect(() => resolveIntegration('gcp', { GCP_ENABLED: 'true' })).toThrow(
 		'application integration'
 	);
+	expect(() => resolveIntegration('cloudflare', { CLOUDFLARE_ENABLED: 'true' })).toThrow(
+		'application integration'
+	);
 	expect(resolveIntegration('payments', paymentEnv)).toMatchObject({
 		provider: 'doku',
 		environment: 'sandbox'
 	});
+});
+
+test('recipe settings do not silently activate auth or cloud services', () => {
+	const env = {
+		AUTH_PROVIDER: 'oidc',
+		AUTH_ISSUER_URL: 'https://identity.example.com',
+		AUTH_AUDIENCE: 'test-app',
+		AUTH_CLIENT_ID: 'test-client',
+		AUTH_CLIENT_SECRET: 'test-secret',
+		GCP_PROJECT_ID: 'test-project',
+		GCP_LOCATION: 'test-location',
+		GCP_STORAGE_BUCKET: 'test-bucket',
+		GOOGLE_APPLICATION_CREDENTIALS: '/local/adc-config.json',
+		CLOUDFLARE_ACCOUNT_ID: 'test-account',
+		CLOUDFLARE_ZONE_ID: 'test-zone',
+		CLOUDFLARE_API_TOKEN: 'test-token'
+	};
+	for (const capability of ['auth', 'gcp', 'cloudflare'] as const) {
+		expect(resolveIntegration(capability, env)).toEqual({ enabled: false });
+	}
+	expect(() => resolveIntegration('cloudflare', { CLOUDFLARE_ENABLED: 'yes' })).toThrow(
+		'true or false'
+	);
 });
 
 test('DOKU signature matches independent vector and notification tampering fails', () => {

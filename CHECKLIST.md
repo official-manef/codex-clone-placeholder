@@ -17,6 +17,8 @@ that the template or a generated product has already passed each item.
 - [ ] Environment examples document the executing runtime; no private values reach public files or Git.
 - [ ] Version manifest, package metadata and changelog agree.
 - [ ] README commands and agent guides match implemented behavior and known limitations.
+- [ ] New-session entry points link the current contract and relevant guides; no duplicate skill dump or stale project decision remains.
+- [ ] Environment values identify their actual consumer; recipe-only cloud/auth settings do not claim working features.
 - [ ] GitHub CI passes for the exact release commit and the release tag points to it.
 
 ## Activated product capabilities
@@ -30,7 +32,7 @@ Apply only the rows relevant to the product; record omissions explicitly in its 
       reordered events, amount/currency mismatch and timeout reconciliation.
 - [ ] Email has authorized recipients, a verified sender, durable duplicate/retry handling and delivery evidence.
 - [ ] Optional GCP workload has explicit identity, least-privilege access, cost limits and recovery tests.
-- [ ] Production has the intended HTTPS `PUBLIC_SITE_URL`; previews remain noindex.
+- [ ] Production has the intended HTTPS `PUBLIC_SITE_URL` and deliberate `PUBLIC_SEO_INDEXABLE` setting; previews remain noindex.
 - [ ] Canonical/sharing images resolve on the deployed origin; no placeholder remains where final art is required.
 - [ ] Hosting reports the expected commit; frontend/backend environment and release versions are verified.
 - [ ] Rollback, schema/data compatibility, operational owners and backup/restore steps are documented.

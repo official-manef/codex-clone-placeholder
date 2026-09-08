@@ -33,7 +33,8 @@ Run the product's auth/data/integration checks as well as the template gates.
 For the 0.4 migration from 0.3:
 
 - Move shared public branding into `src/lib/config/app.ts`; review locale, route metadata
-  and the production `PUBLIC_SITE_URL`. Previews should leave the origin unset.
+  and the production `PUBLIC_SITE_URL`. Enable `PUBLIC_SEO_INDEXABLE` only when the
+  production site should be indexed. Previews keep it false and normally leave the origin unset.
 - Adopt the catalog-driven asset references and generated outputs together. Mark existing
   custom artwork `custom` before generation so it is preserved.
 - Port optional transports only when useful. They remain disabled and do not replace

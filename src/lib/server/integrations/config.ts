@@ -34,9 +34,12 @@ function required(env: IntegrationEnv, name: string): string {
 
 export function resolveIntegration(capability: 'payments', env: IntegrationEnv): PaymentConfig;
 export function resolveIntegration(capability: 'email', env: IntegrationEnv): EmailConfig;
-export function resolveIntegration(capability: 'auth' | 'gcp', env: IntegrationEnv): Disabled;
 export function resolveIntegration(
-	capability: 'payments' | 'email' | 'auth' | 'gcp',
+	capability: 'auth' | 'gcp' | 'cloudflare',
+	env: IntegrationEnv
+): Disabled;
+export function resolveIntegration(
+	capability: 'payments' | 'email' | 'auth' | 'gcp' | 'cloudflare',
 	env: IntegrationEnv
 ): PaymentConfig | EmailConfig | Disabled {
 	if (capability === 'payments') {
@@ -67,7 +70,9 @@ export function resolveIntegration(
 			from: required(env, 'EMAIL_FROM')
 		};
 	}
-	const name = capability === 'auth' ? 'AUTH_ENABLED' : 'GCP_ENABLED';
+	const name = { auth: 'AUTH_ENABLED', gcp: 'GCP_ENABLED', cloudflare: 'CLOUDFLARE_ENABLED' }[
+		capability
+	];
 	if (enabled(env, name))
 		throw new Error(
 			`${name} requires the application integration described in docs/integrations.md`

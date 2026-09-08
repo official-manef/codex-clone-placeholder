@@ -5,6 +5,25 @@ During 0.x, minor releases may change template structure; patch releases are com
 
 ## Unreleased
 
+## 0.5.0 — 2026-09-08
+
+### Added
+
+- A compact session entry point and maintained `CONTRACT.md`, with task-specific context loading and practical Ponytail/Caveman/optional RTK guidance.
+- An environment consumer matrix and optional OIDC, GCP and Cloudflare configuration examples; Cloudflare has the same explicit unsupported guard as the auth/GCP recipes.
+- Explicit SEO indexing opt-in, optional Google/Bing verification and Twitter/X attribution, plus robots and sitemap endpoints driven by shared settings.
+
+### Changed
+
+- Design guidance addresses concrete copy, truthful state, accessible controls and context-dependent visual choices. Landing, settings and Convex setup copy reflect actual behavior.
+- Removed the unused Svelte Testing Library dependency; browser and existing unit checks remain the verification tools.
+
+### Migration notes
+
+- `PUBLIC_SITE_URL` alone no longer enables indexing. Set `PUBLIC_SEO_INDEXABLE=true` for public production indexing; keep previews false.
+- Replace the old static robots file with the endpoint. Crawling stays allowed so noindex is readable; sitemap URLs are announced only when indexing is enabled.
+- Read `CONTRACT.md` at each new agent session and adapt its product section when generating an application. Optional cloud/auth values are recipes, not installed integrations.
+
 ## 0.4.0 — 2026-09-08
 
 ### Added

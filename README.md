@@ -23,15 +23,15 @@ Start without credentials; connect your own Convex deployment when the product n
 - Disabled server transport adapters for basic DOKU Checkout/signature verification and Resend email.
 - Prettier, ESLint, Vitest, Playwright, GitHub Actions, version checks and MIT licensing.
 
-| Capability           | Included                                                               | Product work still required                                                                    |
-| -------------------- | ---------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------- |
-| Backend              | Convex status query; empty schema; frontend works unlinked             | Product schema, authorized reads/writes and real deployment                                    |
-| Payments             | DOKU transport and signature utility; mocked HTTP tests                | Orders, webhook route, deduplication, fulfillment, reconciliation and merchant sandbox testing |
-| Email                | Resend send transport with required idempotency key; mocked HTTP tests | Authorized triggers, sender setup, durable delivery/outbox handling and real delivery testing  |
-| Authentication / GCP | Integration recipes and explicit unsupported resolver states           | Select and implement a compatible auth provider or a specific cloud workload                   |
+| Capability              | Included                                                               | Product work still required                                                                    |
+| ----------------------- | ---------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------- |
+| Backend                 | Convex status query; empty schema; frontend works unlinked             | Product schema, authorized reads/writes and real deployment                                    |
+| Payments                | DOKU transport and signature utility; mocked HTTP tests                | Orders, webhook route, deduplication, fulfillment, reconciliation and merchant sandbox testing |
+| Email                   | Resend send transport with required idempotency key; mocked HTTP tests | Authorized triggers, sender setup, durable delivery/outbox handling and real delivery testing  |
+| Auth / GCP / Cloudflare | Integration recipes and explicit unsupported resolver states           | Select and implement a compatible auth provider or a specific cloud service                    |
 
-Payments, email, authentication and GCP are **disabled by default**. Provider selection
-is not feature activation. Auth/GCP resolvers reject enabled settings when called until
+Payments, email, authentication, GCP and Cloudflare are **disabled by default**. Provider selection
+is not feature activation. Auth/cloud resolvers reject enabled settings when called until
 their application integration exists. Workspace switching and settings are local examples,
 not accounts, tenancy or durable preferences. No complete provider sandbox lifecycle has
 been exercised by this template. [Read the integration boundaries](docs/integrations.md).
@@ -81,7 +81,9 @@ regeneration preserves it. [Follow the asset workflow](docs/assets.md).
 
 4. Set `PUBLIC_SITE_URL` to the deployed HTTPS origin, without a path. It supplies
    canonical and absolute sharing URLs. With no origin, canonical tags are omitted and
-   pages are `noindex`; app examples remain `noindex` even with an origin configured.
+   pages are `noindex`. Set `PUBLIC_SEO_INDEXABLE=true` only for public production indexing;
+   keep previews false. App examples remain `noindex`. Google/Bing verification and Twitter/X
+   attribution are optional. See the [environment consumer matrix](docs/environment.md).
 5. Update package/repository links, README and attribution. Keep required MIT notices.
    Choose optional services only when the PRD needs them; follow [integrations.md](docs/integrations.md).
 
@@ -165,12 +167,13 @@ then register it once. [Architecture](docs/architecture.md) explains the boundar
 
 | Task                                    | Guide                                                                                       |
 | --------------------------------------- | ------------------------------------------------------------------------------------------- |
-| Agent instructions / first product task | [AGENTS.md](AGENTS.md), [agent start](docs/agent-start.md)                                  |
+| Agent instructions / first product task | [AGENTS.md](AGENTS.md), [CONTRACT.md](CONTRACT.md), [agent start](docs/agent-start.md)      |
+| Efficient implementation and context    | [Ponytail, Caveman and optional RTK](docs/agent-workflow.md)                                |
 | Requirements and acceptance             | [PRD template](docs/prd-template.md)                                                        |
 | UI, accessibility and interaction       | [DESIGN.md](DESIGN.md)                                                                      |
 | Svelte / Convex implementation          | [Svelte](docs/svelte-best-practices.md), [Convex](docs/convex-best-practices.md)            |
 | Branding and generated artwork          | [Assets](docs/assets.md), [prompts](docs/assets-prompts.md)                                 |
-| Payment, email, auth and cloud          | [Optional integrations](docs/integrations.md)                                               |
+| Payment, email, auth and cloud          | [Optional integrations](docs/integrations.md), [environment](docs/environment.md)           |
 | Hosting, release and upgrades           | [Deployment](docs/deployment.md), [releasing](docs/releasing.md), [checklist](CHECKLIST.md) |
 | Contributions and security              | [Contributing](CONTRIBUTING.md), [security policy](SECURITY.md)                             |
 

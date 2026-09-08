@@ -2,7 +2,7 @@
 	import './layout.css';
 	import { appConfig } from '$lib/config/app';
 	import { assets, assetMimeType } from '../../assets.config';
-	import { pageMetadata, siteOrigin } from '$lib/config/metadata';
+	import { pageMetadata, pageIndexable, seoSettings } from '$lib/config/metadata';
 	import { page } from '$app/state';
 	import { env } from '$env/dynamic/public';
 	import { setupConvex } from 'convex-svelte';
@@ -10,12 +10,12 @@
 	let { children } = $props();
 	const convexUrl = env.PUBLIC_CONVEX_URL;
 	if (convexUrl) setupConvex(convexUrl);
-	const origin = siteOrigin(env.PUBLIC_SITE_URL);
+	const seo = seoSettings(env);
 	const metadata = $derived(
 		pageMetadata(
 			page.error ? { title: `${page.status}` } : page.data.meta,
 			page.url.pathname,
-			origin
+			seo.origin
 		)
 	);
 </script>
@@ -29,9 +29,7 @@
 	<meta name="theme-color" content={appConfig.themeColor} />
 	<meta
 		name="robots"
-		content={page.error || !origin || page.data.meta?.indexable === false
-			? 'noindex,nofollow'
-			: 'index,follow'}
+		content={pageIndexable(seo, page.data.meta, page.status) ? 'index,follow' : 'noindex,nofollow'}
 	/>
 	{#if metadata.canonical}<link rel="canonical" href={metadata.canonical} /><meta
 			property="og:url"
@@ -49,5 +47,11 @@
 	<meta name="twitter:title" content={metadata.title} />
 	<meta name="twitter:description" content={metadata.description} />
 	<meta name="twitter:image" content={metadata.image} />
+	{#if seo.twitterSite}<meta name="twitter:site" content={seo.twitterSite} />{/if}
+	{#if seo.googleVerification}<meta
+			name="google-site-verification"
+			content={seo.googleVerification}
+		/>{/if}
+	{#if seo.bingVerification}<meta name="msvalidate.01" content={seo.bingVerification} />{/if}
 </svelte:head>
 {@render children()}

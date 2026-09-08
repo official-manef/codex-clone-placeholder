@@ -1,8 +1,16 @@
 # Design contract
 
-The starter is a responsive application shell with a neutral visual baseline. A generated
-product should express its own brand through the shared configuration and tokens while
-keeping navigation, state feedback and keyboard behavior predictable.
+Design around the reader's task. This repository is a developer-facing starter: its
+example screens can explain Svelte, configuration and architecture. A product built
+from it should speak to that product's users and replace starter explanations with
+useful tasks, real state and relevant content.
+
+For this starter, preserve the neutral shell and existing navigation. Its design profile
+is variance **4/10**, motion **2/10**, density **6/10**: restrained hierarchy, motion for
+feedback, and readable working space. These are design decisions, not quality scores.
+For a new product or requested redesign, first state the audience, main task, visual
+direction and what must remain intact. Do not apply a marketing aesthetic to an editor
+or replace a working layout just to make it look newly generated.
 
 ## Sources and ownership
 
@@ -21,6 +29,33 @@ provider names and infrastructure details out of ordinary product flows unless t
 help the user make a decision. Add a configuration field when it represents a shared
 product choice; ordinary local labels do not all need to become global configuration.
 
+## Copy that helps someone act
+
+- Name the action or result in familiar words. Use one label per intent, such as
+  "Save changes"; do not alternate with "Elevate your workspace" or "Unlock more".
+- State what happened, what is required and what the user can do next. Keep errors
+  beside the affected field/action. Avoid slogans, forced metaphors and praise for
+  the implementation: "seamless", "next-gen", "AI-powered" or "production-ready"
+  need a specific, relevant fact behind them.
+- Describe only implemented behavior. A configured URL is not a successful connection;
+  a local preview is not saved data; checkout creation is not payment confirmation.
+- Every link and control must have a real destination or behavior. Remove empty
+  actions and `href="#"` placeholders. When setup blocks an action, explain the
+  requirement; do not manufacture success or add a button to an informational page.
+- Use actual data. Clearly label demo fixtures in the visible UI; never invent customer
+  logos, testimonials, business metrics, user counts or certifications to fill space.
+- Keep a consistent tone and language across headings, labels, help, errors and metadata.
+  Shorten repetitive copy; retain essential qualifications and recovery instructions.
+
+| Situation                                        | Useful copy                                                                  |
+| ------------------------------------------------ | ---------------------------------------------------------------------------- |
+| Developer starter with a URL but no response yet | "Convex URL configured. Check the result below to confirm the connection."   |
+| Settings example without persistence             | "This is a local preview. Changes reset when you leave this page or reload." |
+| Product save failed and input is retained        | "Changes could not be saved. Your entries are still here. Try again."        |
+| Verified successful product save                 | "Changes saved."                                                             |
+
+These are examples, not strings to copy into states that do not support the claim.
+
 ## Existing visual baseline
 
 Semantic tokens such as `--background`, `--foreground`, `--primary`, `--muted`,
@@ -34,6 +69,13 @@ Shell dimensions also come from tokens: `--app-touch-target`, `--app-topbar-heig
 when changing the shared rhythm, rather than patching every consuming component.
 Dark tokens exist; verify the selected product's theme behavior rather than assuming
 a theme preference is already persisted.
+
+Keep the existing font and Lucide icon family unless the brand or usability task calls
+for a change. Do not add fonts, icon packs, images or animation libraries for novelty.
+Use whitespace, alignment and borders to establish hierarchy before adding cards,
+shadows or visual effects. Avoid decorative gradients, glow, glass, status dots,
+repeated eyebrows and pill labels with no information. A grid is appropriate for
+comparable items or component examples, not a reason to invent equal-sized content.
 
 ## Layout and navigation
 
@@ -72,6 +114,9 @@ Each asynchronous task specifies loading, empty, success, failure and retry beha
 Explain disabled features and required setup without implying that a selection enables
 an integration. Keep errors near the affected field or action, announce relevant
 updates, retain entered data on recoverable failure and prevent duplicate submission.
+Destructive actions need a clear consequence and appropriate confirmation. Status
+must remain understandable without color alone. Labels remain visible; placeholder
+text and hover-only tooltips are not substitutes.
 
 Provide a meaningful page title, one primary heading, labels, useful image alternatives,
 visible keyboard focus and a sensible reading order. Decorative images use empty alt
@@ -105,3 +150,9 @@ focus restoration and reduced motion. Review actual screenshots for clipping, hi
 actions and visual hierarchy. Record failing states in the product PRD and verify the
 fix in the same viewport. Browser tests cover behavior; visual review covers what their
 assertions cannot establish.
+
+Read every visible string in context, including errors, alt text and metadata. Check
+grammar, clear referents, truthful claims, functioning actions and consistent labels.
+Use the [repository gates](AGENTS.md#finish-with-evidence) and report the states
+actually exercised. A polished screenshot or a subjective "10/10" is not evidence of
+accessibility, security, performance or production readiness.
