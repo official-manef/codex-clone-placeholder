@@ -3,6 +3,11 @@
 Notable template changes follow [Semantic Versioning](https://semver.org/).
 During 0.x, minor releases may change template structure; patch releases are compatible fixes.
 
+## [0.6.1] - 2026-09-08
+
+- Align Composio setup with the current session-based MCP API and direct-tools preset.
+  Keep existing standalone endpoints as a documented legacy migration path.
+
 ## [0.6.0] - 2026-09-08
 
 ### Added

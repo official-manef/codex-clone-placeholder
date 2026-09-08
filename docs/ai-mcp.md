@@ -121,16 +121,24 @@ decision.
 
 ### Composio
 
-Create and authorize a **single-toolkit MCP** connection in your own Composio account,
-restrict its direct tools, and use the generated user URL with `auth: "x-api-key"`.
-The user supplies the corresponding Composio credential in the remote-tools panel.
-Composio documents this header requirement and direct tool restrictions in
-[Single Toolkit MCP](https://docs.composio.dev/docs/single-toolkit-mcp). If the returned
-URL redirects, obtain and approve its final Streamable HTTP endpoint first.
+Use a Composio **session with MCP enabled and the direct-tools preset** for new
+integrations. Scope the session to one authenticated user and an explicit set of toolkit
+tools. Read the endpoint and required headers from `session.mcp.url` and
+`session.mcp.headers`; map the returned `x-api-key` or bearer requirement to this
+starter's supported auth setting. Supply its credential through the remote-tools panel,
+not the endpoint URL. The starter does not create Composio sessions or store their keys.
+
+Follow the current [sessions via MCP](https://docs.composio.dev/docs/sessions-via-mcp)
+and [session configuration](https://docs.composio.dev/docs/configuring-sessions) guides.
+The direct-tools preset exposes the selected tools without search/execution metatools.
+Composio's [legacy standalone MCP API](https://docs.composio.dev/reference/api-reference/mcp)
+is deprecated; an existing single-toolkit endpoint can still be configured here while
+its owner follows Composio's migration guidance. If an endpoint redirects, approve its
+final Streamable HTTP URL first; runtime redirects remain disabled.
 
 This starter deliberately rejects `COMPOSIO_*` router/execution metatools: allowing a
-generic execution tool would bypass a direct-tool allowlist. General Composio sessions
-with dynamic search/execution are therefore not enabled by this preset. The application
+generic execution tool would bypass a direct-tool allowlist. Sessions
+using dynamic search/execution metatools are therefore not enabled by this preset. The application
 does not provision Composio configurations, complete toolkit OAuth or store connected
 accounts. Generated URLs can identify a particular connected user: use them only in a
 controlled installation, or add authenticated per-user connection ownership and encrypted

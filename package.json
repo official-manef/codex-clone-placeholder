@@ -1,7 +1,7 @@
 {
 	"name": "svelte-convex-starter",
 	"private": true,
-	"version": "0.6.0",
+	"version": "0.6.1",
 	"description": "Svelte 5 Runes, SvelteKit, Bun and Convex starter with typed feature slices and an adaptive app shell.",
 	"license": "MIT",
 	"repository": {
