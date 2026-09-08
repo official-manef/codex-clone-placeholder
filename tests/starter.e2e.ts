@@ -18,6 +18,8 @@ test('optional features explain setup and expose no credentials in a clean clone
 	});
 	expect((await request.get('/auth/login')).status()).toBe(404);
 	expect((await request.post('/api/mcp/server', { data: {} })).status()).toBe(404);
+	expect((await request.post('/api/mcp/tools', { data: {} })).status()).toBe(404);
+	expect((await request.post('/api/ai/chat', { data: {} })).status()).toBe(404);
 	await page.goto('/apps/assistant');
 	await expect(page.getByRole('heading', { name: 'Assistant', exact: true })).toBeVisible();
 	await expect(page.getByText('AI chat is disabled', { exact: false })).toBeVisible();

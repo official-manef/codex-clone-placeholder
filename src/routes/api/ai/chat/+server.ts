@@ -6,8 +6,8 @@ import { chatResponse } from '$lib/server/ai/chat';
 import type { RequestHandler } from './$types';
 
 export const POST: RequestHandler = async (event) => {
-	await requireCapabilityAccess(event);
 	if (env.AI_ENABLED !== 'true') error(404, 'AI chat is disabled.');
+	await requireCapabilityAccess(event);
 	const body = await readJsonBody(event.request);
 	let input: ReturnType<typeof parseChat>;
 	try {

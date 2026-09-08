@@ -22,6 +22,7 @@ const bodySchema = z.discriminatedUnion('action', [
 ]);
 
 export const POST: RequestHandler = async (event) => {
+	if (env.MCP_CLIENT_ENABLED !== 'true') error(404, 'Remote tools are disabled.');
 	await requireCapabilityAccess(event);
 	if (env.MCP_CLIENT_ENABLED !== 'true') error(404, 'MCP client is disabled.');
 	const value = await readJsonBody(event.request);
