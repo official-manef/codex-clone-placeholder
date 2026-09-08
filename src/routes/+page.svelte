@@ -14,7 +14,7 @@
 			>
 			<div class="space-y-3">
 				<Card.Title class="max-w-3xl text-3xl tracking-tight sm:text-5xl"
-					>Full-stack Svelte, already structured for AI-assisted work.</Card.Title
+					><h1>Full-stack Svelte, already structured for AI-assisted work.</h1></Card.Title
 				>
 				<Card.Description class="max-w-2xl text-base"
 					>Bun + SvelteKit + shadcn-svelte + optional Convex, with root vertical slices and one

@@ -36,6 +36,8 @@ the URL for the linked build. Function secrets belong on Convex (`bunx convex en
 
 Use a Convex **preview** deploy key in Vercel's **Preview** environment only for isolated
 preview backends. Never expose production keys to previews or pull-request CI.
+The deploy command rejects a production key in Vercel Preview and a preview key in Production
+before running checks or contacting Convex.
 If isolated preview backends are unavailable, use a separate frontend-only preview project.
 
 GitHub Actions receives no deployment credentials. It runs checks, not deployments.

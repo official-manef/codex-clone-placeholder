@@ -7,6 +7,8 @@ test('fresh clone boots, opens live-data and preserves keyboard navigation', asy
 	page.on('pageerror', (error) => errors.push(error.message));
 	const response = await page.goto('/');
 	expect(response?.status()).toBe(200);
+	await expect(page).toHaveTitle('Svelte Convex Starter');
+	await expect(page.getByRole('heading', { level: 1 })).toBeVisible();
 	expect(response?.headers()['x-content-type-options']).toBe('nosniff');
 	await page.getByRole('link', { name: 'Open starter' }).click();
 	const modes = page.getByRole('group', { name: 'Dashboard reference mode' });
@@ -22,6 +24,7 @@ test('fresh clone boots, opens live-data and preserves keyboard navigation', asy
 	});
 	await nav.getByRole('link', { name: 'Live data' }).click();
 	await expect(page.getByText('Convex is ready to link')).toBeVisible();
+	await expect(page).toHaveTitle('Live data · Svelte Convex Starter');
 	await page.getByRole('button', { name: 'Switch workspace: Starter workspace' }).click();
 	await expect(page.getByRole('menu')).toBeVisible();
 	await page.keyboard.press('Escape');

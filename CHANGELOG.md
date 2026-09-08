@@ -13,6 +13,8 @@ During 0.x, minor releases may change template structure; patch releases are com
 - GitHub CI for locked installs, typecheck, formatting, lint, unit tests, build and browser tests.
 - Deployment, architecture, release and new-project guides; an explicit release checklist.
 - Version synchronization command and metadata consistency check.
+- Deployment key guards to keep Vercel preview and production backends separate.
+- Browser metadata, response security headers and keyboard navigation coverage.
 
 ### Changed
 

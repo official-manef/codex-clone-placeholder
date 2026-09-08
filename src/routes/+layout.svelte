@@ -10,6 +10,11 @@
 </script>
 
 <svelte:head>
+	<title>Svelte Convex Starter</title>
+	<meta
+		name="description"
+		content="A Svelte 5, SvelteKit, Bun and Convex starter with typed feature slices and a responsive application shell."
+	/>
 	<link rel="icon" href={favicon} />
 	<meta name="theme-color" content="#171717" />
 </svelte:head>
