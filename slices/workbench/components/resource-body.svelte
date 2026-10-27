@@ -25,6 +25,19 @@
 </script>
 
 <div class="min-h-0 flex-1 overflow-y-auto p-4">
+	{#if tab}
+		<!-- ponytail: local edit surface only; a real document model replaces it.
+		     It sits above the landing surface so an idle tab is editable too (AC09). -->
+		<div class="space-y-2">
+			<p class="text-sm">{t('resource_start_title')}</p>
+			<Input
+				data-slot="tab-editor"
+				aria-label={t('resource_location')}
+				placeholder={t('resource_location')}
+				oninput={() => onedit?.()}
+			/>
+		</div>
+	{/if}
 	{#if tab === null || tab.status === 'idle'}
 		<section class="space-y-4">
 			<h2 class="text-base font-semibold">{t('resource_start_title')}</h2>
@@ -53,7 +66,11 @@
 		<LoadingState label={t('loading_state')} />
 	{:else if tab.status === 'error'}
 		<SignalBanner title={t('error_state')}>
-			<p>{tab.error ? t(tab.error.messageKey) : t('error_state')}</p>
+			<!-- A failed save already reports its own copy next to the decision (AC09); repeating
+			     it here would render the same token twice. -->
+			{#if tab.error && tab.error.code !== 'save_failed'}
+				<p>{t(tab.error.messageKey)}</p>
+			{/if}
 			{#snippet action()}
 				<!-- ponytail: retry stays disabled until a refetch exists; a no-op button lies. -->
 				<Button variant="ghost" disabled={!onretry} onclick={onretry}>
@@ -61,15 +78,5 @@
 				</Button>
 			{/snippet}
 		</SignalBanner>
-	{:else}
-		<!-- ponytail: local edit surface only; a real document model replaces it. -->
-		<div class="space-y-2">
-			<p class="text-sm">{t('resource_start_title')}</p>
-			<Input
-				aria-label={t('resource_location')}
-				placeholder={t('resource_location')}
-				oninput={() => onedit?.()}
-			/>
-		</div>
 	{/if}
 </div>

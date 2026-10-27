@@ -2,6 +2,7 @@ import type { CloseDecision, Tab, WorkbenchLayout } from './types';
 
 const MIN_WIDTH = 340;
 const PRIMARY_MIN_WIDTH = 320;
+const DEFAULT_STORAGE_KEY = 'workbench:tabs';
 
 /** Clamp to [340, containerWidth - 320]; a container too narrow for both regions pins 340. */
 export function clampSplitWidth(requested: number, containerWidth: number): number {
@@ -41,30 +42,132 @@ export type WorkbenchState = {
 	/** Hide is independent of layout: hiding keeps tabs and the active tab (AC08). */
 	readonly hidden: boolean;
 	toggleHidden(): void;
+	/** True when the creation read a stored snapshot, so the host can skip its defaults. */
+	readonly restored: boolean;
 };
 
 export type WorkbenchStateOptions = {
 	/** Test hook for AC09: which outcome `commitTab` produces. Defaults to 'saved'. */
 	saveOutcome?: 'saved' | 'failed';
+	/** A Storage (sessionStorage) makes the workbench survive a route round trip (AC14). */
+	storage?: Storage | null;
+	storageKey?: string;
 };
 
 // ponytail: local-only save delay; replace with the real persistence call when a backend exists.
 const SAVE_DELAY_MS = 10;
 
+const LAYOUTS: readonly WorkbenchLayout[] = ['closed', 'split', 'focused'];
+const TAB_KINDS: readonly Tab['kind'][] = ['browser', 'document', 'file_preview', 'tool', 'review'];
+const TAB_STATUSES: readonly Tab['status'][] = ['idle', 'loading', 'ready', 'error'];
+
+type Snapshot = {
+	tabs: Tab[];
+	activeTabId: string | null;
+	layout: WorkbenchLayout;
+	hidden: boolean;
+	splitWidth: number;
+};
+
+function oneOf<T extends string>(value: unknown, allowed: readonly T[], fallback: T): T {
+	return allowed.includes(value as T) ? (value as T) : fallback;
+}
+
+/** Rebuilds one tab from storage; a malformed tab is dropped rather than rendered half-broken. */
+function restoreTab(value: unknown): Tab | null {
+	if (!value || typeof value !== 'object') return null;
+	const tab = value as Partial<Tab>;
+	if (typeof tab.id !== 'string' || typeof tab.titleKey !== 'string') return null;
+	const error =
+		tab.error && typeof tab.error === 'object' && typeof tab.error.messageKey === 'string'
+			? { code: String(tab.error.code ?? ''), messageKey: tab.error.messageKey }
+			: null;
+	return {
+		id: tab.id,
+		kind: oneOf(tab.kind, TAB_KINDS, 'browser'),
+		titleKey: tab.titleKey,
+		resourceId: typeof tab.resourceId === 'string' ? tab.resourceId : null,
+		status: oneOf(tab.status, TAB_STATUSES, 'idle'),
+		// AC14: dirty is a local edit flag; it survives exactly as it was written.
+		dirty: tab.dirty === true,
+		ownerChatId: typeof tab.ownerChatId === 'string' ? tab.ownerChatId : null,
+		lastFocusedAt:
+			typeof tab.lastFocusedAt === 'number' && Number.isFinite(tab.lastFocusedAt)
+				? tab.lastFocusedAt
+				: Date.now(),
+		error
+	};
+}
+
+function restoreSnapshot(raw: string | null): Snapshot | null {
+	if (!raw) return null;
+	const parsed = JSON.parse(raw) as Partial<Snapshot>;
+	if (!parsed || typeof parsed !== 'object' || !Array.isArray(parsed.tabs)) {
+		throw new Error('workbench snapshot: missing tabs');
+	}
+	const tabs = parsed.tabs.map(restoreTab).filter((tab): tab is Tab => tab !== null);
+	return {
+		tabs,
+		activeTabId: typeof parsed.activeTabId === 'string' ? parsed.activeTabId : null,
+		layout: oneOf(parsed.layout, LAYOUTS, 'split'),
+		hidden: parsed.hidden === true,
+		splitWidth:
+			typeof parsed.splitWidth === 'number' && Number.isFinite(parsed.splitWidth)
+				? parsed.splitWidth
+				: MIN_WIDTH
+	};
+}
+
 export function createWorkbenchState(options: WorkbenchStateOptions = {}): WorkbenchState {
 	const saveOutcome = options.saveOutcome ?? 'saved';
-	let layout = $state<WorkbenchLayout>('split');
-	let hidden = $state(false);
-	const tabs = $state<Tab[]>([]);
-	let activeTabId = $state<string | null>(null);
-	let splitWidth = $state(MIN_WIDTH);
+	const storage = options.storage ?? null;
+	const storageKey = options.storageKey ?? DEFAULT_STORAGE_KEY;
+
+	let restored: Snapshot | null = null;
+	if (storage) {
+		try {
+			restored = restoreSnapshot(storage.getItem(storageKey));
+		} catch {
+			// A corrupt payload never throws out of creation: fall back to defaults, and the
+			// first mutation overwrites the bad value.
+			restored = null;
+		}
+	}
+
+	let layout = $state<WorkbenchLayout>(restored?.layout ?? 'split');
+	let hidden = $state(restored?.hidden ?? false);
+	const tabs = $state<Tab[]>(restored?.tabs ?? []);
+	let activeTabId = $state<string | null>(restored?.activeTabId ?? null);
+	let splitWidth = $state(restored?.splitWidth ?? MIN_WIDTH);
+	/** Write-through mirror; a throwing Storage (private mode, quota) never breaks a mutation. */
+	function persist(): void {
+		if (!storage) return;
+		try {
+			storage.setItem(
+				storageKey,
+				JSON.stringify({
+					tabs,
+					activeTabId,
+					layout,
+					hidden,
+					splitWidth
+				} satisfies Snapshot)
+			);
+		} catch {
+			// Memory stays authoritative for this session.
+		}
+	}
 
 	return {
+		get restored() {
+			return restored !== null;
+		},
 		get layout() {
 			return layout;
 		},
 		setLayout(next) {
 			layout = next;
+			persist();
 		},
 		get tabs() {
 			return tabs;
@@ -75,12 +178,14 @@ export function createWorkbenchState(options: WorkbenchStateOptions = {}): Workb
 		addTab(tab) {
 			tabs.push(tab);
 			activeTabId = tab.id;
+			persist();
 		},
 		activateTab(id) {
 			const target = tabs.find((tab) => tab.id === id);
 			if (!target) return;
 			target.lastFocusedAt = Date.now();
 			activeTabId = id;
+			persist();
 		},
 		closeTab(id, decision) {
 			const index = tabs.findIndex((tab) => tab.id === id);
@@ -91,6 +196,7 @@ export function createWorkbenchState(options: WorkbenchStateOptions = {}): Workb
 			// "keep" is not a close: it clears the dirty flag and leaves the tab open.
 			if (decision === 'keep') {
 				tab.dirty = false;
+				persist();
 				return false;
 			}
 			if (tab.dirty && (decision === undefined || decision === 'cancel')) return false;
@@ -101,6 +207,7 @@ export function createWorkbenchState(options: WorkbenchStateOptions = {}): Workb
 			} else if (activeTabId === id) {
 				activeTabId = tabs[Math.min(index, tabs.length - 1)].id;
 			}
+			persist();
 			return true;
 		},
 		async commitTab(id) {
@@ -113,29 +220,34 @@ export function createWorkbenchState(options: WorkbenchStateOptions = {}): Workb
 				tab.dirty = true;
 				tab.status = 'error';
 				tab.error = { code: 'save_failed', messageKey: 'settings_save_error' };
+				persist();
 				return 'failed';
 			}
 			tab.dirty = false;
 			tab.status = 'ready';
 			tab.error = null;
+			persist();
 			return 'saved';
 		},
 		markDirty(id, dirty = true) {
 			const tab = tabs.find((candidate) => candidate.id === id);
 			if (!tab) return;
 			tab.dirty = dirty;
+			persist();
 		},
 		get splitWidth() {
 			return splitWidth;
 		},
 		setSplitWidth(next, containerWidth) {
 			splitWidth = clampSplitWidth(next, containerWidth);
+			persist();
 		},
 		get hidden() {
 			return hidden;
 		},
 		toggleHidden() {
 			hidden = !hidden;
+			persist();
 		}
 	};
 }

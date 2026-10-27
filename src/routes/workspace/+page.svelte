@@ -13,7 +13,7 @@
 			<Composer
 				draftKey="new:none"
 				authority="unknown"
-				onsubmit={(payload) => slot.appendDraft(payload.text)}
+				onsubmit={(payload) => slot.appendDraft(payload)}
 			/>
 		{/snippet}
 		{#snippet secondary()}

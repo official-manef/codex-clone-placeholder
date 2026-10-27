@@ -16,7 +16,7 @@
 			<Composer
 				draftKey={`chat:${data.chatId}`}
 				authority="allowed"
-				onsubmit={(payload) => slot.appendDraft(payload.text)}
+				onsubmit={(payload) => slot.appendDraft(payload)}
 			/>
 		{/snippet}
 		{#snippet secondary()}
