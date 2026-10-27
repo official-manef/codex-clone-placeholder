@@ -15,3 +15,5 @@ export type SummaryGroup = {
 	itemKeys: readonly string[];
 };
 export type WorkspaceScreenProps = { chatId: string | null };
+/** Handed to the composer host snippet so the screen can append the send as a timeline entry. */
+export type ComposerSlot = { appendDraft: (text: string) => void };
