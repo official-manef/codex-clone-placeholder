@@ -17,6 +17,8 @@
 	let sized = false;
 
 	const layout = $derived(effectiveLayout(viewportWidth, workbench.layout));
+	// Hidden and closed are independent: both collapse, only closed came from dropping tabs (AC08).
+	const collapsed = $derived(workbench.hidden || layout === 'closed');
 	const current = $derived(activeTab(workbench.tabs, workbench.activeTabId));
 
 	$effect(() => {
@@ -33,6 +35,12 @@
 		sized = true;
 		workbench.setSplitWidth(Math.round(containerWidth * 0.4), containerWidth);
 	});
+
+	// Reopen covers both collapse causes: hidden is a toggle, closed needs the layout back (AC08).
+	function show(): void {
+		if (workbench.hidden) workbench.toggleHidden();
+		if (workbench.layout === 'closed') workbench.setLayout('split');
+	}
 
 	// ponytail: demo tab, no resource model yet; replace when tabs come from a query.
 	function addDemoTab(): void {
@@ -52,19 +60,22 @@
 </script>
 
 <aside
+	id="workbench-region"
 	aria-label={t('resource_start_title')}
 	data-layout={layout}
 	bind:clientWidth={containerWidth}
 	class="h-full min-h-0 bg-[var(--shell-surface)]"
 >
-	{#if layout === 'closed'}
+	{#if collapsed}
 		<div class="flex h-full w-9 items-start justify-center pt-2">
 			<Button
 				variant="ghost"
 				size="icon"
 				class="size-11 sm:size-8"
-				aria-label={t('resource_overflow')}
-				onclick={() => workbench.setLayout('split')}
+				aria-label={t('resource_show')}
+				aria-expanded="false"
+				aria-controls="workbench-region"
+				onclick={show}
 			>
 				<PanelRight />
 			</Button>
@@ -86,9 +97,11 @@
 				<TabStrip
 					tabs={workbench.tabs}
 					activeTabId={workbench.activeTabId}
+					hidden={workbench.hidden}
 					onactivate={(id) => workbench.activateTab(id)}
 					onclose={(id, decision) => workbench.closeTab(id, decision)}
 					onadd={addDemoTab}
+					ontoggle={() => workbench.toggleHidden()}
 				/>
 				<ResourceBody
 					tab={current}

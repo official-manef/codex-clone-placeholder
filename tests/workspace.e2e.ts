@@ -69,13 +69,19 @@ test.describe('composer mounted on the unstarted surface', () => {
 		await expect(submit).toHaveAttribute('aria-disabled', 'true');
 	});
 
-	test.fixme('missing: AC01 disabled reason is not visible in the browser', async ({ page }) => {
-		// AC01 asks for a visible reason. Composer renders it only inside Tooltip.Content, whose
-		// trigger is the submit Button; `disabled` + `disabled:pointer-events-none` means it never
-		// opens on hover or receives focus, so the reason key never reaches the DOM. Fix inside
-		// slices/composer (e.g. a described-by reason line), not by faking the tooltip.
+	test('AC01 the disabled reason is visible and describes the submit button', async ({ page }) => {
 		await open(page, '/workspace');
-		await expect(page.getByText('{submit_disabled_reason_empty}')).toBeVisible();
+
+		// deriveSubmit returns 'submit_disabled_reason_empty' for an empty draft, and that key
+		// is rendered inline, so the reason reaches the DOM even though the button is disabled.
+		const reason = page.locator('#composer-submit-reason');
+		await expect(reason).toBeVisible();
+		await expect(reason).toHaveText('{submit_disabled_reason_empty}');
+		await expect(reason).toHaveAttribute('role', 'status');
+
+		const submit = page.getByRole('button', { name: '{entry_heading}' });
+		await expect(submit).toBeDisabled();
+		await expect(submit).toHaveAttribute('aria-describedby', 'composer-submit-reason');
 	});
 
 	test('AC07 a draft survives leaving the workspace and coming back', async ({ page }) => {
@@ -139,18 +145,39 @@ test.describe('secondary work region', () => {
 		await tablist.getByRole('button', { name: 'Close' }).click();
 		await expect(tablist).toBeHidden();
 
-		await page.getByRole('button', { name: '{resource_overflow}' }).click();
+		await page.getByRole('button', { name: '{resource_show}' }).click();
 		await expect(page.getByRole('tablist')).toBeVisible();
 		await expect(textarea).toHaveValue('draft across toggle');
 	});
 
-	test.fixme('missing: no hide control that preserves tabs (AC08)', async ({ page }) => {
-		// AC08 needs hide-then-show to keep tabs and the active tab. Workbench can only close its
-		// last tab (`closeTab` sets layout='closed' and drops the tab), so there is no control
-		// that hides the region while keeping tabs — nothing honest to assert until one exists.
+	test('AC08 hide then show keeps tab count and active tab', async ({ page }) => {
 		await open(page, '/workspace');
-		await page.getByRole('tablist').getByRole('button', { name: 'Add' }).click();
-		await expect(page.getByRole('button', { name: '{resource_overflow}' })).toHaveCount(2);
+		const tablist = page.getByRole('tablist');
+		await expect(tablist).toBeVisible();
+
+		// The strip starts empty on the unstarted surface; one tab gives the assertion teeth.
+		const add = tablist.getByRole('button', { name: 'Add' });
+		await add.click();
+		await expect(page.getByRole('tab')).toHaveCount(1);
+
+		const before = page.getByRole('tab');
+		const activeLabel = await before.getAttribute('aria-selected');
+
+		const hide = page.getByRole('button', { name: '{resource_hide}' });
+		await expect(hide).toHaveCount(1);
+		await expect(hide).toHaveAttribute('aria-expanded', 'true');
+		await hide.click();
+
+		// Collapsed: the strip is gone, the reopen control reports the collapsed state.
+		await expect(page.getByRole('tablist')).toHaveCount(0);
+		const reopen = page.getByRole('button', { name: '{resource_show}' });
+		await expect(reopen).toHaveCount(1);
+		await expect(reopen).toHaveAttribute('aria-expanded', 'false');
+		await reopen.click();
+
+		await expect(page.getByRole('tablist')).toBeVisible();
+		await expect(page.getByRole('tab')).toHaveCount(1);
+		await expect(page.getByRole('tab')).toHaveAttribute('aria-selected', activeLabel ?? 'false');
 	});
 
 	for (const route of ['/workspace', '/workspace/chat-1']) {

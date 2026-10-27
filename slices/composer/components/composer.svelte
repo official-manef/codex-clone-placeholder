@@ -180,6 +180,7 @@
 									size="icon"
 									aria-label={t('entry_heading')}
 									aria-disabled={!submit.enabled}
+									aria-describedby={submit.enabled ? undefined : 'composer-submit-reason'}
 									disabled={!submit.enabled}
 									onclick={submitDraft}
 								>
@@ -195,4 +196,10 @@
 			{/if}
 		</div>
 	</div>
+
+	{#if !submit.enabled && submit.reasonKey}
+		<p id="composer-submit-reason" class="shell-fg-muted text-xs" role="status">
+			{t(submit.reasonKey)}
+		</p>
+	{/if}
 </div>

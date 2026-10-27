@@ -64,6 +64,32 @@ describe('workbench state', () => {
 		expect(state.activeTabId).toBe(b.id);
 	});
 
+	it('toggleHidden twice keeps three tabs and the active tab (AC08)', () => {
+		const state = createWorkbenchState();
+		const [a, b, c] = [makeTab(), makeTab(), makeTab()];
+		state.addTab(a);
+		state.addTab(b);
+		state.addTab(c);
+		state.activateTab(b.id);
+
+		expect(state.hidden).toBe(false);
+		state.toggleHidden();
+		expect(state.hidden).toBe(true);
+		expect(state.tabs).toHaveLength(3);
+		expect(state.activeTabId).toBe(b.id);
+
+		state.toggleHidden();
+		expect(state.hidden).toBe(false);
+		expect(state.tabs).toHaveLength(3);
+		expect(state.activeTabId).toBe(b.id);
+
+		// Independent of layout: hiding never closes, closing never hides.
+		state.toggleHidden();
+		state.setLayout('closed');
+		expect(state.hidden).toBe(true);
+		expect(state.tabs).toHaveLength(3);
+	});
+
 	it('guards a dirty tab until a decision arrives (AC09)', () => {
 		const state = createWorkbenchState();
 		const clean = makeTab();
