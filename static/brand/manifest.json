@@ -1,29 +1,29 @@
 {
-  "fingerprint": "8c29af9e64aa0fd9016d37bd89faec48d56fe379d202a8dfbc7f219bbada290b",
+  "fingerprint": "2147927155838b0ec8adf1a4078803a18f34211c992e5cd7718f29107553a4c6",
   "assets": {
     "favicon": {
-      "sha256": "4d6d9e406f6785c69a393ecaafddc498165d5874980380c0ae5a821bebf85658"
+      "sha256": "cbcae85ba1b4b3c0073ed72fe738ed2b0235eba3cc5253b8b44493b65dbdb35c"
     },
     "logo": {
-      "sha256": "4d6d9e406f6785c69a393ecaafddc498165d5874980380c0ae5a821bebf85658"
+      "sha256": "cbcae85ba1b4b3c0073ed72fe738ed2b0235eba3cc5253b8b44493b65dbdb35c"
     },
     "appleIcon": {
-      "sha256": "23b435e79c132b697ae00cf7c065d5c491e8570b9156ed607b6b95b60499302d"
+      "sha256": "797a4832ebd65bf543e3b9053bc4ebbbc7a2eb0c229f5e0743810519b40edf7d"
     },
     "appIcon": {
-      "sha256": "e32c32db6cd55cbb60f77814f540a63ee755c13aad042e35735353cf8f0ebc3c"
+      "sha256": "168eab43c06dcad03ad2ef70efaf3f564d300ee9dab17953d191bf84324f5ef7"
     },
     "maskableIcon": {
-      "sha256": "ae88e43aade9f1843b4e396e019860e0ba890f0cfdd4de8d07c5d406b68af9be"
+      "sha256": "915432575b13c7b2ffea43e6c202e5033ccc7b4e51270fab984a63302ac1c6f2"
     },
     "socialImage": {
-      "sha256": "fd4da43416108690b2364dba0cb5d019d99a3d0324be2512722247b4b3fe9a76"
+      "sha256": "97fc79dbb066fef5c20d35791dda51b9f140df9adbaf70ab04120126284077a7"
     },
     "hero": {
-      "sha256": "a29d9829c184579d4417bd06a1e525f5f6c4733a5b3adef753ee09ded67490c6"
+      "sha256": "e492f0a2f7ec884bc1e6ccd7cfb40264a69db788e5f934a5027636063ea9be40"
     },
     "emptyState": {
-      "sha256": "b701b19c12f23868896b5f7993c5f223a52fbe8da92129dee054c67cfca0129f"
+      "sha256": "de9d6ea5517195f899eaa248bf9d54cd922fce15ec6dde89ab1d0cab3e58a5d6"
     }
   }
 }

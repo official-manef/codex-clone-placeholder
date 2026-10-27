@@ -1,11 +1,11 @@
 {
-  "name": "Svelte Convex Starter",
-  "short_name": "Svelte Convex",
-  "description": "A SvelteKit and Bun starter with example screens, Convex setup, and guides for building your application.",
+  "name": "Placeholder Workspace",
+  "short_name": "Workspace",
+  "description": "Workspace shell structure with placeholder copy.",
   "lang": "en",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#fafafa",
+  "background_color": "#101010",
   "theme_color": "#171717",
   "icons": [
     {
