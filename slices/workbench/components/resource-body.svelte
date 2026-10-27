@@ -1,0 +1,63 @@
+<script lang="ts">
+	import Button from '$lib/components/ui/button/button.svelte';
+	import LoadingState from '$lib/components/app-ui/loading-state.svelte';
+	import SignalBanner from '$lib/components/app-ui/signal-banner.svelte';
+	import { t, tp } from '$features/placeholders';
+	import type { Tab } from '../types';
+
+	let {
+		tab,
+		recentEmpty = false,
+		onretry
+	}: {
+		tab: Tab | null;
+		/** Scopes emptiness to the recent list, not to the whole landing (AC18). */
+		recentEmpty?: boolean;
+		onretry?: () => void;
+	} = $props();
+
+	const suggestions = [1, 2, 3, 4];
+	const recents = [1, 2, 3, 4];
+</script>
+
+<div class="min-h-0 flex-1 overflow-y-auto p-4">
+	{#if tab === null || tab.status === 'idle'}
+		<section class="space-y-4">
+			<h2 class="text-base font-semibold">{t('resource_start_title')}</h2>
+			<div class="space-y-2">
+				<h3 class="text-sm font-medium">{t('capabilities')}</h3>
+				<ul class="space-y-1 text-sm text-[var(--shell-fg-muted)]">
+					{#each suggestions as n (n)}
+						<li>{tp('suggested_resource', n)}</li>
+					{/each}
+				</ul>
+			</div>
+			<div class="space-y-2">
+				<h3 class="text-sm font-medium">{t('resource_history')}</h3>
+				{#if recentEmpty}
+					<p class="text-sm text-[var(--shell-fg-muted)]">{t('empty_state')}</p>
+				{:else}
+					<ul class="space-y-1 text-sm text-[var(--shell-fg-muted)]">
+						{#each recents as n (n)}
+							<li>{tp('recent_resource', n)}</li>
+						{/each}
+					</ul>
+				{/if}
+			</div>
+		</section>
+	{:else if tab.status === 'loading'}
+		<LoadingState label={t('loading_state')} />
+	{:else if tab.status === 'error'}
+		<SignalBanner title={t('error_state')}>
+			<p>{tab.error ? t(tab.error.messageKey) : t('error_state')}</p>
+			{#snippet action()}
+				<!-- ponytail: retry stays disabled until a refetch exists; a no-op button lies. -->
+				<Button variant="ghost" disabled={!onretry} onclick={onretry}>
+					{t('resource_reload')}
+				</Button>
+			{/snippet}
+		</SignalBanner>
+	{:else}
+		<p class="text-sm">{t('resource_start_title')}</p>
+	{/if}
+</div>
