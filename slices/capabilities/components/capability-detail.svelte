@@ -21,10 +21,15 @@
 
 	const connection = $derived(state.getConnection(capability.id));
 	const pending = $derived(connection === 'pending');
+	const failed = $derived(state.getError(capability.id));
 	const related = [1, 2, 3];
 </script>
 
-<article class="mx-auto flex w-full max-w-2xl flex-col gap-4 p-4">
+<article
+	class="mx-auto flex w-full max-w-2xl flex-col gap-4 p-4"
+	data-connection={connection}
+	data-error={failed ? 'true' : undefined}
+>
 	{#if onback}
 		<Button
 			variant="ghost"
@@ -49,6 +54,10 @@
 		<SignalBanner title={t('partial_state')}>
 			{t('capability_connection_pending')}
 		</SignalBanner>
+	{:else if failed}
+		<SignalBanner title={t('error_state')}>
+			{t('capability_connection_failed')}
+		</SignalBanner>
 	{/if}
 
 	<div class="flex items-center justify-between border-y border-border py-3">
@@ -56,10 +65,10 @@
 			{t(
 				connection === 'connected'
 					? 'capability_connection_ready'
-					: connection === 'failed'
-						? 'capability_connection_failed'
-						: connection === 'pending'
-							? 'capability_connection_pending'
+					: connection === 'pending'
+						? 'capability_connection_pending'
+						: failed
+							? 'capability_connection_failed'
 							: 'capability_connection_none'
 			)}
 		</span>
@@ -67,7 +76,7 @@
 			variant={connection === 'connected' ? 'outline' : 'default'}
 			disabled={pending}
 			aria-disabled={pending}
-			onclick={() => state.toggleConnection(capability.id, 'success')}
+			onclick={() => state.connect(capability.id, 'success')}
 		>
 			{t(connection === 'connected' ? 'capability_connection_ready' : 'capability_connection_none')}
 		</Button>
