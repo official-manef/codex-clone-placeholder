@@ -8,7 +8,8 @@ import {
 	getField,
 	getSection,
 	groupSections,
-	isSectionId
+	isSectionId,
+	SETTINGS_STORAGE_PREFIX
 } from '../index';
 import { FIELDS_BY_KEY } from '../fields';
 
@@ -76,6 +77,84 @@ describe('settings persistence', () => {
 		expect(state.getStatus(key)).toBe('saving');
 		expect(state.resolveSave(key, second, 'ok')).toBe('applied');
 		expect(state.getValue(key)).toBe('beta');
+	});
+
+	it('lets the newest of two overlapping commits win (AC12)', async () => {
+		const state = createSettingsState();
+		const key = 'boolean_field_01';
+
+		state.setValue(key, true);
+		const first = state.commit(key);
+		state.setValue(key, false);
+		const second = state.commit(key);
+
+		// The older revision is the one that resolves last, so the race is observable.
+		expect(await second).toBe('applied');
+		expect(await first).toBe('ignored');
+		expect(state.getValue(key)).toBe(false);
+		expect(state.getStatus(key)).toBe('saved');
+	});
+
+	it('reports a save error when committing a key that was never changed', async () => {
+		const state = createSettingsState();
+		expect(await state.commit('boolean_field_01')).toBe('save_error');
+		expect(state.getStatus('boolean_field_01')).toBe('clean');
+	});
+});
+
+/** Minimal `Storage` over a `Map`, so the persistence path is testable without a browser. */
+function memoryStorage(): Storage & { data: Map<string, string> } {
+	const data = new Map<string, string>();
+	return {
+		data,
+		get length() {
+			return data.size;
+		},
+		clear: () => data.clear(),
+		getItem: (key: string) => data.get(key) ?? null,
+		key: (index: number) => [...data.keys()][index] ?? null,
+		removeItem: (key: string) => void data.delete(key),
+		setItem: (key: string, value: string) => void data.set(key, value)
+	};
+}
+
+describe('settings persistence to session storage (AC14)', () => {
+	it('hydrates a committed value into a fresh state as clean, not dirty', async () => {
+		const storage = memoryStorage();
+		const key = 'path_field_01';
+
+		const first = createSettingsState(storage);
+		first.setValue(key, '/somewhere');
+		expect(await first.commit(key)).toBe('applied');
+		expect(storage.data.get(SETTINGS_STORAGE_PREFIX + key)).toBe('"/somewhere"');
+
+		const restored = createSettingsState(storage);
+		expect(restored.getValue(key)).toBe('/somewhere');
+		expect(restored.getStatus(key)).toBe('clean');
+	});
+
+	it('keeps the default when storage is empty and survives a throwing storage', () => {
+		const empty = memoryStorage();
+		expect(createSettingsState(empty).getValue('boolean_field_01')).toBe(false);
+
+		const hostile = memoryStorage();
+		hostile.getItem = () => {
+			throw new Error('blocked');
+		};
+		hostile.setItem = () => {
+			throw new Error('blocked');
+		};
+		const state = createSettingsState(hostile);
+		state.setValue('boolean_field_01', true);
+		expect(state.getValue('boolean_field_01')).toBe(true);
+	});
+
+	it('never touches storage keys outside the settings prefix', async () => {
+		const storage = memoryStorage();
+		const state = createSettingsState(storage);
+		state.setValue('boolean_field_01', true);
+		await state.commit('boolean_field_01');
+		expect([...storage.data.keys()]).toEqual([SETTINGS_STORAGE_PREFIX + 'boolean_field_01']);
 	});
 });
 
