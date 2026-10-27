@@ -82,4 +82,4 @@
 		/>{/if}
 	{#if seo.bingVerification}<meta name="msvalidate.01" content={seo.bingVerification} />{/if}
 </svelte:head>
-{@render children()}
+<div class="dark min-h-dvh bg-background text-foreground">{@render children()}</div>

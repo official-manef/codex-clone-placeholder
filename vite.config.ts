@@ -14,6 +14,9 @@ export default defineConfig({
 				test: {
 					name: 'server',
 					environment: 'node',
+					// The typed-ESLint specs boot a full project service; 5s is not enough once
+					// `slices/**` grew. 30s keeps the suite honest without hiding hangs.
+					testTimeout: 30_000,
 					include: ['src/**/*.{test,spec}.{js,ts}', 'slices/**/*.{test,spec}.{js,ts}'],
 					exclude: ['**/*.svelte.{test,spec}.{js,ts}']
 				}
