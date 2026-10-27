@@ -1,5 +1,6 @@
 <script lang="ts">
 	import Button from '$lib/components/ui/button/button.svelte';
+	import Input from '$lib/components/ui/input/input.svelte';
 	import LoadingState from '$lib/components/app-ui/loading-state.svelte';
 	import SignalBanner from '$lib/components/app-ui/signal-banner.svelte';
 	import { t, tp } from '$features/placeholders';
@@ -8,12 +9,15 @@
 	let {
 		tab,
 		recentEmpty = false,
-		onretry
+		onretry,
+		onedit
 	}: {
 		tab: Tab | null;
 		/** Scopes emptiness to the recent list, not to the whole landing (AC18). */
 		recentEmpty?: boolean;
 		onretry?: () => void;
+		/** Local edit marks the tab dirty (AC09); no backend yet. */
+		onedit?: () => void;
 	} = $props();
 
 	const suggestions = [1, 2, 3, 4];
@@ -58,6 +62,14 @@
 			{/snippet}
 		</SignalBanner>
 	{:else}
-		<p class="text-sm">{t('resource_start_title')}</p>
+		<!-- ponytail: local edit surface only; a real document model replaces it. -->
+		<div class="space-y-2">
+			<p class="text-sm">{t('resource_start_title')}</p>
+			<Input
+				aria-label={t('resource_location')}
+				placeholder={t('resource_location')}
+				oninput={() => onedit?.()}
+			/>
+		</div>
 	{/if}
 </div>

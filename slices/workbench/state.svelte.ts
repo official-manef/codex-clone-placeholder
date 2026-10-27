@@ -32,6 +32,10 @@ export type WorkbenchState = {
 	activateTab(id: string): void;
 	/** Returns false when a dirty tab still needs a keep/discard/cancel decision (T10). */
 	closeTab(id: string, decision?: CloseDecision): boolean;
+	/** AC09: attempt to persist a dirty tab. Resolves 'saved' or 'failed'; failure keeps tab.dirty. */
+	commitTab(id: string): Promise<'saved' | 'failed'>;
+	/** Marks a tab dirty from a local edit (the browser test needs a way in). */
+	markDirty(id: string, dirty?: boolean): void;
 	readonly splitWidth: number;
 	setSplitWidth(next: number, containerWidth: number): void;
 	/** Hide is independent of layout: hiding keeps tabs and the active tab (AC08). */
@@ -39,7 +43,16 @@ export type WorkbenchState = {
 	toggleHidden(): void;
 };
 
-export function createWorkbenchState(): WorkbenchState {
+export type WorkbenchStateOptions = {
+	/** Test hook for AC09: which outcome `commitTab` produces. Defaults to 'saved'. */
+	saveOutcome?: 'saved' | 'failed';
+};
+
+// ponytail: local-only save delay; replace with the real persistence call when a backend exists.
+const SAVE_DELAY_MS = 10;
+
+export function createWorkbenchState(options: WorkbenchStateOptions = {}): WorkbenchState {
+	const saveOutcome = options.saveOutcome ?? 'saved';
 	let layout = $state<WorkbenchLayout>('split');
 	let hidden = $state(false);
 	const tabs = $state<Tab[]>([]);
@@ -73,6 +86,8 @@ export function createWorkbenchState(): WorkbenchState {
 			const index = tabs.findIndex((tab) => tab.id === id);
 			if (index < 0) return false;
 			const tab = tabs[index];
+			// AC09: a dirty tab after a failed save (status 'error') still hits the dirty guard
+			// below, so a bare closeTab(id) can never silently close it.
 			// "keep" is not a close: it clears the dirty flag and leaves the tab open.
 			if (decision === 'keep') {
 				tab.dirty = false;
@@ -87,6 +102,28 @@ export function createWorkbenchState(): WorkbenchState {
 				activeTabId = tabs[Math.min(index, tabs.length - 1)].id;
 			}
 			return true;
+		},
+		async commitTab(id) {
+			const tab = tabs.find((candidate) => candidate.id === id);
+			if (!tab) return 'failed';
+			tab.status = 'loading';
+			tab.error = null;
+			await new Promise((resolve) => setTimeout(resolve, SAVE_DELAY_MS));
+			if (saveOutcome === 'failed') {
+				tab.dirty = true;
+				tab.status = 'error';
+				tab.error = { code: 'save_failed', messageKey: 'settings_save_error' };
+				return 'failed';
+			}
+			tab.dirty = false;
+			tab.status = 'ready';
+			tab.error = null;
+			return 'saved';
+		},
+		markDirty(id, dirty = true) {
+			const tab = tabs.find((candidate) => candidate.id === id);
+			if (!tab) return;
+			tab.dirty = dirty;
 		},
 		get splitWidth() {
 			return splitWidth;

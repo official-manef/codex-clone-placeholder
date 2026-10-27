@@ -9,7 +9,14 @@
 	import Splitter from './splitter.svelte';
 	import TabStrip from './tab-strip.svelte';
 
-	const workbench = createWorkbenchState();
+	// ponytail: `?saveOutcome=failed` makes the AC09 failure path browser-reachable before a
+	// real backend exists; drop the query switch when persistence can actually fail.
+	const saveOutcome =
+		typeof window !== 'undefined' &&
+		new URLSearchParams(window.location.search).get('saveOutcome') === 'failed'
+			? 'failed'
+			: 'saved';
+	const workbench = createWorkbenchState({ saveOutcome });
 
 	// SSR renders desktop; the effects replace both numbers once mounted.
 	let viewportWidth = $state(1440);
@@ -100,6 +107,7 @@
 					hidden={workbench.hidden}
 					onactivate={(id) => workbench.activateTab(id)}
 					onclose={(id, decision) => workbench.closeTab(id, decision)}
+					onsave={(id) => workbench.commitTab(id)}
 					onadd={addDemoTab}
 					ontoggle={() => workbench.toggleHidden()}
 				/>
@@ -109,6 +117,10 @@
 						if (!current) return;
 						current.status = 'idle';
 						current.error = null;
+					}}
+					onedit={() => {
+						if (!current) return;
+						workbench.markDirty(current.id, true);
 					}}
 				/>
 			</div>
