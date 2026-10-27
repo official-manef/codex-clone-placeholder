@@ -1,0 +1,145 @@
+import { describe, expect, it } from 'vitest';
+import { createSubmitGuard, deriveSubmit, validateFile } from '../submit';
+import type { Attachment } from '../types';
+
+function attachment(overrides: Partial<Attachment> = {}): Attachment {
+	return {
+		id: crypto.randomUUID(),
+		name: 'file.png',
+		mimeType: 'image/png',
+		sizeBytes: 1024,
+		status: 'ready',
+		previewUrl: null,
+		reasonKey: null,
+		...overrides
+	};
+}
+
+describe('deriveSubmit', () => {
+	it('disables an empty draft with no attachments (AC01)', () => {
+		const state = deriveSubmit({
+			draftText: '   ',
+			attachments: [],
+			authority: 'allowed',
+			process: 'idle'
+		});
+		expect(state).toEqual({
+			enabled: false,
+			reasonKey: 'submit_disabled_reason_empty'
+		});
+	});
+
+	it('enables text with allowed authority', () => {
+		expect(
+			deriveSubmit({
+				draftText: 'hello',
+				attachments: [],
+				authority: 'allowed',
+				process: 'idle'
+			})
+		).toEqual({ enabled: true, reasonKey: null });
+	});
+
+	it('keeps submit disabled while authority is unknown (AC16)', () => {
+		expect(
+			deriveSubmit({
+				draftText: 'hello',
+				attachments: [],
+				authority: 'unknown',
+				process: 'idle'
+			})
+		).toEqual({ enabled: false, reasonKey: 'submit_disabled_reason_invalid' });
+	});
+
+	it('blocks a draft with a validating attachment', () => {
+		expect(
+			deriveSubmit({
+				draftText: 'hello',
+				attachments: [attachment({ status: 'validating' })],
+				authority: 'allowed',
+				process: 'idle'
+			})
+		).toEqual({ enabled: false, reasonKey: 'submit_disabled_reason_attachment' });
+	});
+
+	it('blocks on a failed attachment and keeps ready ones in the array (AC03)', () => {
+		const ready = attachment();
+		const failed = attachment({ status: 'failed', reasonKey: 'attachment_failed_reason' });
+		const list = [failed, ready];
+		expect(
+			deriveSubmit({
+				draftText: 'hello',
+				attachments: list,
+				authority: 'allowed',
+				process: 'idle'
+			})
+		).toEqual({ enabled: false, reasonKey: 'attachment_failed_reason' });
+		expect(list).toContain(ready);
+		expect(list).toHaveLength(2);
+	});
+
+	it('blocks while a process is running', () => {
+		expect(
+			deriveSubmit({
+				draftText: 'hello',
+				attachments: [],
+				authority: 'allowed',
+				process: 'running'
+			})
+		).toEqual({ enabled: false, reasonKey: 'submit_disabled_reason_running' });
+	});
+
+	it('reports the first failing predicate: attachment before authority', () => {
+		expect(
+			deriveSubmit({
+				draftText: 'hello',
+				attachments: [attachment({ status: 'failed' })],
+				authority: 'restricted',
+				process: 'idle'
+			}).reasonKey
+		).toBe('attachment_failed_reason');
+	});
+});
+
+describe('createSubmitGuard', () => {
+	it('locks until end, so a second submit is ignored (AC04)', () => {
+		const guard = createSubmitGuard();
+		const first = guard.begin();
+		expect(first).toBeTruthy();
+		expect(guard.isLocked()).toBe(true);
+		expect(guard.begin()).toBeNull();
+		guard.end();
+		expect(guard.isLocked()).toBe(false);
+		const second = guard.begin();
+		expect(second).toBeTruthy();
+		expect(second).not.toBe(first);
+	});
+
+	it('issues unique ids', () => {
+		const guard = createSubmitGuard();
+		const a = guard.begin();
+		guard.end();
+		const b = guard.begin();
+		expect(a).not.toBe(b);
+	});
+});
+
+describe('validateFile', () => {
+	it('rejects a non-image', () => {
+		expect(validateFile({ type: 'application/pdf', size: 1 })).toEqual({
+			ok: false,
+			reasonKey: 'attachment_failed_reason'
+		});
+	});
+
+	it('accepts a small image', () => {
+		expect(validateFile({ type: 'image/png', size: 1000 })).toEqual({ ok: true });
+	});
+
+	it('rejects an image over 10 MiB', () => {
+		expect(validateFile({ type: 'image/png', size: 10 * 1024 * 1024 + 1 })).toEqual({
+			ok: false,
+			reasonKey: 'attachment_failed_reason'
+		});
+	});
+});
