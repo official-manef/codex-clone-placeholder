@@ -1,11 +1,23 @@
 <script lang="ts">
 	import { AppShell } from '$features/app-shell';
+	import { Composer } from '$features/composer';
+	import { Workbench } from '$features/workbench';
 	import { WorkspaceScreen } from '$features/workspace';
 </script>
 
-<!-- TODO(rr): composer mounts once workspace exposes a snippet slot -->
-<!-- TODO(rr): workbench mounts once workspace exposes a secondary-region slot -->
-
+<!-- state-model §4: no active object, no project → `new:none`. authority stays unknown so
+     the submit guard has to say why it refuses (AC16). -->
 <AppShell area="workspace">
-	<WorkspaceScreen chatId={null} />
+	<WorkspaceScreen chatId={null}>
+		{#snippet children(slot)}
+			<Composer
+				draftKey="new:none"
+				authority="unknown"
+				onsubmit={(payload) => slot.appendDraft(payload.text)}
+			/>
+		{/snippet}
+		{#snippet secondary()}
+			<Workbench />
+		{/snippet}
+	</WorkspaceScreen>
 </AppShell>

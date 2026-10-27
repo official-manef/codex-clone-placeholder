@@ -65,7 +65,12 @@
 	{:else}
 		<ol class="flex flex-col gap-4 px-4 py-6">
 			{#each entries as entry (entry.id)}
-				<li data-kind={entry.kind} data-status={entry.status} class="flex flex-col gap-1">
+				<li
+					data-entry
+					data-kind={entry.kind}
+					data-status={entry.status}
+					class="flex flex-col gap-1"
+				>
 					{#if entry.kind === 'notice'}
 						<SignalBanner title={t('constraint_notice.message')}>
 							<Button variant="ghost" size="sm" onclick={() => onrecover?.()}>

@@ -1,12 +1,15 @@
 <script lang="ts">
-	import { untrack } from 'svelte';
+	import { untrack, type Snippet } from 'svelte';
 	import { t } from '$features/placeholders';
 	import { SegmentedControl, type SegmentItem } from '$lib/components/app-ui';
 	import { Button } from '$lib/components/ui/button';
 	import type { Mode } from '../types';
 
-	let { mode = 'chat', onmodechange }: { mode?: Mode; onmodechange?: (next: Mode) => void } =
-		$props();
+	let {
+		mode = 'chat',
+		onmodechange,
+		children
+	}: { mode?: Mode; onmodechange?: (next: Mode) => void; children?: Snippet } = $props();
 
 	const MODE_ITEMS: readonly SegmentItem[] = [
 		{ id: 'chat', label: t('mode_a') },
@@ -33,7 +36,9 @@
 	/>
 	<h1 class="max-w-xl text-center text-2xl font-semibold text-balance">{t('entry_heading')}</h1>
 	<!-- composer slice mounts here (slices/composer) -->
-	<div class="workspace-composer-slot w-full max-w-2xl" data-slot="composer"></div>
+	<div class="workspace-composer-slot w-full max-w-2xl" data-slot="composer">
+		{@render children?.()}
+	</div>
 	<div class="flex flex-wrap items-center justify-center gap-2">
 		{#each SUPPORT_ITEMS as key (key)}
 			<Button variant="ghost" size="sm">{t(key)}</Button>
