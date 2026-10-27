@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { t } from '$features/placeholders';
 	import { activeTab, createWorkbenchState, effectiveLayout } from '../state.svelte';
+	import type { WorkbenchState } from '../state.svelte';
 	import type { Tab } from '../types';
 	import Button from '$lib/components/ui/button/button.svelte';
 	import PanelRight from '@lucide/svelte/icons/panel-right';
@@ -16,12 +17,30 @@
 		new URLSearchParams(window.location.search).get('saveOutcome') === 'failed'
 			? 'failed'
 			: 'saved';
-	const workbench = createWorkbenchState({ saveOutcome });
+
+	/**
+	 * Browser-only, created inside `$effect` so no storage is touched during SSR or module
+	 * evaluation. Tabs are per workspace, so the route (path + query) picks the storage key;
+	 * the server-rendered default renders first, then the snapshot replaces it (AC14).
+	 */
+	let workbench = $state.raw<WorkbenchState>(createWorkbenchState({ saveOutcome }));
+	$effect(() => {
+		let storage: Storage | null;
+		try {
+			storage = sessionStorage;
+		} catch {
+			storage = null;
+		}
+		workbench = createWorkbenchState({
+			saveOutcome,
+			storage,
+			storageKey: `workbench:tabs:${location.pathname}${location.search}`
+		});
+	});
 
 	// SSR renders desktop; the effects replace both numbers once mounted.
 	let viewportWidth = $state(1440);
 	let containerWidth = $state(1440);
-	let sized = false;
 
 	const layout = $derived(effectiveLayout(viewportWidth, workbench.layout));
 	// Hidden and closed are independent: both collapse, only closed came from dropping tabs (AC08).
@@ -36,11 +55,15 @@
 		return () => media.removeEventListener('change', sync);
 	});
 
-	// Start near the 40% split the spec asks for once the real viewport is known.
+	// Start near the 40% split the spec asks for once the real viewport is known, unless a
+	// restored snapshot already carries its own width (AC14).
+	let sizedFor = $state.raw<WorkbenchState | null>(null);
 	$effect(() => {
-		if (sized) return;
-		sized = true;
-		workbench.setSplitWidth(Math.round(containerWidth * 0.4), containerWidth);
+		const state = workbench;
+		if (sizedFor === state) return;
+		sizedFor = state;
+		if (state.restored) return;
+		state.setSplitWidth(Math.round(containerWidth * 0.4), containerWidth);
 	});
 
 	// Reopen covers both collapse causes: hidden is a toggle, closed needs the layout back (AC08).

@@ -33,10 +33,10 @@
 
 	// AC04: the composer slice never renders a message list, so the host appends the entry.
 	const slot: ComposerSlot = {
-		appendDraft(text: string): void {
-			if (!text.trim()) return;
+		appendDraft(payload: { requestId: string; text: string }): void {
+			if (!payload.text.trim()) return;
 			state.appendEntry({
-				id: crypto.randomUUID(),
+				id: payload.requestId,
 				kind: 'user',
 				contentKeys: ['input_content_01'],
 				createdAt: Date.now(),
