@@ -4,6 +4,8 @@ Codex-style assistant workspace rebuilt as a real SvelteKit application on the
 `template-svelte-convex-starter` contract. Every visible string is a placeholder token, so
 the shell can be reviewed on structure alone before product copy exists.
 
+Live preview: https://codex-clone-placeholder.vercel.app (`/` 307s to `/workspace`).
+
 [Product requirements](docs/PRD.md) · [Implementation plan](docs/implementation-plan.md)
 · [UI spec](docs/ui-spec.md) · [State model](docs/state-model.md)
 · [Placeholder copy](docs/placeholder-copy.md) · [Cloud handoff](docs/cloud-handoff.md)
@@ -33,11 +35,14 @@ analytics, marketing pages, and any real product copy.
 Svelte 5 Runes · SvelteKit 2.70 · Bun 1.4.2 · Tailwind 4 + shadcn-svelte · TypeScript 6 ·
 Convex 1.45 (wired, unused by the MVP shell)
 
+## Run it
+
 ```bash
 bun install --frozen-lockfile
 bun run dev        # http://localhost:5173
 bun run verify     # check + lint + unit + build
 bunx playwright test
+bun run test:dev   # dev-server hydration and navigation smoke
 ```
 
 No `.env` is required. The clean clone boots without credentials and with every optional

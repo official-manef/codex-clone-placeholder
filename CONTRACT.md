@@ -71,14 +71,27 @@ structure can be reviewed before product copy exists.
 - Reference prototype and classification sources: `docs/reference/`
 - UI/UX pointer: [UIUX.md](UIUX.md)
 
-Enabled capabilities: none. Auth, Convex persistence, AI, MCP, payments and email remain
-available in the starter but are **not** part of this product's MVP. The shell must boot
-and be reviewable without credentials.
+File map as shipped:
 
-Slices planned for the product: `app-shell`, `workspace`, `composer`, `workbench`,
-`capabilities`, `settings-surface`, plus the shared `placeholders` resolver. The starter
-demo slices (`dashboard`, `live-data`, `notes`, `assistant`, `settings`) are removed in the
-first implementation step rather than left as fake features.
+| Path                       | Owns                                                               |
+| -------------------------- | ------------------------------------------------------------------ |
+| `slices/placeholders/`     | Token dictionary, `t()` / `tp()` resolver                          |
+| `slices/app-shell/`        | `DESTINATIONS` registry, rail, sidebar host, overlay host          |
+| `slices/workspace/`        | Unstarted and populated primary surfaces, timeline, snippet slots  |
+| `slices/composer/`         | Draft store, submit guard, attachment validation                   |
+| `slices/workbench/`        | Secondary region, tabs, resource toolbar, splitter                 |
+| `slices/capabilities/`     | Capability registry, detail pane, connection state                 |
+| `slices/settings-surface/` | Section and field registries, typed field rows                     |
+| `src/routes/workspace/`    | `/workspace` and `/workspace/[chatId]`, id validated in the loader |
+| `src/routes/capabilities/` | `/capabilities` and `/capabilities/[slug]`, registry-validated     |
+| `src/routes/settings/`     | `/settings` redirect and `/settings/[section]`, registry-validated |
+| `src/routes/+page.svelte`  | `/` → 307 redirect to `/workspace`                                 |
+
+`composer` and `workbench` have no route; they mount as snippets on
+`workspace-screen.svelte`. Enabled capabilities: none. Auth, Convex persistence, AI, MCP,
+payments and email remain available in the starter but are **not** part of this product's
+MVP. Convex stays wired but unused; the shell must boot and be reviewable without
+credentials.
 
 Product identity is intentionally unset in `src/lib/config/app.ts` beyond a neutral name.
 Filling it in is a product decision recorded in the PRD's open decisions, not an

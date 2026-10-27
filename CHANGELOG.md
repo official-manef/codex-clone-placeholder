@@ -3,6 +3,55 @@
 This repository starts from `rahmanef63/template-svelte-convex-starter` and now carries
 its own history. Notable changes follow [Semantic Versioning](https://semver.org/).
 
+## [0.2.0] - 2026-10-28
+
+### Added
+
+- The seven MVP slices, each with a barrel export and co-located specs:
+  `placeholders` (`t()` / `tp()` over the token dictionary), `app-shell` (`DESTINATIONS`
+  registry, rail, sidebar host, overlay host), `workspace` (unstarted and populated
+  primary surfaces), `composer` (draft store, submit guard, attachment validation),
+  `workbench` (tabbed secondary region and splitter), `capabilities` (catalog registry and
+  connection state) and `settings-surface` (section and field registries).
+- The workspace route family: `/workspace`, `/workspace/[chatId]`, `/capabilities`,
+  `/capabilities/[slug]` and `/settings/[section]`, with registry validation for capability
+  and settings slugs, object-id validation for chats, and 404 boundaries for unknown ids.
+- `tests/workspace.e2e.ts` covering the route family and the primary interaction flows at
+  390 / 768 / 1440, and `tests/dev-smoke.e2e.ts` covering first boot without credentials and
+  hydration-gated controls.
+
+### Changed
+
+- The root route redirects (307) to `/workspace` instead of rendering a landing page.
+- Product identity in `src/lib/config/app.ts` is the generic "Placeholder Workspace";
+  every visible string still resolves through `slices/placeholders`.
+- `--shell-*` design tokens and `.shell-*` layout utilities live in `src/routes/layout.css`
+  and are the only styling source for the shell.
+
+### Removed
+
+- The five starter demo slices (`dashboard`, `live-data`, `notes`, `assistant`, `settings`)
+  and the `/apps/[slug]` route family that served them.
+
+### Fixed
+
+- `bun run build` no longer depends on the host Node version: the Vercel adapter runtime is
+  pinned to `nodejs22.x`.
+- `bun run test:dev` had no tests after the starter suite was deleted; the dev-server smoke
+  suite is restored.
+- The workbench hide and show controls no longer share an accessible name.
+- `bun run lint` failed on the vendored `docs/reference/` assets; they are excluded from
+  formatting.
+- The typed-ESLint spec timed out under the default 5s vitest budget; the server project now
+  allows 30s.
+
+### Known gaps
+
+- AC02/AC03 (attachment add/validate), AC05/AC06 (network loss, streaming cancel), AC09
+  (dirty-tab discard against a real save), AC11 (overlay Escape return beyond the shell
+  host) and AC12/AC13/AC14 (settings/capabilities persistence) are implemented at the
+  state/unit level but not browser-verified end to end, because the MVP has no backend.
+
 ## [0.1.0] - 2026-10-27
 
 ### Added
