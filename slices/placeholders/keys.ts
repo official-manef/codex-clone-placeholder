@@ -40,6 +40,7 @@ const FIXED_KEYS: readonly string[] = [
 	'rail_overflow',
 	// Sidebar
 	'workspace_name',
+	'create_object',
 	'priority_group',
 	'context_group',
 	'recent_group',
