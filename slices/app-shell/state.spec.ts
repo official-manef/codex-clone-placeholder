@@ -26,8 +26,18 @@ describe('shell state', () => {
 	it('closes an already closed overlay without changing anything', () => {
 		const shell = createShellState('workspace');
 		expect(shell.overlay).toBeNull();
+		expect(shell.overlayTrigger).toBeNull();
 		shell.closeOverlay();
 		expect(shell.overlay).toBeNull();
+		expect(shell.overlayTrigger).toBeNull();
 		expect(shell.activeArea).toBe('workspace');
+	});
+
+	it('drops the recorded trigger once the overlay closes', () => {
+		const shell = createShellState('workspace');
+		shell.openOverlay('command-palette');
+		shell.closeOverlay();
+		expect(shell.overlay).toBeNull();
+		expect(shell.overlayTrigger).toBeNull();
 	});
 });

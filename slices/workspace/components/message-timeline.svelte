@@ -3,7 +3,11 @@
 	import { t } from '$features/placeholders';
 	import { SignalBanner } from '$lib/components/app-ui';
 	import { Button } from '$lib/components/ui/button';
+	import { firstVisibleAnchor } from '../state.svelte';
 	import type { TimelineEntry } from '../types';
+
+	/** AC17: a reader this close to the bottom counts as being at the bottom. */
+	const BOTTOM_THRESHOLD = 24;
 
 	let { entries = [], onrecover }: { entries?: readonly TimelineEntry[]; onrecover?: () => void } =
 		$props();
@@ -25,11 +29,13 @@
 	let pending = false;
 	let lastLength = untrack(() => entries.length);
 	let newContent = $state(false);
+	/** Last scrollTop written by the append restore; that scroll event must not clear the marker. */
+	let restoredTop = -1;
 
 	$effect.pre(() => {
 		const length = entries.length;
 		if (length <= lastLength) return;
-		anchor = scroller?.scrollTop ?? 0;
+		anchor = firstVisibleAnchor(scroller?.scrollTop ?? 0, BOTTOM_THRESHOLD);
 		lastLength = length;
 		pending = true;
 	});
@@ -41,14 +47,20 @@
 		const el = scroller;
 		if (el) {
 			el.scrollTop = anchor;
+			restoredTop = el.scrollTop;
 			newContent = true;
 		}
 		pending = false;
 	});
 
+	/** AC17: only the reader reaching the bottom clears the marker, never the append itself. */
 	function clearMarker(event: Event & { currentTarget: HTMLDivElement }) {
 		const el = event.currentTarget;
-		if (el.scrollHeight - el.scrollTop - el.clientHeight < 24) newContent = false;
+		if (el.scrollTop === restoredTop) {
+			restoredTop = -1;
+			return;
+		}
+		if (el.scrollHeight - el.scrollTop - el.clientHeight < BOTTOM_THRESHOLD) newContent = false;
 	}
 </script>
 
@@ -105,6 +117,8 @@
 		{#if newContent}
 			<div
 				role="status"
+				aria-live="polite"
+				data-new-content="true"
 				class="sticky bottom-0 border-t border-border px-4 py-2 text-xs"
 				style="background: var(--shell-surface-raised); color: var(--shell-fg-muted)"
 			>

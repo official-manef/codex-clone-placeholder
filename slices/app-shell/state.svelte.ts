@@ -39,13 +39,26 @@ export function createShellState(activeArea: AreaId = 'workspace') {
 		},
 		/** T12: one overlay at a time; remembers the triggering element for focus return. */
 		openOverlay(id: OverlayId): void {
-			overlayTrigger =
-				typeof document === 'undefined' ? null : (document.activeElement as HTMLElement | null);
+			// Opening on top of an open overlay keeps the original trigger; the active element
+			// is then inside the old dialog and would be detached by the swap.
+			if (state.overlay === null) {
+				overlayTrigger =
+					typeof document === 'undefined' ? null : (document.activeElement as HTMLElement | null);
+			}
 			state.overlay = id;
 		},
-		/** T13: `overlayTrigger` stays readable so the caller restores focus after the DOM settles. */
+		/** T13: clear the layer, then return focus once the dialog has left the DOM. */
 		closeOverlay(): void {
+			const trigger = overlayTrigger;
 			state.overlay = null;
+			overlayTrigger = null;
+			if (!trigger) return;
+			const restore = () => {
+				// A trigger unmounted with its area must not be focused or throw.
+				if (trigger.isConnected) trigger.focus();
+			};
+			if (typeof requestAnimationFrame === 'function') requestAnimationFrame(restore);
+			else queueMicrotask(restore);
 		},
 		get connectivity(): Connectivity {
 			return state.connectivity;
