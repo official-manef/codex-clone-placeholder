@@ -90,6 +90,8 @@ const FIXED_KEYS: readonly string[] = [
 	'resource_location',
 	'resource_reload',
 	'resource_overflow',
+	'resource_hide',
+	'resource_show',
 	// Capabilities
 	'capability_type_a',
 	'capability_type_b',

@@ -3,22 +3,28 @@
 	import { Popover, PopoverContent, PopoverTrigger } from '$lib/components/ui/popover';
 	import { GENERIC_LABELS, t } from '$features/placeholders';
 	import Plus from '@lucide/svelte/icons/plus';
+	import PanelRightClose from '@lucide/svelte/icons/panel-right-close';
 	import X from '@lucide/svelte/icons/x';
 	import type { CloseDecision, Tab } from '../types';
 
 	let {
 		tabs,
 		activeTabId,
+		hidden,
 		onactivate,
 		onclose,
-		onadd
+		onadd,
+		ontoggle
 	}: {
 		tabs: readonly Tab[];
 		activeTabId: string | null;
+		hidden: boolean;
 		onactivate: (id: string) => void;
 		/** False means the tab is dirty and still needs a keep/discard/cancel decision (T10). */
 		onclose: (id: string, decision?: CloseDecision) => boolean;
 		onadd: () => void;
+		/** Hides the region without touching tabs (AC08). */
+		ontoggle: () => void;
 	} = $props();
 
 	/** Tab whose close request is waiting on a decision; drives the confirm popover. */
@@ -98,5 +104,16 @@
 		onclick={onadd}
 	>
 		<Plus />
+	</Button>
+	<Button
+		variant="ghost"
+		size="icon"
+		class="size-11 shrink-0 sm:size-8"
+		aria-label={t('resource_hide')}
+		aria-expanded={!hidden}
+		aria-controls="workbench-region"
+		onclick={ontoggle}
+	>
+		<PanelRightClose />
 	</Button>
 </div>

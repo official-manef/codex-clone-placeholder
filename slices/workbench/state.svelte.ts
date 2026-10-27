@@ -34,10 +34,14 @@ export type WorkbenchState = {
 	closeTab(id: string, decision?: CloseDecision): boolean;
 	readonly splitWidth: number;
 	setSplitWidth(next: number, containerWidth: number): void;
+	/** Hide is independent of layout: hiding keeps tabs and the active tab (AC08). */
+	readonly hidden: boolean;
+	toggleHidden(): void;
 };
 
 export function createWorkbenchState(): WorkbenchState {
 	let layout = $state<WorkbenchLayout>('split');
+	let hidden = $state(false);
 	const tabs = $state<Tab[]>([]);
 	let activeTabId = $state<string | null>(null);
 	let splitWidth = $state(MIN_WIDTH);
@@ -89,6 +93,12 @@ export function createWorkbenchState(): WorkbenchState {
 		},
 		setSplitWidth(next, containerWidth) {
 			splitWidth = clampSplitWidth(next, containerWidth);
+		},
+		get hidden() {
+			return hidden;
+		},
+		toggleHidden() {
+			hidden = !hidden;
 		}
 	};
 }
