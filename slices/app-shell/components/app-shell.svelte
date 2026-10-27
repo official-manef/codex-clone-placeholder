@@ -20,7 +20,10 @@
 
 	/** T13: Escape closes the topmost layer only; OverlayHost restores focus. */
 	function onkeydown(event: KeyboardEvent): void {
-		if (event.key !== 'Escape' || shell.overlay === null) return;
+		// Only intervene when this shell actually owns an overlay; with no overlay open the
+		// event stays untouched so a textarea's own Escape behaviour still works. A layer that
+		// already handled the key (bits-ui menu, popover) sets `defaultPrevented` first.
+		if (event.key !== 'Escape' || shell.overlay === null || event.defaultPrevented) return;
 		event.preventDefault();
 		shell.closeOverlay();
 	}

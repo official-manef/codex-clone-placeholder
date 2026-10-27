@@ -62,6 +62,15 @@ describe('workspace state', () => {
 		state.toggleContextSummary();
 		expect(state.contextSummary).toBe('hidden');
 	});
+
+	it('keeps the scroll anchor across appends (AC17)', () => {
+		const state = createWorkspaceState('chat-1');
+		state.setScrollAnchor(720);
+		state.appendEntry(entry('m1'));
+		state.appendEntry(entry('m2'));
+		expect(state.scrollAnchor).toBe(720);
+		expect(state.entries).toHaveLength(2);
+	});
 });
 
 describe('firstVisibleAnchor (AC17)', () => {
