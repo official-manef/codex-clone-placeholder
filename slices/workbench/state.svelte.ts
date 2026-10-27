@@ -109,7 +109,7 @@ function restoreSnapshot(raw: string | null): Snapshot | null {
 	return {
 		tabs,
 		activeTabId: typeof parsed.activeTabId === 'string' ? parsed.activeTabId : null,
-		layout: oneOf(parsed.layout, LAYOUTS, 'split'),
+		layout: oneOf(parsed.layout, LAYOUTS, 'closed'),
 		hidden: parsed.hidden === true,
 		splitWidth:
 			typeof parsed.splitWidth === 'number' && Number.isFinite(parsed.splitWidth)
@@ -134,7 +134,9 @@ export function createWorkbenchState(options: WorkbenchStateOptions = {}): Workb
 		}
 	}
 
-	let layout = $state<WorkbenchLayout>(restored?.layout ?? 'split');
+	// C2 owns the cold scene: no secondary region until the user opens it (T8). A restored
+	// snapshot keeps whatever layout the user chose.
+	let layout = $state<WorkbenchLayout>(restored?.layout ?? 'closed');
 	let hidden = $state(restored?.hidden ?? false);
 	const tabs = $state<Tab[]>(restored?.tabs ?? []);
 	let activeTabId = $state<string | null>(restored?.activeTabId ?? null);

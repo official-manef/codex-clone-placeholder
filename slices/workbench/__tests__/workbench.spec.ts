@@ -47,6 +47,28 @@ function makeTab(overrides: Partial<Tab> = {}): Tab {
 }
 
 describe('workbench state', () => {
+	it('starts closed on a cold visit (C2) and hides no tabs', () => {
+		const state = createWorkbenchState();
+		expect(state.layout).toBe('closed');
+		expect(state.hidden).toBe(false);
+	});
+
+	it('restores a stored layout verbatim (T8/AC14)', () => {
+		const storage = new Map<string, string>();
+		const store = {
+			getItem: (key: string) => storage.get(key) ?? null,
+			setItem: (key: string, value: string) => void storage.set(key, value),
+			removeItem: (key: string) => void storage.delete(key)
+		} as unknown as Storage;
+		store.setItem(
+			'workbench:tabs',
+			JSON.stringify({ tabs: [], activeTabId: null, layout: 'split', hidden: false, splitWidth: 400 })
+		);
+		const state = createWorkbenchState({ storage: store });
+		expect(state.restored).toBe(true);
+		expect(state.layout).toBe('split');
+	});
+
 	it('keeps tabs and active tab across hide/show (AC08)', () => {
 		const state = createWorkbenchState();
 		const [a, b, c] = [makeTab(), makeTab(), makeTab()];
