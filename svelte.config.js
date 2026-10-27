@@ -5,7 +5,9 @@ function deploymentAdapter() {
 	const target = process.env.DEPLOY_TARGET ?? 'vercel';
 	switch (target) {
 		case 'vercel':
-			return vercel();
+			// Pin the function runtime: adapter-vercel otherwise infers it from the build
+			// machine's Node version and refuses to build on anything outside 20/22/24.
+			return vercel({ runtime: 'nodejs22.x' });
 		case 'node':
 			return node();
 		default:
