@@ -1,17 +1,16 @@
 // Public, build-time branding only. Never put secrets or per-user state here.
 export const appConfig = {
-	name: 'Svelte Convex Starter',
-	shortName: 'Svelte Convex',
-	description:
-		'A SvelteKit and Bun starter with example screens, Convex setup, and guides for building your application.',
+	name: 'Placeholder Workspace',
+	shortName: 'Workspace',
+	description: 'Workspace shell structure with placeholder copy.',
 	locale: 'en',
 	themeColor: '#171717',
-	backgroundColor: '#fafafa',
-	tagline: 'Application starter',
+	backgroundColor: '#101010',
+	tagline: 'Workspace shell',
 	landing: {
-		badge: 'Svelte + Bun + Convex',
-		title: 'Build your Svelte app from here.',
-		description: 'Explore the example screens, then connect your own Convex backend.',
-		action: 'Open starter'
+		badge: 'Placeholder build',
+		title: 'Placeholder workspace shell',
+		description: 'Structure only. Every string is a token.',
+		action: 'Open workspace'
 	}
 } as const;
