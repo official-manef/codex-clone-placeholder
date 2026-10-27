@@ -1,7 +1,28 @@
 import type { Destination } from './types';
 
-// Destinations are added per composition as the shell slices land (plan steps 4-8).
-export const DESTINATIONS: readonly Destination[] = [];
+export const DESTINATIONS: readonly Destination[] = [
+	{
+		id: 'workspace',
+		labelKey: 'rail_primary_destination',
+		icon: 'message-square',
+		area: 'workspace',
+		route: '/workspace'
+	},
+	{
+		id: 'capabilities',
+		labelKey: 'rail_secondary_destination',
+		icon: 'blocks',
+		area: 'capabilities',
+		route: '/capabilities'
+	},
+	{
+		id: 'settings',
+		labelKey: 'rail_tertiary_destination',
+		icon: 'settings',
+		area: 'settings',
+		route: '/settings/configuration_category_01'
+	}
+];
 
 export function getDestination(id: string): Destination | undefined {
 	return DESTINATIONS.find((item) => item.id === id);
