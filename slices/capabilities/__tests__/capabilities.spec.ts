@@ -3,11 +3,6 @@ import { CAPABILITIES, createCapabilitiesState, getCapability, groupCapabilities
 
 const ids = Array.from({ length: 16 }, (_, i) => `capability_${String(i + 1).padStart(2, '0')}`);
 
-/** Let the optimistic transition flush (microtask in the MVP adapter). */
-function settle(): Promise<void> {
-	return Promise.resolve();
-}
-
 describe('capability registry', () => {
 	it('declares exactly 16 unique capabilities with slug/name keys and token colours', () => {
 		expect(CAPABILITIES).toHaveLength(16);
@@ -40,52 +35,92 @@ describe('capability connection state (T17/T18)', () => {
 		for (const id of ids) expect(state.getConnection(id)).toBe('not_connected');
 	});
 
-	it('connects on success and fails on failure', async () => {
+	it('connects on success with an observable pending phase', async () => {
 		const state = createCapabilitiesState();
-		state.toggleConnection('capability_01', 'success');
-		await settle();
+		const done = state.connect('capability_01', 'success');
+		expect(state.pendingId).toBe('capability_01');
+		expect(state.getConnection('capability_01')).toBe('pending');
+		await done;
+		expect(state.pendingId).toBeNull();
 		expect(state.getConnection('capability_01')).toBe('connected');
-
-		const other = createCapabilitiesState();
-		other.toggleConnection('capability_01', 'failure');
-		await settle();
-		expect(other.getConnection('capability_01')).toBe('failed');
-
-		// retry from failed resolves to connected
-		other.toggleConnection('capability_01', 'success');
-		await settle();
-		expect(other.getConnection('capability_01')).toBe('connected');
-
-		// disconnect succeeds back to not_connected
-		other.toggleConnection('capability_01', 'success');
-		await settle();
-		expect(other.getConnection('capability_01')).toBe('not_connected');
 	});
 
-	it('ignores a second toggle while the first is pending', async () => {
+	it('disconnects on success from connected', async () => {
 		const state = createCapabilitiesState();
-		state.toggleConnection('capability_02', 'success');
-		expect(state.pendingId).toBe('capability_02');
-		expect(state.getConnection('capability_02')).toBe('pending');
+		state.setConnection('capability_01', 'connected');
+		await state.connect('capability_01', 'success');
+		expect(state.getConnection('capability_01')).toBe('not_connected');
+	});
 
-		state.toggleConnection('capability_02', 'failure');
+	it('reverts a failed disconnect to connected (T18 revert)', async () => {
+		const state = createCapabilitiesState();
+		state.setConnection('capability_01', 'connected');
+		await state.connect('capability_01', 'failure');
+		expect(state.getConnection('capability_01')).toBe('connected');
+		expect(state.getError('capability_01')).toBe(true);
+	});
+
+	it('keeps not_connected and flags the error on a failed connect (AC13)', async () => {
+		const state = createCapabilitiesState();
+		await state.connect('capability_01', 'failure');
+		expect(state.getConnection('capability_01')).toBe('not_connected');
+		expect(state.getError('capability_01')).toBe(true);
+	});
+
+	it('clears the error marker on the next attempt', async () => {
+		const state = createCapabilitiesState();
+		await state.connect('capability_01', 'failure');
+		const done = state.connect('capability_01', 'success');
+		expect(state.getError('capability_01')).toBe(false);
+		await done;
+		expect(state.getConnection('capability_01')).toBe('connected');
+	});
+
+	it('ignores a second connect while the first is pending', async () => {
+		const state = createCapabilitiesState();
+		const first = state.connect('capability_02', 'success');
 		expect(state.pendingId).toBe('capability_02');
 
-		await settle();
+		await state.connect('capability_02', 'failure');
+		expect(state.pendingId).toBe('capability_02');
+
+		await first;
 		expect(state.pendingId).toBeNull();
 		expect(state.getConnection('capability_02')).toBe('connected');
-	});
-
-	it('clears the pending marker after resolution', async () => {
-		const state = createCapabilitiesState();
-		state.toggleConnection('capability_03', 'success');
-		await settle();
-		expect(state.pendingId).toBeNull();
+		expect(state.getError('capability_02')).toBe(false);
 	});
 
 	it('selects a capability (T17)', () => {
 		const state = createCapabilitiesState();
 		state.select('capability_04');
 		expect(state.selectedId).toBe('capability_04');
+	});
+});
+
+describe('capability search (AC15)', () => {
+	it('reports empty only for an empty input list', () => {
+		const state = createCapabilitiesState();
+		const result = state.filter([]);
+		expect(result.matches).toHaveLength(0);
+		expect(result.empty).toBe(true);
+		expect(result.noMatch).toBe(false);
+	});
+
+	it('reports noMatch, not empty, when a populated list has no hit', () => {
+		const state = createCapabilitiesState();
+		state.setQuery('zzz');
+		const result = state.filter(CAPABILITIES);
+		expect(result.matches).toHaveLength(0);
+		expect(result.noMatch).toBe(true);
+		expect(result.empty).toBe(false);
+	});
+
+	it('matches a capability by id', () => {
+		const state = createCapabilitiesState();
+		state.setQuery('capability_03');
+		const result = state.filter(CAPABILITIES);
+		expect(result.matches.map((c) => c.id)).toEqual(['capability_03']);
+		expect(result.noMatch).toBe(false);
+		expect(result.empty).toBe(false);
 	});
 });
