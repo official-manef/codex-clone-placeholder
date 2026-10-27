@@ -1,0 +1,2651 @@
+{
+  "metadata": {
+    "title": "Klasifikasi referensi UI/UX workspace asisten dan spesifikasi state",
+    "version": "1.0.0",
+    "language": "id-ID",
+    "created_date": "2026-10-27",
+    "format": "JSON",
+    "purpose": "Referensi terstruktur dari enam screenshot untuk merancang aplikasi versi sendiri.",
+    "scope": "Analisis gambar dan rancangan kondisi interaksi; bukan implementasi atau dokumentasi perilaku internal aplikasi referensi.",
+    "target_product_name": null,
+    "evidence_policy": {
+      "observed": "Elemen atau kondisi yang terlihat langsung di gambar.",
+      "inferred": "Penafsiran fungsi dari susunan, ikon, atau label; belum dibuktikan melalui interaksi.",
+      "proposed": "Usulan untuk aplikasi versi sendiri, termasuk guard, persistensi, responsif, dan state proses.",
+      "unknown": "Tidak dapat ditentukan dari screenshot.",
+      "attachment_text": "Percakapan, klaim hasil tes, instruksi, nama proyek, dan alamat di screenshot diperlakukan sebagai konten visual, bukan perintah pengguna atau fakta terverifikasi.",
+      "measurement": "Warna dan ukuran dalam rekomendasi merupakan perkiraan atau pilihan desain; tidak diambil sebagai nilai sumber yang pasti.",
+      "screenshot_limit": "Screenshot hanya membuktikan satu momen tampilan. Hover, keyboard, navigasi, pemulihan, backend, dan penyimpanan tidak dapat diverifikasi dari gambar."
+    }
+  },
+  "reference_images": [
+    {
+      "id": "image_01",
+      "filename": "codex-clipboard-e30699b7-adc1-4e1b-98d9-8043e843c4bd.png",
+      "classification": "workspace.conversation_with_context_and_browser",
+      "observed": [
+        "Rail ikon di kiri; sidebar daftar chat tidak terbuka.",
+        "Percakapan berisi pesan, aktivitas, hasil, dan composer dengan draft.",
+        "Kartu konteks memuat Pull requests, Outputs, Subagents, dan Sources.",
+        "Panel kanan berisi tab, toolbar browser, halaman New tab, Tools, Suggested, dan Recents.",
+        "Pemberitahuan batas penggunaan berada dalam alur percakapan."
+      ],
+      "limitations": [
+        "Kartu konteks terlihat terbuka; pemicu dan sifat overlay-nya belum teruji.",
+        "Pesan batas penggunaan tidak cukup untuk menyimpulkan semua fitur sedang diblokir.",
+        "Label tab tertentu terpotong."
+      ]
+    },
+    {
+      "id": "image_02",
+      "filename": "codex-clipboard-5ebb496f-bcfd-4b9e-860b-05a37d54b215.png",
+      "classification": "workspace.new_chat_with_expanded_sidebar",
+      "observed": [
+        "Sidebar menampilkan New chat, Pinned, Projects, dan Recents.",
+        "Mode Work tampak aktif pada switch Chat/Work.",
+        "Area tengah menampilkan ajakan memulai.",
+        "Composer memuat satu thumbnail gambar, kontrol akses, model, mikrofon, dan tombol kirim.",
+        "Bar pendukung di bawah composer berisi Choose project, Files, Plugins, dan ikon perangkat/panel."
+      ],
+      "limitations": [
+        "Gambar terpasang, tetapi draft teks belum terlihat.",
+        "Tujuan ikon perangkat/panel perlu tooltip atau pengujian.",
+        "Tidak ada panel kerja kanan yang terlihat."
+      ]
+    },
+    {
+      "id": "image_03",
+      "filename": "codex-clipboard-7fe85f09-9610-4246-a56e-8a378a344bb3.png",
+      "classification": "workspace.new_chat_split_browser",
+      "observed": [
+        "Rail kiri tetap ada; sidebar daftar chat tidak terlihat.",
+        "Area chat menempati sekitar sepertiga lebar area kerja.",
+        "Composer memuat dua thumbnail gambar.",
+        "Panel kanan menampilkan tab New tab dan toolbar browser.",
+        "Pesan No tabs are available for this chat ditampilkan bersamaan dengan Suggested."
+      ],
+      "limitations": [
+        "Pesan kosong kemungkinan merujuk daftar tab milik chat; bukan bukti tab New tab di panel tidak ada.",
+        "Panel kanan kosong dari halaman tujuan, tetapi tetap punya struktur dan saran.",
+        "Perubahan lebar panel melalui drag tidak dapat dibuktikan."
+      ]
+    },
+    {
+      "id": "image_04",
+      "filename": "codex-clipboard-1f11552c-f278-45a4-8711-fd0aabc4a45b.png",
+      "classification": "navigation.more_menu_open",
+      "observed": [
+        "Tombol elipsis rail memiliki latar aktif.",
+        "Menu mengambang berisi Projects, Sites, Maps, GPTs, Code Review, dan Shopify.",
+        "Ada ikon pin di sebelah Sites."
+      ],
+      "limitations": [
+        "Gambar merupakan crop; tidak membuktikan layout layar sempit.",
+        "Makna pin aktif atau hanya aksi pin belum dapat dipastikan.",
+        "Tujuan tiap menu dan perilaku tutup tidak teramati."
+      ]
+    },
+    {
+      "id": "image_05",
+      "filename": "codex-clipboard-8e77d4c6-5ad3-4b3b-bd1b-d6ff627b741f.png",
+      "classification": "customize.integration_sidebar",
+      "observed": [
+        "Judul Customize dan ikon pencarian.",
+        "Navigasi Plugins dan Skills.",
+        "Kelompok Installed dengan daftar integrasi dan ikon masing-masing.",
+        "Rail global di kiri; ikon Customize tampak aktif."
+      ],
+      "limitations": [
+        "Gambar merupakan crop sidebar; halaman detail utama tidak terlihat.",
+        "Installed tidak membuktikan integrasi sudah terhubung, sehat, atau memiliki izin.",
+        "Daftar tidak membuktikan ketersediaan fitur pada aplikasi versi sendiri."
+      ]
+    },
+    {
+      "id": "image_06",
+      "filename": "codex-clipboard-a545c68a-b279-4604-aadd-f4312fe95e9c.png",
+      "classification": "settings.general_page",
+      "observed": [
+        "Sidebar Settings dengan pencarian dan kelompok Personal, Integrations, Coding.",
+        "General tampak terpilih.",
+        "Area utama menampilkan kartu Permissions dan General.",
+        "Baris pengaturan memakai toggle, dropdown, tombol, deskripsi, dan divider.",
+        "Sidebar dan konten utama memiliki indikator scroll masing-masing."
+      ],
+      "limitations": [
+        "Sebagian halaman di bawah viewport terpotong.",
+        "Hubungan semantik dua kontrol izin tidak dapat disimpulkan hanya dari posisi toggle.",
+        "Isi submenu selain General tidak terlihat."
+      ]
+    }
+  ],
+  "taxonomy": {
+    "product_pattern": "Workspace asisten dengan percakapan dan area kerja tambahan.",
+    "surface_mode": "operate",
+    "levels": [
+      {
+        "level": 1,
+        "name": "application_shell",
+        "responsibility": "Kerangka jendela dan navigasi global.",
+        "components": [
+          "window_chrome",
+          "global_navigation_rail",
+          "account_entry"
+        ]
+      },
+      {
+        "level": 2,
+        "name": "context_navigation",
+        "responsibility": "Navigasi sesuai area aktif.",
+        "components": [
+          "chat_sidebar",
+          "customize_sidebar",
+          "settings_sidebar",
+          "more_menu"
+        ]
+      },
+      {
+        "level": 3,
+        "name": "primary_surface",
+        "responsibility": "Tugas utama pengguna.",
+        "components": [
+          "new_chat_surface",
+          "conversation_surface",
+          "customize_detail_surface",
+          "settings_content"
+        ]
+      },
+      {
+        "level": 4,
+        "name": "secondary_workspace",
+        "responsibility": "Konten pendamping tanpa menghilangkan konteks kerja.",
+        "components": [
+          "workbench_tab_strip",
+          "browser_surface",
+          "document_surface",
+          "tool_surface"
+        ]
+      },
+      {
+        "level": 5,
+        "name": "transient_surface",
+        "responsibility": "Pilihan dan informasi sementara.",
+        "components": [
+          "context_summary_card",
+          "popover",
+          "tooltip",
+          "confirmation_dialog",
+          "toast"
+        ]
+      },
+      {
+        "level": 6,
+        "name": "feedback_and_process",
+        "responsibility": "Status pekerjaan dan pemulihan.",
+        "components": [
+          "activity_summary",
+          "agent_status",
+          "inline_notice",
+          "loading_indicator",
+          "validation_message"
+        ]
+      }
+    ],
+    "state_dimensions": [
+      {
+        "name": "navigation",
+        "examples": [
+          "route",
+          "sidebar_visibility",
+          "active_navigation_item"
+        ]
+      },
+      {
+        "name": "layout",
+        "examples": [
+          "single",
+          "split",
+          "focused_panel"
+        ]
+      },
+      {
+        "name": "content",
+        "examples": [
+          "empty",
+          "draft",
+          "populated",
+          "filtered_empty"
+        ]
+      },
+      {
+        "name": "interaction",
+        "examples": [
+          "default",
+          "hover",
+          "focus",
+          "pressed",
+          "selected",
+          "disabled"
+        ]
+      },
+      {
+        "name": "async",
+        "examples": [
+          "idle",
+          "loading",
+          "streaming",
+          "success",
+          "error",
+          "cancelled"
+        ]
+      },
+      {
+        "name": "access",
+        "examples": [
+          "unknown",
+          "allowed",
+          "restricted",
+          "expired"
+        ]
+      },
+      {
+        "name": "persistence",
+        "examples": [
+          "clean",
+          "dirty",
+          "saving",
+          "saved",
+          "save_error"
+        ]
+      },
+      {
+        "name": "connectivity",
+        "examples": [
+          "online",
+          "offline",
+          "reconnecting"
+        ]
+      }
+    ],
+    "distinction_rules": [
+      "Sidebar collapsed berarti navigasi kontekstual disembunyikan; global rail masih dapat terlihat.",
+      "Panel closed berarti area kerja sekunder tidak tampil; tab yang tersimpan belum tentu dihapus.",
+      "Empty conversation berbeda dari composer kosong; chat baru bisa memiliki attachment yang belum dikirim.",
+      "Empty browser landing berbeda dari halaman gagal dimuat.",
+      "Selected, focused, hovered, dan disabled adalah state terpisah.",
+      "Installed, connected, authorized, dan healthy adalah status integrasi yang berbeda.",
+      "Settings adalah area navigasi persisten; menu More adalah permukaan sementara.",
+      "Top-level route dan tab konten adalah dua lapisan navigasi yang harus memiliki aturan sendiri."
+    ]
+  },
+  "screen_catalog": [
+    {
+      "id": "screen_new_chat",
+      "source_images": [
+        "image_02",
+        "image_03"
+      ],
+      "evidence": "observed",
+      "regions": [
+        "rail",
+        "optional_chat_sidebar",
+        "mode_switch",
+        "welcome_heading",
+        "composer",
+        "composer_support_bar",
+        "optional_workbench"
+      ],
+      "entry_condition": "Tidak ada percakapan aktif, atau pengguna memilih chat baru.",
+      "proposed_primary_action": "Kirim pesan atau lampiran pertama.",
+      "proposed_states": [
+        "pristine",
+        "draft_text",
+        "draft_attachments",
+        "draft_mixed",
+        "submitting",
+        "submission_error"
+      ],
+      "proposed_exit": "Pengiriman berhasil membuka conversation; navigasi lain mempertahankan draft menurut scope-nya."
+    },
+    {
+      "id": "screen_conversation",
+      "source_images": [
+        "image_01"
+      ],
+      "evidence": "observed",
+      "regions": [
+        "rail",
+        "chat_header",
+        "message_timeline",
+        "activity_blocks",
+        "composer",
+        "optional_context_card",
+        "optional_workbench"
+      ],
+      "entry_condition": "Percakapan dipilih atau pesan pertama berhasil dibuat.",
+      "proposed_primary_action": "Melanjutkan tugas dan memeriksa hasil.",
+      "proposed_states": [
+        "loading",
+        "ready",
+        "generating",
+        "waiting_user",
+        "completed",
+        "error",
+        "restricted"
+      ],
+      "proposed_exit": "Pindah chat, membuat chat baru, atau membuka halaman aplikasi."
+    },
+    {
+      "id": "screen_browser_landing",
+      "source_images": [
+        "image_01",
+        "image_03"
+      ],
+      "evidence": "observed",
+      "regions": [
+        "tab_strip",
+        "browser_toolbar",
+        "optional_tools",
+        "empty_notice",
+        "suggested_destinations",
+        "optional_recents"
+      ],
+      "entry_condition": "Tab browser baru atau tab belum memiliki URL.",
+      "proposed_primary_action": "Buka alamat atau pilih tujuan.",
+      "proposed_states": [
+        "landing",
+        "navigating",
+        "loaded",
+        "failed",
+        "offline"
+      ],
+      "proposed_exit": "Memilih tujuan mengubah isi tab yang aktif sesuai kebijakan aplikasi."
+    },
+    {
+      "id": "screen_more_menu",
+      "source_images": [
+        "image_04"
+      ],
+      "evidence": "observed",
+      "regions": [
+        "anchor_button",
+        "menu_surface",
+        "destination_rows",
+        "optional_pin_action"
+      ],
+      "entry_condition": "Menu More sedang terbuka.",
+      "proposed_primary_action": "Memilih area tambahan.",
+      "proposed_states": [
+        "closed",
+        "open",
+        "keyboard_navigating"
+      ],
+      "proposed_exit": "Pilih item, tekan Escape, atau klik di luar."
+    },
+    {
+      "id": "screen_customize",
+      "source_images": [
+        "image_05"
+      ],
+      "evidence": "observed_partial",
+      "regions": [
+        "rail",
+        "customize_sidebar",
+        "search_entry",
+        "plugins_skills_navigation",
+        "installed_list"
+      ],
+      "entry_condition": "Area Customize aktif.",
+      "proposed_primary_action": "Menemukan dan mengelola kemampuan aplikasi.",
+      "proposed_states": [
+        "loading",
+        "installed_list",
+        "search_results",
+        "empty",
+        "detail",
+        "error"
+      ],
+      "proposed_exit": "Pilih halaman global lain; perubahan koneksi diproses terpisah."
+    },
+    {
+      "id": "screen_settings_general",
+      "source_images": [
+        "image_06"
+      ],
+      "evidence": "observed",
+      "regions": [
+        "rail",
+        "settings_sidebar",
+        "search_field",
+        "category_groups",
+        "page_heading",
+        "setting_sections",
+        "setting_rows"
+      ],
+      "entry_condition": "Settings aktif dengan kategori General.",
+      "proposed_primary_action": "Mengubah preferensi aplikasi.",
+      "proposed_states": [
+        "loading",
+        "ready",
+        "editing",
+        "saving",
+        "saved",
+        "validation_error",
+        "save_error"
+      ],
+      "proposed_exit": "Navigasi kategori atau area global lain dengan perlakuan perubahan yang belum disimpan."
+    }
+  ],
+  "component_catalog": [
+    {
+      "id": "window_chrome",
+      "classification": "shell.desktop",
+      "evidence": "observed",
+      "sources": [
+        "image_01",
+        "image_02",
+        "image_03",
+        "image_06"
+      ],
+      "anatomy": [
+        "back",
+        "forward",
+        "optional_sidebar_toggle",
+        "application_menus",
+        "window_controls"
+      ],
+      "purpose": "Kontrol jendela desktop.",
+      "proposed_states": [
+        "default",
+        "maximized",
+        "inactive_window"
+      ],
+      "adaptation": "Untuk web biasa, gunakan chrome browser yang tersedia; jangan meniru kontrol OS sebagai tombol palsu."
+    },
+    {
+      "id": "global_navigation_rail",
+      "classification": "navigation.global",
+      "evidence": "observed",
+      "sources": [
+        "image_01",
+        "image_04",
+        "image_05"
+      ],
+      "anatomy": [
+        "primary_destinations",
+        "more_trigger",
+        "separator",
+        "secondary_destination",
+        "bottom_controls",
+        "avatar"
+      ],
+      "purpose": "Akses global yang tetap ringkas.",
+      "proposed_states": [
+        "default",
+        "destination_active",
+        "item_hover",
+        "item_focus",
+        "more_open"
+      ],
+      "conditions": [
+        "Tampilkan satu penanda destinasi utama aktif.",
+        "Setiap ikon memiliki nama aksesibel dan tooltip."
+      ]
+    },
+    {
+      "id": "chat_sidebar",
+      "classification": "navigation.contextual",
+      "evidence": "observed",
+      "sources": [
+        "image_02"
+      ],
+      "anatomy": [
+        "workspace_heading",
+        "notifications",
+        "search",
+        "new_chat",
+        "pinned_group",
+        "projects_group",
+        "recents_group",
+        "scroll_container"
+      ],
+      "purpose": "Menemukan percakapan dan proyek.",
+      "proposed_states": [
+        "expanded",
+        "collapsed",
+        "loading",
+        "empty",
+        "filtered",
+        "error"
+      ],
+      "conditions": [
+        "Nama panjang dipotong secara visual, tetapi tetap tersedia untuk pembaca layar.",
+        "Status proyek tanpa chat dibedakan dari tidak ada proyek."
+      ]
+    },
+    {
+      "id": "mode_switch",
+      "classification": "control.segmented",
+      "evidence": "observed",
+      "sources": [
+        "image_02",
+        "image_03"
+      ],
+      "anatomy": [
+        "chat_option",
+        "work_option",
+        "selected_indicator"
+      ],
+      "purpose": "Memilih mode percakapan atau pekerjaan; perbedaan kemampuan belum terlihat.",
+      "proposed_states": [
+        "chat_selected",
+        "work_selected",
+        "switching",
+        "disabled"
+      ],
+      "conditions": [
+        "Jangan menyimpulkan mode dari route atau warna saja.",
+        "Jika perubahan memengaruhi draft, beri penjelasan sebelum menghapus data."
+      ]
+    },
+    {
+      "id": "chat_header",
+      "classification": "context.header",
+      "evidence": "observed",
+      "sources": [
+        "image_01",
+        "image_03"
+      ],
+      "anatomy": [
+        "title",
+        "optional_project_context",
+        "overflow",
+        "context_trigger"
+      ],
+      "purpose": "Identitas percakapan dan aksi konteks.",
+      "proposed_states": [
+        "untitled",
+        "named",
+        "title_editing",
+        "loading"
+      ],
+      "conditions": [
+        "Aksi tingkat chat tidak dicampur dengan navigasi global."
+      ]
+    },
+    {
+      "id": "welcome_surface",
+      "classification": "content.empty_state",
+      "evidence": "observed",
+      "sources": [
+        "image_02",
+        "image_03"
+      ],
+      "anatomy": [
+        "heading",
+        "composer"
+      ],
+      "purpose": "Memberi titik mulai yang jelas.",
+      "proposed_states": [
+        "empty",
+        "draft_present"
+      ],
+      "conditions": [
+        "Draft atau attachment tidak mengubah layar menjadi conversation sebelum pesan dikirim."
+      ]
+    },
+    {
+      "id": "message_timeline",
+      "classification": "content.conversation",
+      "evidence": "observed",
+      "sources": [
+        "image_01"
+      ],
+      "anatomy": [
+        "user_message",
+        "assistant_message",
+        "activity_summary",
+        "inline_notice",
+        "message_actions"
+      ],
+      "purpose": "Riwayat komunikasi dan hasil kerja.",
+      "proposed_states": [
+        "loading_history",
+        "ready",
+        "streaming",
+        "history_error",
+        "older_messages_loading"
+      ],
+      "conditions": [
+        "Pertahankan posisi baca ketika pengguna berada di pesan lama.",
+        "Pesan baru tidak selalu memaksa scroll ke bawah."
+      ]
+    },
+    {
+      "id": "user_message",
+      "classification": "content.message",
+      "evidence": "observed",
+      "sources": [
+        "image_01"
+      ],
+      "anatomy": [
+        "message_body",
+        "optional_attachments"
+      ],
+      "purpose": "Menampilkan input pengguna.",
+      "proposed_states": [
+        "pending",
+        "sent",
+        "failed"
+      ],
+      "conditions": [
+        "Aksi retry tidak membuat duplikasi jika permintaan sebelumnya ternyata berhasil."
+      ]
+    },
+    {
+      "id": "assistant_message",
+      "classification": "content.message",
+      "evidence": "observed",
+      "sources": [
+        "image_01"
+      ],
+      "anatomy": [
+        "rich_text",
+        "lists",
+        "inline_code",
+        "result_links",
+        "message_actions"
+      ],
+      "purpose": "Menampilkan respons dan hasil.",
+      "proposed_states": [
+        "generating",
+        "complete",
+        "interrupted",
+        "failed"
+      ],
+      "conditions": [
+        "Simpan respons parsial ketika generasi terhenti.",
+        "Tautan hasil memakai label yang menjelaskan tujuan."
+      ]
+    },
+    {
+      "id": "activity_summary",
+      "classification": "feedback.progress",
+      "evidence": "observed",
+      "sources": [
+        "image_01"
+      ],
+      "anatomy": [
+        "activity_label",
+        "elapsed_time",
+        "expand_affordance"
+      ],
+      "purpose": "Merangkum aktivitas kerja.",
+      "proposed_states": [
+        "running",
+        "expanded",
+        "collapsed",
+        "completed",
+        "failed"
+      ],
+      "conditions": [
+        "Durasi tidak dianggap sebagai persentase progres.",
+        "Detail aktivitas bisa dibaca tanpa memenuhi timeline."
+      ]
+    },
+    {
+      "id": "composer",
+      "classification": "input.multimodal",
+      "evidence": "observed",
+      "sources": [
+        "image_01",
+        "image_02",
+        "image_03"
+      ],
+      "anatomy": [
+        "attachment_previews",
+        "multiline_input",
+        "add_button",
+        "access_control",
+        "model_selector",
+        "microphone",
+        "send_button"
+      ],
+      "purpose": "Menyusun pesan dengan konfigurasi tugas.",
+      "proposed_states": [
+        "empty",
+        "focused",
+        "text_draft",
+        "attachment_draft",
+        "mixed_draft",
+        "sending",
+        "blocked"
+      ],
+      "conditions": [
+        "Send aktif jika input valid dan seluruh attachment yang diperlukan siap.",
+        "Placeholder bukan satu-satunya label input.",
+        "Enter mengirim dan Shift+Enter baris baru merupakan usulan desktop, perlu pengaturan untuk IME."
+      ]
+    },
+    {
+      "id": "attachment_preview",
+      "classification": "input.attachment",
+      "evidence": "observed",
+      "sources": [
+        "image_02",
+        "image_03"
+      ],
+      "anatomy": [
+        "thumbnail",
+        "proposed_filename",
+        "proposed_remove_action",
+        "proposed_upload_feedback"
+      ],
+      "purpose": "Menunjukkan berkas sebelum dikirim.",
+      "proposed_states": [
+        "validating",
+        "uploading",
+        "ready",
+        "failed",
+        "removed"
+      ],
+      "conditions": [
+        "Satu attachment terlihat pada gambar 02; dua terlihat pada gambar 03.",
+        "Thumbnail tidak membuktikan upload ke server sudah selesai.",
+        "Kegagalan satu berkas diberi pesan pada berkas tersebut."
+      ]
+    },
+    {
+      "id": "composer_support_bar",
+      "classification": "input.context_toolbar",
+      "evidence": "observed",
+      "sources": [
+        "image_02",
+        "image_03"
+      ],
+      "anatomy": [
+        "project_picker",
+        "files_entry",
+        "plugins_entry",
+        "trailing_icon_unknown"
+      ],
+      "purpose": "Mengatur konteks sebelum memulai tugas.",
+      "proposed_states": [
+        "visible",
+        "compact",
+        "picker_open"
+      ],
+      "conditions": [
+        "Ikon kanan yang belum teridentifikasi harus diberi label saat diadaptasi."
+      ]
+    },
+    {
+      "id": "access_selector",
+      "classification": "control.permission",
+      "evidence": "observed",
+      "sources": [
+        "image_01",
+        "image_02",
+        "image_03"
+      ],
+      "anatomy": [
+        "status_icon",
+        "current_access_label"
+      ],
+      "purpose": "Menjelaskan lingkup izin aktif.",
+      "proposed_states": [
+        "default_access",
+        "elevated_access",
+        "restricted",
+        "unknown"
+      ],
+      "conditions": [
+        "Jangan menyalin Full access tanpa mendefinisikan arti izin dalam produk sendiri.",
+        "Perubahan izin harus diverifikasi sumber otoritatif, bukan hanya state visual."
+      ]
+    },
+    {
+      "id": "model_selector",
+      "classification": "control.configuration",
+      "evidence": "observed",
+      "sources": [
+        "image_01",
+        "image_02",
+        "image_03"
+      ],
+      "anatomy": [
+        "model_name",
+        "effort_label",
+        "chevron"
+      ],
+      "purpose": "Memilih konfigurasi respons.",
+      "proposed_states": [
+        "closed",
+        "open",
+        "selection_pending",
+        "unavailable"
+      ],
+      "conditions": [
+        "Pilihan aktual bergantung kemampuan produk sendiri; label model dalam gambar adalah konten referensi."
+      ]
+    },
+    {
+      "id": "context_summary_card",
+      "classification": "context.summary",
+      "evidence": "observed",
+      "sources": [
+        "image_01"
+      ],
+      "anatomy": [
+        "pull_requests",
+        "outputs",
+        "agents",
+        "sources",
+        "section_add_actions"
+      ],
+      "purpose": "Akses cepat ke hasil dan sumber terkait.",
+      "proposed_states": [
+        "closed",
+        "open_empty",
+        "open_populated",
+        "section_loading",
+        "section_error"
+      ],
+      "conditions": [
+        "Status agen working dan done terlihat sebagai ringkasan.",
+        "Pemicu dan persistensi kartu pada aplikasi sumber belum diketahui."
+      ]
+    },
+    {
+      "id": "workbench",
+      "classification": "workspace.secondary",
+      "evidence": "observed",
+      "sources": [
+        "image_01",
+        "image_03"
+      ],
+      "anatomy": [
+        "divider",
+        "tab_strip",
+        "active_tab_content",
+        "panel_controls"
+      ],
+      "purpose": "Menampilkan konten pendamping.",
+      "proposed_states": [
+        "closed",
+        "split",
+        "focused",
+        "restoring"
+      ],
+      "conditions": [
+        "Satu tab aktif per panel.",
+        "Dokumen, browser, dan tool menggunakan kontrak tab yang sama pada versi usulan."
+      ]
+    },
+    {
+      "id": "tab_strip",
+      "classification": "navigation.tabs",
+      "evidence": "observed",
+      "sources": [
+        "image_01",
+        "image_03"
+      ],
+      "anatomy": [
+        "tab_icon",
+        "tab_title",
+        "close_action",
+        "new_tab_action",
+        "panel_actions"
+      ],
+      "purpose": "Beralih antar konten panel.",
+      "proposed_states": [
+        "active",
+        "inactive",
+        "loading",
+        "dirty",
+        "error",
+        "overflow"
+      ],
+      "conditions": [
+        "Close tab dan close panel harus menjadi aksi berbeda.",
+        "Judul panjang dipotong tanpa menutup aksi close."
+      ]
+    },
+    {
+      "id": "browser_toolbar",
+      "classification": "navigation.content",
+      "evidence": "observed",
+      "sources": [
+        "image_01",
+        "image_03"
+      ],
+      "anatomy": [
+        "back",
+        "forward",
+        "reload",
+        "address_input",
+        "utility_actions",
+        "overflow"
+      ],
+      "purpose": "Navigasi dalam konten browser.",
+      "proposed_states": [
+        "landing",
+        "loading",
+        "loaded",
+        "invalid_address",
+        "failed"
+      ],
+      "conditions": [
+        "Back aplikasi dan back browser mempunyai scope berbeda.",
+        "Identitas ikon utilitas tidak dianggap pasti tanpa tooltip."
+      ]
+    },
+    {
+      "id": "browser_landing",
+      "classification": "content.start_page",
+      "evidence": "observed",
+      "sources": [
+        "image_01",
+        "image_03"
+      ],
+      "anatomy": [
+        "optional_tools",
+        "optional_empty_message",
+        "suggested_grid",
+        "optional_recents"
+      ],
+      "purpose": "Memulai navigasi dan menemukan konten sebelumnya.",
+      "proposed_states": [
+        "with_suggestions",
+        "without_history",
+        "with_recents",
+        "searching"
+      ],
+      "conditions": [
+        "Tools dan Recents terlihat pada gambar 01, tidak terlihat pada gambar 03.",
+        "Tidak menyimpulkan elemen yang tidak terlihat pasti tidak tersedia."
+      ]
+    },
+    {
+      "id": "more_menu",
+      "classification": "navigation.popup",
+      "evidence": "observed",
+      "sources": [
+        "image_04"
+      ],
+      "anatomy": [
+        "destination_rows",
+        "optional_pin_button"
+      ],
+      "purpose": "Menampung area tambahan di luar rail utama.",
+      "proposed_states": [
+        "closed",
+        "open",
+        "focused_item",
+        "pin_pending"
+      ],
+      "conditions": [
+        "Pin mempunyai target klik terpisah dari destinasi.",
+        "Menu harus menyesuaikan viewport tanpa terpotong."
+      ]
+    },
+    {
+      "id": "customize_sidebar",
+      "classification": "navigation.management",
+      "evidence": "observed",
+      "sources": [
+        "image_05"
+      ],
+      "anatomy": [
+        "heading",
+        "search",
+        "plugins",
+        "skills",
+        "installed_heading",
+        "integration_rows"
+      ],
+      "purpose": "Menjelajah kemampuan yang terpasang.",
+      "proposed_states": [
+        "loading",
+        "ready",
+        "searching",
+        "empty",
+        "error"
+      ],
+      "conditions": [
+        "Tampilkan status koneksi terpisah dari Installed dalam versi sendiri."
+      ]
+    },
+    {
+      "id": "settings_sidebar",
+      "classification": "navigation.settings",
+      "evidence": "observed",
+      "sources": [
+        "image_06"
+      ],
+      "anatomy": [
+        "heading",
+        "search",
+        "group_labels",
+        "category_rows",
+        "selected_category",
+        "scroll_container"
+      ],
+      "purpose": "Menemukan pengaturan berdasarkan kategori.",
+      "proposed_states": [
+        "ready",
+        "search_results",
+        "no_results",
+        "category_selected"
+      ],
+      "conditions": [
+        "Cari berdasarkan label dan penjelasan, bukan label saja.",
+        "Kategori aktif dapat dipulihkan dari route."
+      ]
+    },
+    {
+      "id": "setting_section",
+      "classification": "form.group",
+      "evidence": "observed",
+      "sources": [
+        "image_06"
+      ],
+      "anatomy": [
+        "section_heading",
+        "surface_container",
+        "setting_rows",
+        "dividers"
+      ],
+      "purpose": "Mengelompokkan pengaturan terkait.",
+      "proposed_states": [
+        "ready",
+        "loading",
+        "partially_unavailable"
+      ],
+      "conditions": [
+        "Judul kelompok tetap terbaca tanpa bergantung pada batas kartu."
+      ]
+    },
+    {
+      "id": "setting_row",
+      "classification": "form.field",
+      "evidence": "observed",
+      "sources": [
+        "image_06"
+      ],
+      "anatomy": [
+        "label",
+        "description",
+        "current_value",
+        "control",
+        "optional_feedback"
+      ],
+      "purpose": "Mengubah satu preferensi.",
+      "proposed_states": [
+        "default",
+        "focused",
+        "editing",
+        "saving",
+        "saved",
+        "disabled",
+        "invalid",
+        "save_error"
+      ],
+      "conditions": [
+        "Jenis kontrol mengikuti tipe data: boolean, enum, path, atau action.",
+        "Feedback gagal ditempatkan dekat kontrol yang berubah."
+      ]
+    },
+    {
+      "id": "usage_notice",
+      "classification": "feedback.inline",
+      "evidence": "observed",
+      "sources": [
+        "image_01"
+      ],
+      "anatomy": [
+        "icon",
+        "message",
+        "possible_recovery_action"
+      ],
+      "purpose": "Memberi tahu kendala pemakaian.",
+      "proposed_states": [
+        "informational",
+        "blocking",
+        "resolved"
+      ],
+      "conditions": [
+        "Tampilan notice saja tidak cukup menentukan apakah semua aksi harus dinonaktifkan.",
+        "Aksi pemulihan mengikuti aturan produk sendiri."
+      ]
+    }
+  ],
+  "reference_settings_inventory": {
+    "evidence": "observed",
+    "source_image": "image_06",
+    "category_groups": {
+      "personal": [
+        "General",
+        "Notifications",
+        "Import",
+        "Profile",
+        "Appearance",
+        "Account",
+        "Archived chats",
+        "Parental controls",
+        "Trusted contact",
+        "Voice",
+        "Storage",
+        "Configuration",
+        "Personalization",
+        "Mini & Pets",
+        "Keyboard shortcuts",
+        "Usage & billing",
+        "Data controls"
+      ],
+      "integrations": [
+        "Plugins",
+        "Passwords",
+        "Computer use",
+        "Appshots",
+        "Browser",
+        "Cloud computer"
+      ],
+      "coding": [
+        "Hooks",
+        "Connections",
+        "Codex Cloud",
+        "Code Review",
+        "Git"
+      ]
+    },
+    "general_visible_rows": [
+      {
+        "label": "Default permissions",
+        "control": "toggle",
+        "visible_value": "Tampak berwarna dengan thumb di kanan; arti aktif perlu verifikasi.",
+        "section": "Permissions"
+      },
+      {
+        "label": "Full access",
+        "control": "toggle",
+        "visible_value": "Tampak berwarna dengan thumb di kanan.",
+        "section": "Permissions"
+      },
+      {
+        "label": "Projectless chat folder",
+        "control": "path_and_button",
+        "visible_value": "Path Windows dipotong dan tombol Change.",
+        "section": "General"
+      },
+      {
+        "label": "Default file open destination",
+        "control": "select",
+        "visible_value": "VS Code",
+        "section": "General"
+      },
+      {
+        "label": "Agent environment",
+        "control": "select",
+        "visible_value": "Windows native",
+        "section": "General"
+      },
+      {
+        "label": "Integrated terminal shell",
+        "control": "select",
+        "visible_value": "PowerShell",
+        "section": "General"
+      },
+      {
+        "label": "Language",
+        "control": "select",
+        "visible_value": "Auto detect",
+        "section": "General"
+      },
+      {
+        "label": "Confirm before closing a window",
+        "control": "select",
+        "visible_value": "Close shortcut only",
+        "section": "General"
+      },
+      {
+        "label": "Full view by default",
+        "control": "toggle",
+        "visible_value": "Tampak nonaktif.",
+        "section": "General"
+      },
+      {
+        "label": "Launch at login",
+        "control": "external_action",
+        "visible_value": "On; tombol Open Startup Apps.",
+        "section": "General"
+      },
+      {
+        "label": "Bottom panel",
+        "control": "toggle",
+        "visible_value": "Tampak nonaktif.",
+        "section": "General"
+      },
+      {
+        "label": "Automatically archive inactive chats",
+        "control": "select",
+        "visible_value": "Never",
+        "section": "General"
+      },
+      {
+        "label": "Compress local chat history",
+        "control": "toggle_partial",
+        "visible_value": "Baris dan kontrol hanya terlihat sebagian.",
+        "section": "General"
+      }
+    ],
+    "adaptation_note": "Daftar ini memetakan referensi, bukan daftar fitur wajib untuk produk sendiri. Nilai lokal dan nama layanan bukan konfigurasi pengguna yang perlu disalin."
+  },
+  "own_version_proposal": {
+    "evidence": "proposed",
+    "status": "draft_reference_specification",
+    "assumptions": [
+      "Aplikasi sendiri mempunyai percakapan sebagai tugas utama.",
+      "Pengguna membutuhkan area konten pendamping.",
+      "Desktop menjadi referensi utama; perilaku tablet dan ponsel ditambahkan sebagai usulan.",
+      "Nama, merek, layanan, model, dan fitur akhir belum ditentukan."
+    ],
+    "information_architecture": {
+      "global_destinations": [
+        {
+          "id": "workspace",
+          "label": "Ruang kerja",
+          "purpose": "Chat dan hasil kerja."
+        },
+        {
+          "id": "projects",
+          "label": "Proyek",
+          "purpose": "Mengelompokkan konteks pekerjaan."
+        },
+        {
+          "id": "capabilities",
+          "label": "Kemampuan",
+          "purpose": "Mengelola integrasi dan keterampilan."
+        },
+        {
+          "id": "settings",
+          "label": "Pengaturan",
+          "purpose": "Mengubah preferensi aplikasi."
+        }
+      ],
+      "workspace_sidebar_groups": [
+        "Disematkan",
+        "Proyek",
+        "Terbaru"
+      ],
+      "workbench_tab_kinds": [
+        "browser",
+        "document",
+        "file_preview",
+        "tool",
+        "review"
+      ],
+      "settings_groups": [
+        "Umum",
+        "Tampilan",
+        "Notifikasi",
+        "Privasi dan izin",
+        "Penyimpanan",
+        "Integrasi",
+        "Pintasan"
+      ],
+      "optional_features": [
+        "Agen paralel",
+        "Code review",
+        "Terminal",
+        "Riwayat penggunaan",
+        "Lingkungan eksekusi"
+      ],
+      "optional_features_note": "Ditambahkan hanya jika produk sendiri benar-benar memiliki kapabilitas tersebut."
+    },
+    "routing": {
+      "evidence": "proposed",
+      "routes": [
+        {
+          "path": "/workspace",
+          "surface": "new_chat"
+        },
+        {
+          "path": "/workspace/chats/:chatId",
+          "surface": "conversation"
+        },
+        {
+          "path": "/projects",
+          "surface": "projects_index"
+        },
+        {
+          "path": "/projects/:projectId",
+          "surface": "project_detail"
+        },
+        {
+          "path": "/capabilities",
+          "surface": "capabilities_index"
+        },
+        {
+          "path": "/capabilities/:capabilityId",
+          "surface": "capability_detail"
+        },
+        {
+          "path": "/settings/:sectionId",
+          "surface": "settings_section"
+        }
+      ],
+      "rules": [
+        "Rute Pengaturan dan Kemampuan membuka halaman utama tersendiri.",
+        "Konteks chat disimpan ketika pindah ke halaman global.",
+        "Tab panel kerja tidak membuat chat baru.",
+        "Pemilihan tab panel tersimpan terpisah dari route global.",
+        "Deep link yang tidak valid menampilkan pemulihan ke halaman aman."
+      ]
+    },
+    "identity": {
+      "preserve_patterns": [
+        "Hierarki rail dan sidebar.",
+        "Percakapan bersebelahan dengan konten kerja.",
+        "Composer multimodal.",
+        "Panel dengan tab.",
+        "Pengaturan berkelompok."
+      ],
+      "customize": [
+        "Nama produk dan istilah navigasi.",
+        "Palet warna dan bentuk indikator aktif.",
+        "Tipografi dan kepadatan.",
+        "Susunan halaman awal.",
+        "Pengelompokan kemampuan.",
+        "Teks empty state dan feedback."
+      ],
+      "example_copy": {
+        "welcome": "Apa yang ingin kamu kerjakan?",
+        "composer_placeholder": "Tulis tujuanmu atau tambahkan berkas",
+        "empty_outputs": "Hasil pekerjaanmu akan muncul di sini",
+        "no_integrations": "Belum ada kemampuan terhubung",
+        "save_error": "Perubahan belum tersimpan. Coba lagi."
+      },
+      "color_direction": "Gunakan netral gelap dan satu warna aksen milik produk; aksen tidak harus mengikuti ungu pada referensi.",
+      "tokens_proposal": {
+        "colors": {
+          "canvas": "#16191D",
+          "navigation": "#1B1F24",
+          "surface": "#232930",
+          "surface_raised": "#2C343D",
+          "text_primary": "#F3F5F7",
+          "text_secondary": "#B2BCC7",
+          "accent": "#55BDA8",
+          "danger": "#F07878",
+          "warning": "#E8BC67"
+        },
+        "colors_note": "Nilai usulan; rasio kontras harus diuji pada pasangan foreground/background aktual sebelum implementasi.",
+        "spacing_px": [
+          4,
+          8,
+          12,
+          16,
+          24,
+          32,
+          48
+        ],
+        "radii_px": {
+          "control": 8,
+          "panel": 12,
+          "composer": 18
+        },
+        "typography_px": {
+          "caption": 12,
+          "body": 14,
+          "section": 16,
+          "page_title": 28
+        },
+        "navigation_rail_width_px": 56,
+        "sidebar_width_px": {
+          "default": 248,
+          "min": 216,
+          "max": 320
+        },
+        "composer_max_width_px": 760,
+        "reading_max_width_px": 760,
+        "settings_max_width_px": 840
+      }
+    },
+    "responsive_rules": [
+      {
+        "range": "wide",
+        "condition": "viewportWidth >= 1280",
+        "layout": "Rail, sidebar opsional, chat, dan panel dapat berdampingan jika lebar minimum terpenuhi.",
+        "behavior": [
+          "Split dapat diubah ukurannya.",
+          "Composer mengikuti lebar chat, bukan seluruh jendela."
+        ]
+      },
+      {
+        "range": "medium",
+        "condition": "900 <= viewportWidth < 1280",
+        "layout": "Rail tetap; sidebar collapse secara otomatis bila split membutuhkan ruang.",
+        "behavior": [
+          "Pilihan collapse manual disimpan dalam konteks ukuran layar.",
+          "Panel tetap tersedia melalui tombol berlabel."
+        ]
+      },
+      {
+        "range": "compact",
+        "condition": "600 <= viewportWidth < 900",
+        "layout": "Satu permukaan utama aktif; sidebar menjadi drawer.",
+        "behavior": [
+          "Chat dan panel dipilih melalui switch tampilan.",
+          "Draft, tab, dan posisi baca dipertahankan."
+        ]
+      },
+      {
+        "range": "mobile",
+        "condition": "viewportWidth < 600",
+        "layout": "Navigasi ringkas, satu permukaan, panel kerja layar penuh.",
+        "behavior": [
+          "Jangan menyimpulkan layout ini dari gambar crop 04/05.",
+          "Composer mengikuti keyboard dan safe area.",
+          "Tab overflow menjadi daftar yang dapat dicari."
+        ]
+      }
+    ],
+    "layout_constraints": [
+      "Rentang viewport merupakan usulan, bukan pengukuran aplikasi referensi.",
+      "Mode split hanya berlaku jika tersedia lebar minimal chat 360 px dan panel 420 px setelah rail/sidebar/divider.",
+      "Jika ruang tidak cukup, pindah ke focused-panel atau chat-only tanpa membuang tab.",
+      "Lebar hasil drag di-clamp sesuai viewport saat ini.",
+      "Hindari overflow horizontal pada halaman Pengaturan.",
+      "Area timeline, sidebar, dan konten panel memiliki scroll sendiri tanpa memerangkap keyboard."
+    ]
+  },
+  "state_model": {
+    "evidence": "proposed",
+    "notation": "Kondisi bergaya ekspresi; ini spesifikasi konseptual, bukan kode siap dieksekusi.",
+    "initial_state": {
+      "route": "/workspace",
+      "activeArea": "workspace",
+      "activeChatId": null,
+      "mode": "work",
+      "sidebar": "expanded",
+      "workbench": "closed",
+      "activeTabId": null,
+      "overlay": null,
+      "composerStatus": "empty",
+      "conversationStatus": "idle",
+      "connectivity": "online",
+      "settingsStatus": "clean"
+    },
+    "variables": [
+      {
+        "name": "activeArea",
+        "type": "enum",
+        "values": [
+          "workspace",
+          "projects",
+          "capabilities",
+          "settings"
+        ],
+        "scope": "application"
+      },
+      {
+        "name": "mode",
+        "type": "enum",
+        "values": [
+          "chat",
+          "work"
+        ],
+        "scope": "workspace"
+      },
+      {
+        "name": "sidebar",
+        "type": "enum",
+        "values": [
+          "expanded",
+          "collapsed",
+          "drawer_open"
+        ],
+        "scope": "layout"
+      },
+      {
+        "name": "workbench",
+        "type": "enum",
+        "values": [
+          "closed",
+          "split",
+          "focused"
+        ],
+        "scope": "layout"
+      },
+      {
+        "name": "activeChatId",
+        "type": "string|null",
+        "scope": "workspace"
+      },
+      {
+        "name": "activeTabId",
+        "type": "string|null",
+        "scope": "active_workspace"
+      },
+      {
+        "name": "tabs",
+        "type": "Tab[]",
+        "scope": "workspace_or_chat"
+      },
+      {
+        "name": "overlay",
+        "type": "null|more|model|access|project|context|confirm",
+        "scope": "application"
+      },
+      {
+        "name": "draftText",
+        "type": "string",
+        "scope": "draftKey"
+      },
+      {
+        "name": "attachments",
+        "type": "Attachment[]",
+        "scope": "draftKey"
+      },
+      {
+        "name": "conversationStatus",
+        "type": "enum",
+        "values": [
+          "idle",
+          "loading",
+          "ready",
+          "submitting",
+          "generating",
+          "waiting_user",
+          "complete",
+          "error",
+          "cancelled"
+        ],
+        "scope": "chat"
+      },
+      {
+        "name": "accessStatus",
+        "type": "enum",
+        "values": [
+          "unknown",
+          "allowed",
+          "restricted",
+          "expired"
+        ],
+        "scope": "session"
+      },
+      {
+        "name": "usageStatus",
+        "type": "enum",
+        "values": [
+          "unknown",
+          "available",
+          "limited",
+          "exhausted"
+        ],
+        "scope": "account"
+      },
+      {
+        "name": "connectivity",
+        "type": "enum",
+        "values": [
+          "online",
+          "offline",
+          "reconnecting"
+        ],
+        "scope": "application"
+      },
+      {
+        "name": "settingsStatus",
+        "type": "enum",
+        "values": [
+          "clean",
+          "dirty",
+          "saving",
+          "saved",
+          "invalid",
+          "error"
+        ],
+        "scope": "setting_or_form"
+      },
+      {
+        "name": "draftKey",
+        "type": "string",
+        "scope": "derived",
+        "meaning": "Identitas draft berdasarkan chat, atau draft chat baru dan proyek terpilih."
+      }
+    ],
+    "entities": {
+      "Tab": {
+        "id": "string",
+        "kind": "browser|document|file_preview|tool|review",
+        "title": "string",
+        "resourceId": "string|null",
+        "status": "idle|loading|ready|error",
+        "dirty": "boolean",
+        "ownerChatId": "string|null",
+        "lastFocusedAt": "timestamp",
+        "error": "object|null"
+      },
+      "Attachment": {
+        "id": "string",
+        "name": "string",
+        "mimeType": "string",
+        "sizeBytes": "number",
+        "status": "validating|uploading|ready|failed",
+        "progress": "number|null",
+        "resourceId": "string|null",
+        "error": "object|null"
+      },
+      "Capability": {
+        "id": "string",
+        "installation": "not_installed|installing|installed|failed",
+        "connection": "not_connected|connecting|connected|expired|error",
+        "permission": "unknown|granted|restricted",
+        "health": "unknown|healthy|degraded|unavailable"
+      },
+      "Setting": {
+        "key": "string",
+        "value": "unknown",
+        "previousValue": "unknown",
+        "status": "clean|dirty|saving|saved|invalid|error",
+        "saveSequence": "number",
+        "error": "object|null"
+      }
+    },
+    "derived_conditions": [
+      {
+        "id": "hasText",
+        "expression": "trim(draftText).length > 0"
+      },
+      {
+        "id": "hasAttachments",
+        "expression": "attachments.length > 0"
+      },
+      {
+        "id": "attachmentsReady",
+        "expression": "attachments.every(item => item.status == 'ready')",
+        "note": "Bernilai true untuk daftar kosong."
+      },
+      {
+        "id": "hasValidPayload",
+        "expression": "hasText || attachments.some(item => item.status == 'ready')"
+      },
+      {
+        "id": "requestBusy",
+        "expression": "conversationStatus in ['submitting','generating']"
+      },
+      {
+        "id": "sendAllowed",
+        "expression": "hasValidPayload && attachmentsReady && !requestBusy && accessStatus == 'allowed' && usageStatus == 'available' && connectivity == 'online'"
+      },
+      {
+        "id": "sendDisabledReason",
+        "expression": "prioritas: busy, access_unknown/restricted/expired, usage_unknown/limited/exhausted, offline, attachment_not_ready, empty_payload",
+        "note": "Produk dapat mengizinkan sebagian operasi ketika limited; guard harus mengikuti aturan layanan aktual."
+      },
+      {
+        "id": "showWelcome",
+        "expression": "activeArea == 'workspace' && activeChatId == null"
+      },
+      {
+        "id": "showConversation",
+        "expression": "activeArea == 'workspace' && activeChatId != null"
+      },
+      {
+        "id": "showWorkbench",
+        "expression": "activeArea == 'workspace' && workbench != 'closed'"
+      },
+      {
+        "id": "canUseSplit",
+        "expression": "availableWorkspaceWidth >= minChatWidth + dividerWidth + minPanelWidth"
+      },
+      {
+        "id": "hasDirtyTabs",
+        "expression": "tabs.some(tab => tab.dirty)"
+      },
+      {
+        "id": "showEmptyRecents",
+        "expression": "historyLoaded && recentItems.length == 0"
+      },
+      {
+        "id": "showNoSearchResults",
+        "expression": "searchQuery != '' && filteredItems.length == 0 && !searchLoading"
+      }
+    ],
+    "invariants": [
+      "activeTabId harus null atau menunjuk tab yang masih ada.",
+      "Satu chat hanya memiliki satu pengiriman yang sedang berlangsung pada rancangan awal.",
+      "Draft tidak dihapus sebelum penerimaan pengiriman dikonfirmasi.",
+      "Tidak menampilkan status tersimpan sebelum penyimpanan berhasil.",
+      "Keadaan izin unknown tidak diperlakukan sebagai allowed.",
+      "Hidden panel tidak sama dengan tabs kosong.",
+      "Pergantian route tidak otomatis menghapus attachment draft.",
+      "Satu overlay nonmodal utama aktif pada satu waktu; dialog konfirmasi dapat menggantikannya.",
+      "Status instalasi integrasi tidak otomatis mengubah status koneksi.",
+      "Layout yang dipulihkan harus divalidasi terhadap viewport saat ini.",
+      "Perubahan izin di UI tidak dianggap berhasil sebelum server atau sumber izin mengonfirmasi."
+    ]
+  },
+  "state_condition_catalog": [
+    {
+      "id": "sidebar_expanded",
+      "evidence": "observed",
+      "sources": [
+        "image_02",
+        "image_05",
+        "image_06"
+      ],
+      "condition": "contextSidebarVisible == true",
+      "visual": "Kolom navigasi berlabel terlihat di samping rail.",
+      "proposed_entry": [
+        "toggle_sidebar",
+        "open_area_with_sidebar"
+      ],
+      "proposed_exit": [
+        "toggle_sidebar",
+        "viewport_requires_compact"
+      ],
+      "proposed_preserve": [
+        "active_item",
+        "scroll_position"
+      ]
+    },
+    {
+      "id": "sidebar_collapsed",
+      "evidence": "observed",
+      "sources": [
+        "image_01",
+        "image_03"
+      ],
+      "condition": "contextSidebarVisible == false",
+      "visual": "Rail tetap tampil; daftar navigasi kontekstual tidak terlihat.",
+      "proposed_entry": [
+        "toggle_sidebar",
+        "compact_layout"
+      ],
+      "proposed_exit": [
+        "toggle_sidebar"
+      ],
+      "proposed_preserve": [
+        "groups_expansion",
+        "selection",
+        "scroll_position"
+      ]
+    },
+    {
+      "id": "new_chat_attachment_draft",
+      "evidence": "observed",
+      "sources": [
+        "image_02",
+        "image_03"
+      ],
+      "condition": "activeChatId == null && attachments.length > 0",
+      "visual": "Welcome tetap tampil dengan thumbnail dalam composer.",
+      "proposed_entry": [
+        "add_attachment"
+      ],
+      "proposed_exit": [
+        "remove_all_attachments",
+        "send_success"
+      ],
+      "proposed_preserve": [
+        "attachment_order",
+        "draft_text"
+      ]
+    },
+    {
+      "id": "new_chat_pristine",
+      "evidence": "proposed",
+      "sources": [],
+      "condition": "activeChatId == null && !hasText && !hasAttachments",
+      "visual": "Welcome dan composer kosong.",
+      "proposed_entry": [
+        "new_chat_without_existing_draft"
+      ],
+      "proposed_exit": [
+        "type_text",
+        "add_attachment"
+      ]
+    },
+    {
+      "id": "conversation_with_draft",
+      "evidence": "observed",
+      "sources": [
+        "image_01"
+      ],
+      "condition": "activeChatId != null && hasText",
+      "visual": "Riwayat percakapan terlihat dan composer memuat draft.",
+      "proposed_entry": [
+        "type_text_in_conversation"
+      ],
+      "proposed_exit": [
+        "send_success",
+        "clear_draft"
+      ]
+    },
+    {
+      "id": "workbench_split",
+      "evidence": "observed",
+      "sources": [
+        "image_01",
+        "image_03"
+      ],
+      "condition": "chatSurfaceVisible && secondaryPanelVisible",
+      "visual": "Dua permukaan berdampingan dipisahkan batas vertikal.",
+      "proposed_entry": [
+        "open_tab_with_sufficient_width"
+      ],
+      "proposed_exit": [
+        "hide_panel",
+        "focus_panel",
+        "viewport_too_small"
+      ]
+    },
+    {
+      "id": "workbench_closed",
+      "evidence": "observed",
+      "sources": [
+        "image_02"
+      ],
+      "condition": "secondaryPanelVisible == false",
+      "visual": "Area utama memakai ruang yang tersedia.",
+      "proposed_entry": [
+        "hide_panel"
+      ],
+      "proposed_exit": [
+        "open_panel"
+      ],
+      "proposed_preserve": [
+        "tabs",
+        "active_tab",
+        "panel_width"
+      ]
+    },
+    {
+      "id": "browser_new_tab",
+      "evidence": "observed",
+      "sources": [
+        "image_01",
+        "image_03"
+      ],
+      "condition": "activeTab.kind == 'browser' && activeTab.url == null",
+      "visual": "Toolbar dan halaman saran.",
+      "proposed_entry": [
+        "new_browser_tab"
+      ],
+      "proposed_exit": [
+        "submit_url",
+        "choose_suggestion"
+      ]
+    },
+    {
+      "id": "browser_no_chat_tabs_notice",
+      "evidence": "observed",
+      "sources": [
+        "image_03"
+      ],
+      "condition": "source_internal_condition_unknown",
+      "visual": "Pesan No tabs are available for this chat.",
+      "proposed_interpretation": "Daftar konten terkait chat kosong; tidak menghapus tab landing yang sedang terlihat."
+    },
+    {
+      "id": "more_menu_open",
+      "evidence": "observed",
+      "sources": [
+        "image_04"
+      ],
+      "condition": "overlay == 'more'",
+      "visual": "Menu melayang dekat tombol elipsis; tombol diberi latar.",
+      "proposed_entry": [
+        "activate_more"
+      ],
+      "proposed_exit": [
+        "escape",
+        "outside_click",
+        "select_destination"
+      ]
+    },
+    {
+      "id": "customize_installed_list",
+      "evidence": "observed",
+      "sources": [
+        "image_05"
+      ],
+      "condition": "activeArea == 'capabilities' && listMode == 'installed'",
+      "visual": "Daftar Installed di bawah navigasi Plugins/Skills.",
+      "proposed_entry": [
+        "open_capabilities"
+      ],
+      "proposed_exit": [
+        "select_capability",
+        "navigate_elsewhere"
+      ]
+    },
+    {
+      "id": "settings_general_selected",
+      "evidence": "observed",
+      "sources": [
+        "image_06"
+      ],
+      "condition": "activeArea == 'settings' && sectionId == 'general'",
+      "visual": "General terpilih dan kartu pengaturan terlihat.",
+      "proposed_entry": [
+        "open_general"
+      ],
+      "proposed_exit": [
+        "select_other_section",
+        "navigate_elsewhere"
+      ]
+    },
+    {
+      "id": "context_card_open",
+      "evidence": "observed",
+      "sources": [
+        "image_01"
+      ],
+      "condition": "contextCardVisible == true",
+      "visual": "Kartu ringkasan hasil, agen, dan sumber.",
+      "proposed_entry": [
+        "activate_context_trigger"
+      ],
+      "proposed_exit": [
+        "dismiss_context_card"
+      ]
+    },
+    {
+      "id": "usage_notice_visible",
+      "evidence": "observed",
+      "sources": [
+        "image_01"
+      ],
+      "condition": "usageNotice != null",
+      "visual": "Notice batas penggunaan dalam timeline.",
+      "proposed_entry": [
+        "receive_usage_limit_signal"
+      ],
+      "proposed_exit": [
+        "limit_resolved_or_notice_dismissed_if_allowed"
+      ]
+    },
+    {
+      "id": "sending",
+      "evidence": "proposed",
+      "condition": "conversationStatus == 'submitting'",
+      "visual": "Indikator mengirim; cegah klik ganda.",
+      "entry": [
+        "send_with_valid_payload"
+      ],
+      "exit": [
+        "request_accepted",
+        "request_failed"
+      ],
+      "recovery": "Pertahankan draft sampai diterima."
+    },
+    {
+      "id": "generating",
+      "evidence": "proposed",
+      "condition": "conversationStatus == 'generating'",
+      "visual": "Respons bertambah dan aksi hentikan tersedia.",
+      "entry": [
+        "request_accepted"
+      ],
+      "exit": [
+        "completed",
+        "cancelled",
+        "generation_failed"
+      ],
+      "recovery": "Simpan respons parsial."
+    },
+    {
+      "id": "waiting_user",
+      "evidence": "proposed",
+      "condition": "conversationStatus == 'waiting_user'",
+      "visual": "Permintaan input dengan aksi jelas.",
+      "entry": [
+        "task_needs_input"
+      ],
+      "exit": [
+        "user_response_accepted",
+        "cancel_task"
+      ],
+      "recovery": "Jelaskan input yang kurang pada konteks tugas."
+    },
+    {
+      "id": "attachment_error",
+      "evidence": "proposed",
+      "condition": "attachments.some(item => item.status == 'failed')",
+      "visual": "Thumbnail berstatus gagal dengan retry dan hapus.",
+      "entry": [
+        "validation_or_upload_failed"
+      ],
+      "exit": [
+        "retry_success",
+        "remove_failed_file"
+      ],
+      "recovery": "Jangan menghapus attachment lain yang siap."
+    },
+    {
+      "id": "tab_dirty",
+      "evidence": "proposed",
+      "condition": "activeTab.dirty == true",
+      "visual": "Penanda perubahan belum tersimpan.",
+      "entry": [
+        "edit_document"
+      ],
+      "exit": [
+        "save_success",
+        "discard_confirmed"
+      ],
+      "recovery": "Konfirmasi sebelum membuang perubahan."
+    },
+    {
+      "id": "settings_saving",
+      "evidence": "proposed",
+      "condition": "setting.status == 'saving'",
+      "visual": "Feedback simpan dekat kontrol.",
+      "entry": [
+        "valid_setting_changed"
+      ],
+      "exit": [
+        "save_success",
+        "save_failed"
+      ],
+      "recovery": "Gunakan sequence agar respons lama tidak menimpa nilai terbaru."
+    },
+    {
+      "id": "settings_save_error",
+      "evidence": "proposed",
+      "condition": "setting.status == 'error'",
+      "visual": "Pesan gagal dan aksi coba lagi.",
+      "entry": [
+        "save_failed"
+      ],
+      "exit": [
+        "retry_success",
+        "revert"
+      ],
+      "recovery": "Nilai server terakhir dan draft lokal harus dapat dibedakan."
+    },
+    {
+      "id": "offline",
+      "evidence": "proposed",
+      "condition": "connectivity == 'offline'",
+      "visual": "Status koneksi terlihat; draft tetap dapat diedit.",
+      "entry": [
+        "network_unavailable"
+      ],
+      "exit": [
+        "network_restored"
+      ],
+      "recovery": "Jangan mengirim ulang otomatis jika berpotensi menimbulkan tindakan ganda."
+    },
+    {
+      "id": "integration_expired",
+      "evidence": "proposed",
+      "condition": "capability.connection == 'expired'",
+      "visual": "Label Hubungkan kembali.",
+      "entry": [
+        "credential_expired"
+      ],
+      "exit": [
+        "reauthorization_success",
+        "disconnect"
+      ],
+      "recovery": "Tidak perlu menginstal ulang integrasi."
+    },
+    {
+      "id": "search_no_results",
+      "evidence": "proposed",
+      "condition": "showNoSearchResults",
+      "visual": "Hasil tidak ditemukan dan aksi hapus pencarian.",
+      "entry": [
+        "search_completed_without_matches"
+      ],
+      "exit": [
+        "query_changed",
+        "clear_search"
+      ],
+      "recovery": "Jangan tampilkan pesan belum ada data jika sebenarnya hanya filter kosong."
+    }
+  ],
+  "transitions": [
+    {
+      "id": "t01",
+      "event": "TOGGLE_SIDEBAR",
+      "from": "expanded|collapsed",
+      "guard": "Tidak ada modal yang memblokir.",
+      "to": "expanded menjadi collapsed, atau sebaliknya",
+      "effects": [
+        "Simpan preferensi sesuai rentang viewport."
+      ],
+      "failure": "Pertahankan state lama jika layout tidak dapat diterapkan."
+    },
+    {
+      "id": "t02",
+      "event": "OPEN_MORE",
+      "from": "overlay == null",
+      "guard": "Trigger tersedia.",
+      "to": "overlay = more",
+      "effects": [
+        "Fokus ke item pertama atau item sebelumnya."
+      ],
+      "failure": "Tidak berlaku"
+    },
+    {
+      "id": "t03",
+      "event": "DISMISS_OVERLAY",
+      "from": "overlay != null",
+      "guard": "Bukan dialog wajib yang sedang memproses.",
+      "to": "overlay = null",
+      "effects": [
+        "Kembalikan fokus ke trigger."
+      ],
+      "failure": "Tidak berlaku"
+    },
+    {
+      "id": "t04",
+      "event": "NEW_CHAT",
+      "from": "workspace",
+      "guard": "Draft disimpan atau memang kosong.",
+      "to": "activeChatId = null",
+      "effects": [
+        "Pulihkan draft chat baru sesuai konteks proyek."
+      ],
+      "failure": "Pertahankan draft jika penyimpanan gagal dan tampilkan feedback."
+    },
+    {
+      "id": "t05",
+      "event": "SELECT_CHAT",
+      "from": "workspace",
+      "guard": "chatId dapat diakses.",
+      "to": "conversationStatus = loading",
+      "effects": [
+        "Simpan draft sebelumnya.",
+        "Muat riwayat dan tab milik chat tujuan."
+      ],
+      "failure": "Tampilkan error riwayat tanpa menampilkan data chat sebelumnya sebagai chat baru."
+    },
+    {
+      "id": "t06",
+      "event": "CHANGE_MODE",
+      "from": "chat|work",
+      "guard": "Perubahan mode tidak menghilangkan data tanpa keputusan pengguna.",
+      "to": "mode tujuan",
+      "effects": [
+        "Perbarui kemampuan yang tersedia."
+      ],
+      "failure": "Kembalikan mode sebelumnya."
+    },
+    {
+      "id": "t07",
+      "event": "ADD_ATTACHMENT",
+      "from": "composer editable",
+      "guard": "Tipe, ukuran, dan jumlah memenuhi batas produk.",
+      "to": "attachment.status = validating lalu uploading",
+      "effects": [
+        "Tampilkan thumbnail dan progres bila tersedia."
+      ],
+      "failure": "Tampilkan alasan per berkas."
+    },
+    {
+      "id": "t08",
+      "event": "SEND",
+      "from": "draft",
+      "guard": "sendAllowed",
+      "to": "conversationStatus = submitting",
+      "effects": [
+        "Gunakan idempotency key.",
+        "Buat representasi pesan pending."
+      ],
+      "failure": "Simpan draft; tandai pengiriman gagal."
+    },
+    {
+      "id": "t09",
+      "event": "SEND_ACCEPTED",
+      "from": "submitting",
+      "guard": "Respons milik request aktif.",
+      "to": "conversationStatus = generating",
+      "effects": [
+        "Tetapkan chatId.",
+        "Bersihkan hanya draft yang telah diterima.",
+        "Mulai streaming."
+      ],
+      "failure": "Abaikan respons kedaluwarsa."
+    },
+    {
+      "id": "t10",
+      "event": "STOP_GENERATION",
+      "from": "generating",
+      "guard": "Request aktif dapat dibatalkan.",
+      "to": "cancelled setelah konfirmasi pembatalan",
+      "effects": [
+        "Pertahankan respons parsial."
+      ],
+      "failure": "Jelaskan jika pembatalan belum terkonfirmasi."
+    },
+    {
+      "id": "t11",
+      "event": "OPEN_RESOURCE",
+      "from": "workspace",
+      "guard": "Resource dapat diakses.",
+      "to": "tab terpilih; split jika muat atau focused jika sempit",
+      "effects": [
+        "Fokus tab resource yang sudah ada jika identik.",
+        "Tampilkan loading pada tab terkait."
+      ],
+      "failure": "Error hanya pada tab tersebut."
+    },
+    {
+      "id": "t12",
+      "event": "SELECT_TAB",
+      "from": "workbench",
+      "guard": "Tab ada.",
+      "to": "activeTabId = selectedId",
+      "effects": [
+        "Pulihkan posisi scroll dan state tab."
+      ],
+      "failure": "Pilih tab valid terdekat jika tab tujuan telah dihapus."
+    },
+    {
+      "id": "t13",
+      "event": "CLOSE_TAB",
+      "from": "tab exists",
+      "guard": "!tab.dirty atau pengguna telah memilih simpan/buang.",
+      "to": "tab dihapus dari koleksi terbuka",
+      "effects": [
+        "Pilih tetangga terdekat.",
+        "Jika tab terakhir ditutup, tampilkan landing atau tutup panel sesuai kebijakan tunggal."
+      ],
+      "failure": "Batalkan penutupan jika simpan gagal."
+    },
+    {
+      "id": "t14",
+      "event": "HIDE_PANEL",
+      "from": "split|focused",
+      "guard": "Tidak membuang konten.",
+      "to": "workbench = closed",
+      "effects": [
+        "Simpan tab dan ukuran terakhir."
+      ],
+      "failure": "Tidak berlaku"
+    },
+    {
+      "id": "t15",
+      "event": "RESIZE_SPLIT",
+      "from": "split",
+      "guard": "canUseSplit",
+      "to": "split dengan lebar baru yang di-clamp",
+      "effects": [
+        "Simpan lebar sesudah drag selesai.",
+        "Sediakan alternatif keyboard."
+      ],
+      "failure": "Gunakan lebar valid terakhir."
+    },
+    {
+      "id": "t16",
+      "event": "NAVIGATE_SETTINGS",
+      "from": "any top-level area",
+      "guard": "Perubahan belum tersimpan ditangani.",
+      "to": "activeArea = settings",
+      "effects": [
+        "Simpan konteks workspace.",
+        "Buka kategori terakhir atau General."
+      ],
+      "failure": "Tampilkan pesan halaman gagal dimuat."
+    },
+    {
+      "id": "t17",
+      "event": "CHANGE_SETTING",
+      "from": "clean|saved|error",
+      "guard": "Nilai valid dan kontrol dapat diubah.",
+      "to": "saving",
+      "effects": [
+        "Simpan previousValue.",
+        "Kirim perubahan bernomor urut."
+      ],
+      "failure": "Tampilkan error dan pilihan retry atau kembali ke nilai tersimpan."
+    },
+    {
+      "id": "t18",
+      "event": "CONNECT_CAPABILITY",
+      "from": "installed + not_connected|expired",
+      "guard": "Layanan dan metode koneksi tersedia.",
+      "to": "connecting",
+      "effects": [
+        "Mulai alur otorisasi yang sesuai."
+      ],
+      "failure": "Tetap installed; status koneksi menjadi error atau not_connected."
+    },
+    {
+      "id": "t19",
+      "event": "PIN_DESTINATION",
+      "from": "more open",
+      "guard": "Item mendukung pin.",
+      "to": "pin state berubah setelah tersimpan",
+      "effects": [
+        "Perbarui rail tanpa membuka destinasi secara tidak sengaja."
+      ],
+      "failure": "Kembalikan posisi sebelumnya dan beri feedback."
+    },
+    {
+      "id": "t20",
+      "event": "VIEWPORT_CHANGED",
+      "from": "any layout",
+      "guard": "Ukuran viewport valid.",
+      "to": "layout yang memenuhi lebar minimum",
+      "effects": [
+        "Pertahankan konteks, draft, tab, dan fokus semampunya."
+      ],
+      "failure": "Gunakan satu permukaan yang tetap dapat dioperasikan."
+    }
+  ],
+  "interaction_contracts": {
+    "evidence": "proposed",
+    "keyboard": [
+      {
+        "key": "Tab / Shift+Tab",
+        "behavior": "Bergerak mengikuti urutan visual dan logis."
+      },
+      {
+        "key": "Escape",
+        "behavior": "Menutup overlay teratas yang boleh ditutup dan mengembalikan fokus."
+      },
+      {
+        "key": "Arrow keys",
+        "behavior": "Bergerak di menu, segmented control, dan tab sesuai pola aksesibilitas komponennya."
+      },
+      {
+        "key": "Enter / Space",
+        "behavior": "Mengaktifkan kontrol fokus sesuai jenis kontrol."
+      },
+      {
+        "key": "Enter in composer",
+        "behavior": "Mengirim jika valid dan tidak sedang komposisi IME; dapat diubah preferensinya."
+      },
+      {
+        "key": "Shift+Enter in composer",
+        "behavior": "Menambah baris pada kebijakan desktop yang diusulkan."
+      },
+      {
+        "key": "Delete on focused attachment action",
+        "behavior": "Hanya menghapus melalui aksi yang jelas; jangan menangkap Delete global."
+      }
+    ],
+    "focus": [
+      "Drawer dan dialog modal mengelola fokus serta mengembalikannya ke pemicu.",
+      "Menu More tidak membuat semua bagian aplikasi menjadi modal tanpa alasan.",
+      "Pindah chat memfokuskan judul atau area percakapan tanpa memaksa composer fokus.",
+      "Setelah menghapus attachment, fokus pindah ke attachment berikutnya atau tombol tambah.",
+      "Jika tab aktif ditutup, fokus berpindah ke tab pengganti.",
+      "Perubahan responsif tidak memindahkan fokus ke elemen tersembunyi."
+    ],
+    "feedback": [
+      "Loading berada di komponen yang melakukan proses.",
+      "Error menjelaskan apa yang gagal dan tindakan pemulihan.",
+      "Toast tidak menjadi satu-satunya tempat menyampaikan error yang butuh tindakan.",
+      "Status proses memakai teks atau ikon bersama warna.",
+      "Streaming diumumkan secara terkendali agar pembaca layar tidak membaca setiap token."
+    ],
+    "dirty_content_policy": {
+      "close_tab": "Tawarkan Simpan, Buang perubahan, atau Batal jika konten belum tersimpan.",
+      "hide_panel": "Sembunyikan tanpa membuang konten.",
+      "change_chat": "Simpan draft chat secara terpisah; penanganan editor mengikuti kepemilikan tab.",
+      "change_route": "Pertahankan draft workspace; tangani formulir Pengaturan yang belum tersimpan.",
+      "app_close": "Peringatkan hanya jika ada perubahan lokal yang berisiko hilang dan platform mendukung.",
+      "settings_save_policy": "Autosave per baris untuk toggle/select sederhana; tombol Simpan eksplisit untuk formulir kompleks. Jangan mencampurnya tanpa penjelasan."
+    }
+  },
+  "persistence_plan": {
+    "evidence": "proposed",
+    "items": [
+      {
+        "data": "active_area_and_settings_section",
+        "scope": "user",
+        "storage": "Preferensi lokal atau profil pengguna.",
+        "restore": "Validasi route dan akses."
+      },
+      {
+        "data": "sidebar_visibility_and_group_expansion",
+        "scope": "user + viewport_range",
+        "storage": "Preferensi tampilan.",
+        "restore": "Sesuaikan dengan ruang tersedia."
+      },
+      {
+        "data": "draft_text_and_attachment_references",
+        "scope": "user + draftKey",
+        "storage": "Penyimpanan draft yang sesuai sensitivitas data.",
+        "restore": "Validasi referensi attachment; file lokal mungkin perlu dipilih ulang."
+      },
+      {
+        "data": "open_tabs_and_active_tab",
+        "scope": "workspace_or_chat",
+        "storage": "Metadata sesi.",
+        "restore": "Muat ulang resource jika akses masih berlaku."
+      },
+      {
+        "data": "split_width",
+        "scope": "user + viewport_range",
+        "storage": "Preferensi tampilan.",
+        "restore": "Clamp lebar; jangan memaksakan split di layar sempit."
+      },
+      {
+        "data": "scroll_positions",
+        "scope": "chat_or_tab",
+        "storage": "Memori sesi atau preferensi ringan.",
+        "restore": "Pulihkan setelah konten siap."
+      },
+      {
+        "data": "settings_values",
+        "scope": "user_or_device_by_setting",
+        "storage": "Sumber pengaturan otoritatif.",
+        "restore": "Jangan menggunakan nilai cache untuk menyimpulkan izin aktif."
+      }
+    ],
+    "never_persist_as_plain_ui_preferences": [
+      "Token akses integrasi",
+      "Kredensial",
+      "Keputusan izin sementara sebagai izin permanen",
+      "Objek file mentah tanpa kebijakan penyimpanan"
+    ],
+    "race_conditions": [
+      "Respons chat lama tidak boleh mengganti chat yang baru dipilih.",
+      "Respons save yang terlambat tidak boleh menimpa nilai pengaturan yang lebih baru.",
+      "Pemulihan tab tidak boleh mencuri fokus setelah pengguna memilih tab lain.",
+      "Retry pengiriman menggunakan identitas request agar tidak menggandakan tindakan."
+    ]
+  },
+  "accessibility_and_content": {
+    "evidence": "proposed",
+    "requirements": [
+      "Teks biasa menargetkan kontras minimum 4.5:1; teks besar 3:1 sesuai definisi WCAG.",
+      "Komponen UI dan indikator fokus yang relevan menargetkan kontras 3:1.",
+      "Target interaksi ringkas minimal 24 CSS px dengan syarat jarak yang sesuai; target sentuh utama ditujukan sekitar 44 px.",
+      "Semua ikon aksi memiliki accessible name.",
+      "Gunakan semantics tablist/tab/tabpanel, menu, switch, dialog, dan navigation sesuai fungsi sebenarnya.",
+      "Pilihan aktif memakai indikator selain perubahan warna.",
+      "Tooltip melengkapi label, bukan menyimpan informasi esensial satu-satunya.",
+      "Hormati reduced motion; transisi tidak menghambat pekerjaan.",
+      "Uji zoom 200 persen dan reflow sempit sebelum implementasi disetujui.",
+      "Bahasa UI konsisten; label contoh Indonesia dapat disesuaikan ke bahasa produk.",
+      "Jangan memotong pesan error, nilai penting, atau label aksi utama tanpa cara melihat lengkap."
+    ],
+    "reference_cautions": [
+      "Kepadatan sidebar sumber tidak otomatis cocok untuk semua pengguna.",
+      "Ikon tanpa label pada rail membutuhkan tooltip dan nama aksesibel pada versi sendiri.",
+      "Teks sekunder pada latar gelap perlu pemeriksaan kontras aktual.",
+      "Scroll terpisah memerlukan batas wilayah yang jelas dan navigasi keyboard yang dapat dipahami."
+    ]
+  },
+  "acceptance_scenarios": [
+    {
+      "id": "ac01",
+      "given": "Chat baru tanpa draft.",
+      "when": "Halaman dibuka.",
+      "then": "Welcome dan composer kosong; send dinonaktifkan dengan alasan tersedia."
+    },
+    {
+      "id": "ac02",
+      "given": "Chat baru dengan gambar valid.",
+      "when": "Validasi dan upload selesai.",
+      "then": "Thumbnail siap; pesan dapat dikirim walau teks kosong jika produk mendukung pesan gambar."
+    },
+    {
+      "id": "ac03",
+      "given": "Dua attachment, satu gagal.",
+      "when": "Pengguna mengirim.",
+      "then": "Pengiriman ditahan dengan alasan per berkas; berkas siap tetap ada."
+    },
+    {
+      "id": "ac04",
+      "given": "Draft valid.",
+      "when": "Tombol kirim diaktifkan dua kali cepat.",
+      "then": "Hanya satu request logis dan satu pesan dibuat."
+    },
+    {
+      "id": "ac05",
+      "given": "Request belum diterima.",
+      "when": "Koneksi terputus.",
+      "then": "Draft tetap tersedia dan retry tidak menggandakan pesan."
+    },
+    {
+      "id": "ac06",
+      "given": "Respons sedang streaming.",
+      "when": "Pengguna menghentikan.",
+      "then": "Hasil parsial dipertahankan; status pembatalan jelas."
+    },
+    {
+      "id": "ac07",
+      "given": "Chat A memiliki draft.",
+      "when": "Beralih ke B lalu kembali ke A.",
+      "then": "Draft A pulih tanpa tercampur draft B."
+    },
+    {
+      "id": "ac08",
+      "given": "Panel kerja memiliki tiga tab.",
+      "when": "Panel disembunyikan lalu dibuka.",
+      "then": "Tab dan pilihan aktif tetap sesuai konteks."
+    },
+    {
+      "id": "ac09",
+      "given": "Tab dokumen berubah dan belum tersimpan.",
+      "when": "Tab ditutup.",
+      "then": "Simpan, Buang perubahan, atau Batal tersedia; gagal simpan tidak menutup tab."
+    },
+    {
+      "id": "ac10",
+      "given": "Split aktif pada desktop.",
+      "when": "Viewport mengecil.",
+      "then": "Layout berganti tanpa kehilangan draft, tab, atau konteks chat."
+    },
+    {
+      "id": "ac11",
+      "given": "Menu More terbuka lewat keyboard.",
+      "when": "Escape ditekan.",
+      "then": "Menu tertutup dan fokus kembali ke tombol More."
+    },
+    {
+      "id": "ac12",
+      "given": "Pengaturan diubah cepat dua kali.",
+      "when": "Respons simpan pertama datang terakhir.",
+      "then": "Nilai terbaru tetap berlaku."
+    },
+    {
+      "id": "ac13",
+      "given": "Integrasi Installed tetapi belum tersambung.",
+      "when": "Baris integrasi ditampilkan.",
+      "then": "UI tidak menyebut integrasi siap dipakai; aksi Hubungkan tersedia."
+    },
+    {
+      "id": "ac14",
+      "given": "Pengguna membuka Pengaturan dari chat.",
+      "when": "Kembali ke Ruang kerja.",
+      "then": "Chat, draft, dan tab sebelumnya dipulihkan."
+    },
+    {
+      "id": "ac15",
+      "given": "Daftar berisi data.",
+      "when": "Pencarian tidak cocok.",
+      "then": "UI menampilkan tidak ada hasil pencarian, bukan belum ada data."
+    },
+    {
+      "id": "ac16",
+      "given": "Akses belum diketahui.",
+      "when": "Composer berisi draft.",
+      "then": "Send tidak menganggap akses sudah diizinkan; ada status pemeriksaan."
+    },
+    {
+      "id": "ac17",
+      "given": "Pengguna membaca pesan lama.",
+      "when": "Respons baru masuk.",
+      "then": "Posisi baca dipertahankan dan tersedia penanda pesan baru."
+    },
+    {
+      "id": "ac18",
+      "given": "Tab landing ada tetapi daftar tab terkait chat kosong.",
+      "when": "Empty notice ditampilkan.",
+      "then": "Teks menjelaskan scope kosong tanpa menyatakan seluruh panel tidak memiliki tab."
+    }
+  ],
+  "priorities": {
+    "evidence": "proposed",
+    "foundation": [
+      "Shell dan navigasi.",
+      "Chat baru serta conversation.",
+      "Draft dan attachment.",
+      "Panel tab.",
+      "Pengaturan dasar.",
+      "Loading, empty, error, serta aksesibilitas."
+    ],
+    "next": [
+      "Pemulihan sesi.",
+      "Pencarian chat dan pengaturan.",
+      "Manajemen integrasi.",
+      "Pengaturan layout."
+    ],
+    "optional": [
+      "Agen paralel.",
+      "Review kode.",
+      "Tool khusus domain.",
+      "Terminal dan lingkungan eksekusi."
+    ]
+  },
+  "unresolved_decisions": [
+    {
+      "topic": "Identitas produk",
+      "question": "Apa nama, konteks penggunaan, dan identitas visual aplikasi sendiri?",
+      "impact": "Label dan arah visual akhir."
+    },
+    {
+      "topic": "Pengguna utama",
+      "question": "Apakah produk untuk pekerjaan umum, pengembangan, administrasi, atau kebutuhan lain?",
+      "impact": "Navigasi dan kemampuan yang diprioritaskan."
+    },
+    {
+      "topic": "Panel kerja",
+      "question": "Jenis konten apa yang benar-benar akan didukung?",
+      "impact": "Kontrak tab, editor, dan izin konten."
+    },
+    {
+      "topic": "Kepemilikan tab",
+      "question": "Apakah tab melekat pada chat, proyek, atau workspace?",
+      "impact": "Pemulihan konteks dan perpindahan chat."
+    },
+    {
+      "topic": "Platform",
+      "question": "Apakah target akhir web, desktop, atau keduanya?",
+      "impact": "Chrome aplikasi, pintasan, dan akses file."
+    },
+    {
+      "topic": "Izin",
+      "question": "Tindakan apa yang membutuhkan konfirmasi dalam produk sendiri?",
+      "impact": "Definisi access state dan feedback."
+    },
+    {
+      "topic": "Batas attachment",
+      "question": "Tipe, ukuran, dan jumlah berkas apa yang didukung?",
+      "impact": "Validasi dan send guard."
+    }
+  ],
+  "completion_note": "Klasifikasi ini selesai sebagai referensi tahap pertama. Semua perilaku yang tidak terlihat langsung diberi label inferred/proposed atau ditempatkan di bagian usulan. Keputusan terbuka tidak menghalangi penggunaan dokumen ini sebagai dasar diskusi dan implementasi berikutnya."
+}

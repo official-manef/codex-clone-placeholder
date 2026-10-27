@@ -2,7 +2,32 @@
 
 One SvelteKit application owns the web experience; Convex is the default backend for
 functions and persisted data. Root feature slices stay independent of framework routes.
-The frontend can run unlinked, with no accounts or provider credentials.
+
+## This product's shape
+
+The product is a placeholder workspace shell. Its MVP uses **no backend and no
+credentials**: Convex stays wired (schema, functions and committed generated types are
+untouched) but the shell reads and writes nothing. Enabled capabilities: none.
+
+```text
+/workspace                → app-shell (chrome) + workspace (primary) [+ workbench (secondary)]
+/workspace/[chatId]       → same regions, object id validated before render
+/capabilities/[slug]      → capabilities registry → detail pane; unknown slug → 404 boundary
+/settings/[section]       → settings-surface registry → grouped field rows; unknown → 404 boundary
+
+slices/placeholders → t(key) → token string   (all visible copy)
+slices/app-shell    → DESTINATIONS registry → rail, sidebar kind, breadcrumb, page title
+```
+
+Slice ownership for the MVP: `app-shell`, `workspace`, `composer`, `workbench`,
+`capabilities`, `settings-surface`, `placeholders`. The starter demo slices (`dashboard`,
+`live-data`, `notes`, `assistant`, `settings`) are removed in the first implementation step
+because leaving them in place would present fake features.
+
+The full specification set is [PRD](PRD.md), [implementation plan](implementation-plan.md),
+[UI spec](ui-spec.md), [state model](state-model.md) and
+[placeholder copy](placeholder-copy.md). Reference prototype and classification sources
+live in `docs/reference/`.
 
 ```text
 /apps/[slug] → load validates slug → registry lazily loads screen and resolves metadata

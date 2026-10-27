@@ -1,7 +1,30 @@
 # Changelog
 
-Notable template changes follow [Semantic Versioning](https://semver.org/).
-During 0.x, minor releases may change template structure; patch releases are compatible fixes.
+This repository starts from `rahmanef63/template-svelte-convex-starter` and now carries
+its own history. Notable changes follow [Semantic Versioning](https://semver.org/).
+
+## [0.1.0] - 2026-10-27
+
+### Added
+
+- Product requirement set for the placeholder workspace shell: `docs/PRD.md`,
+  `docs/implementation-plan.md`, `docs/ui-spec.md`, `docs/state-model.md`,
+  `docs/placeholder-copy.md`, `docs/cloud-handoff.md`.
+- Reference artifacts under `docs/reference/`: the six-composition prototype and the two
+  classification sources it was derived from.
+
+### Changed
+
+- `CONTRACT.md`, `README.md`, `UIUX.md`, `AGENTS.md` and `docs/architecture.md` now describe
+  this product instead of the starter template.
+- Package name, version, repository links and release manifest reset for this product.
+
+### Not yet implemented
+
+- The shell itself. Slices `app-shell`, `workspace`, `composer`, `workbench`,
+  `capabilities`, `settings-surface` and `placeholders` are specified but not written;
+  the starter demo slices are still present and are removed in the first implementation
+  step.
 
 ## [0.6.1] - 2026-09-08
 

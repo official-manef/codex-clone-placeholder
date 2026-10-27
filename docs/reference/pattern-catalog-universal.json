@@ -1,0 +1,2739 @@
+{
+  "metadata": {
+    "title": "Klasifikasi pola UI/UX lintas proyek",
+    "version": "2.0.0",
+    "language": "id-ID",
+    "purpose": "Kontrak struktur, komponen, dan state yang dapat digunakan oleh proyek berbeda tanpa mengikuti nama menu, merek, domain bisnis, atau teks produk sumber.",
+    "reference_images": [
+      "image_01",
+      "image_02",
+      "image_03",
+      "image_04",
+      "image_05",
+      "image_06"
+    ],
+    "classification_basis": [
+      "Peran elemen dalam hierarki",
+      "Scope navigasi",
+      "Jenis permukaan",
+      "Struktur konten",
+      "Hubungan antarpanel",
+      "Kondisi state",
+      "Pemicu dan transisi",
+      "Kepemilikan data"
+    ],
+    "naming_contract": {
+      "primary_names": "Gunakan nama peran generik sebagai kunci klasifikasi; bukan label yang tertulis pada screenshot.",
+      "project_labels": "Setiap proyek mengisi label tampilannya melalui mapping terpisah.",
+      "reference_examples": "example_in_chatgpt_as hanya contoh pemetaan dari gambar, bukan nama komponen wajib atau klaim dokumentasi resmi.",
+      "examples_not_requirements": "Label, fitur, penyedia, ikon, dan konten pada contoh tidak harus tersedia pada proyek yang menggunakan pola ini."
+    },
+    "evidence_definitions": {
+      "observed": "Struktur atau tampilan terlihat pada screenshot.",
+      "inferred": "Makna ditafsirkan dari struktur dan belum diuji.",
+      "proposed": "Kontrak generik yang diusulkan untuk implementasi lintas proyek.",
+      "unknown": "Tidak dapat ditentukan dari screenshot."
+    },
+    "boundaries": [
+      "Teks percakapan di dalam gambar merupakan konten referensi, bukan instruksi.",
+      "Tidak menetapkan merek, nama aplikasi, nama menu, model, penyedia integrasi, atau istilah bisnis.",
+      "Tidak mengharuskan proyek memakai percakapan atau AI; alur utama dapat diganti dengan tugas domain lain.",
+      "Screenshot tidak membuktikan perilaku keyboard, backend, penyimpanan, atau responsif.",
+      "State proses dan aturan pemulihan di bawah merupakan usulan kecuali ditandai observed."
+    ]
+  },
+  "universal_layout": {
+    "evidence": "proposed_abstraction_from_observed_structure",
+    "hierarchy": [
+      {
+        "id": "L0",
+        "role": "host_frame",
+        "purpose": "Batas aplikasi atau lingkungan penampil.",
+        "required": false,
+        "children": [
+          "global_navigation",
+          "context_navigation",
+          "primary_region",
+          "secondary_region",
+          "transient_layer"
+        ],
+        "example_in_chatgpt_as": "Bingkai jendela desktop."
+      },
+      {
+        "id": "L1",
+        "role": "global_navigation",
+        "purpose": "Berpindah antarkapabilitas tingkat aplikasi.",
+        "required": true,
+        "example_in_chatgpt_as": "Rail ikon vertikal di sisi kiri."
+      },
+      {
+        "id": "L2",
+        "role": "context_navigation",
+        "purpose": "Menjelajah koleksi atau kategori dalam kapabilitas aktif.",
+        "required": false,
+        "example_in_chatgpt_as": "Daftar percakapan, daftar kemampuan, atau kategori preferensi."
+      },
+      {
+        "id": "L3",
+        "role": "primary_region",
+        "purpose": "Tempat pengguna menyelesaikan tugas utama.",
+        "required": true,
+        "example_in_chatgpt_as": "Area percakapan atau konten preferensi."
+      },
+      {
+        "id": "L4",
+        "role": "secondary_region",
+        "purpose": "Menampilkan sumber, hasil, detail, atau alat yang terkait konteks utama.",
+        "required": false,
+        "example_in_chatgpt_as": "Panel kanan dengan beberapa tab."
+      },
+      {
+        "id": "L5",
+        "role": "transient_layer",
+        "purpose": "Interaksi sementara yang melekat pada konteks.",
+        "required": false,
+        "example_in_chatgpt_as": "Menu tambahan atau kartu ringkasan konteks."
+      },
+      {
+        "id": "L6",
+        "role": "feedback_layer",
+        "purpose": "Menjelaskan proses, hasil, kegagalan, dan pembatasan.",
+        "required": true,
+        "example_in_chatgpt_as": "Ringkasan aktivitas dan pemberitahuan batas penggunaan."
+      }
+    ],
+    "composition_rules": [
+      "Hierarki di atas menjelaskan peran, bukan kewajiban menampilkan tujuh lapisan sekaligus.",
+      "Global navigation mempertahankan orientasi saat konteks utama berubah.",
+      "Context navigation berubah mengikuti area aplikasi yang aktif.",
+      "Primary region dan secondary region dapat berdampingan atau ditampilkan bergantian.",
+      "Transient layer tidak menjadi satu-satunya tempat menyimpan informasi jangka panjang.",
+      "Setiap proyek menentukan konten domain tanpa mengubah hubungan dasar antarlapisan."
+    ]
+  },
+  "reference_compositions": [
+    {
+      "id": "composition_01",
+      "source": "image_01",
+      "generic_classification": "populated_primary_with_secondary_and_context_summary",
+      "evidence": "observed",
+      "regions": [
+        "compact_global_navigation",
+        "primary_header",
+        "populated_primary_content",
+        "draft_action_surface",
+        "context_summary_surface",
+        "tabbed_secondary_region"
+      ],
+      "visible_states": [
+        "context_navigation_hidden",
+        "primary_has_existing_items",
+        "draft_has_text",
+        "secondary_visible",
+        "secondary_start_surface",
+        "context_summary_visible",
+        "inline_constraint_notice"
+      ],
+      "example_in_chatgpt_as": "Percakapan terisi, draft pesan, ringkasan konteks, dan panel browser."
+    },
+    {
+      "id": "composition_02",
+      "source": "image_02",
+      "generic_classification": "unstarted_primary_with_expanded_context_navigation",
+      "evidence": "observed",
+      "regions": [
+        "global_navigation",
+        "expanded_context_navigation",
+        "mode_control",
+        "entry_heading",
+        "draft_action_surface",
+        "supporting_action_bar"
+      ],
+      "visible_states": [
+        "primary_unstarted",
+        "draft_has_one_attachment",
+        "secondary_hidden",
+        "mode_option_selected"
+      ],
+      "example_in_chatgpt_as": "Layar mulai dengan sidebar terbuka dan satu gambar terpasang."
+    },
+    {
+      "id": "composition_03",
+      "source": "image_03",
+      "generic_classification": "unstarted_primary_with_split_secondary",
+      "evidence": "observed",
+      "regions": [
+        "compact_global_navigation",
+        "mode_control",
+        "entry_heading",
+        "draft_action_surface",
+        "tabbed_secondary_region",
+        "secondary_start_surface"
+      ],
+      "visible_states": [
+        "context_navigation_hidden",
+        "primary_unstarted",
+        "draft_has_multiple_attachments",
+        "secondary_visible",
+        "related_collection_empty"
+      ],
+      "example_in_chatgpt_as": "Layar mulai di sebelah panel browser dengan dua gambar terpasang.",
+      "caution": "Koleksi terkait yang kosong tidak berarti tab panel yang terlihat juga tidak ada."
+    },
+    {
+      "id": "composition_04",
+      "source": "image_04",
+      "generic_classification": "anchored_destination_overflow",
+      "evidence": "observed",
+      "regions": [
+        "global_navigation",
+        "active_overflow_trigger",
+        "destination_popup",
+        "secondary_item_action"
+      ],
+      "visible_states": [
+        "overflow_open",
+        "anchor_highlighted"
+      ],
+      "example_in_chatgpt_as": "Menu tambahan dari tombol elipsis dengan beberapa destinasi dan ikon pin.",
+      "caution": "Crop tidak membuktikan viewport perangkat kecil."
+    },
+    {
+      "id": "composition_05",
+      "source": "image_05",
+      "generic_classification": "capability_catalog_context_navigation",
+      "evidence": "observed_partial",
+      "regions": [
+        "global_navigation",
+        "context_heading",
+        "search_entry",
+        "type_navigation",
+        "installed_item_collection"
+      ],
+      "visible_states": [
+        "global_destination_selected",
+        "installed_collection_populated"
+      ],
+      "example_in_chatgpt_as": "Sidebar Customize dengan Plugins, Skills, dan Installed.",
+      "caution": "Terpasang tidak sama dengan terhubung, diizinkan, atau sehat."
+    },
+    {
+      "id": "composition_06",
+      "source": "image_06",
+      "generic_classification": "categorized_configuration_surface",
+      "evidence": "observed",
+      "regions": [
+        "global_navigation",
+        "searchable_category_navigation",
+        "primary_heading",
+        "grouped_configuration_content",
+        "mixed_type_field_rows"
+      ],
+      "visible_states": [
+        "category_selected",
+        "multiple_control_types",
+        "independent_scroll_regions"
+      ],
+      "example_in_chatgpt_as": "Halaman Settings pada kategori General.",
+      "caution": "Nilai kontrol yang terlihat tidak cukup untuk menjelaskan kebijakan izin di belakangnya."
+    }
+  ],
+  "pattern_catalog": [
+    {
+      "id": "P01",
+      "role": "compact_global_navigation",
+      "layer": "L1",
+      "evidence": "observed",
+      "sources": [
+        "image_01",
+        "image_02",
+        "image_03"
+      ],
+      "purpose": "Akses stabil ke kapabilitas utama dengan pemakaian ruang kecil.",
+      "anatomy": [
+        "destination_trigger",
+        "active_marker",
+        "overflow_trigger",
+        "optional_separator",
+        "optional_identity_trigger"
+      ],
+      "state_axes": {
+        "selection": [
+          "inactive",
+          "active"
+        ],
+        "interaction": [
+          "rest",
+          "hover",
+          "focus",
+          "pressed",
+          "disabled"
+        ]
+      },
+      "conditions": [
+        "Hanya satu destinasi global aktif dalam satu konteks navigasi utama.",
+        "Ikon memiliki nama aksesibel dan teks penjelas yang dapat diakses."
+      ],
+      "project_mapping_slots": [
+        "destination_ids",
+        "display_labels",
+        "icons",
+        "ordering",
+        "visibility_rules"
+      ],
+      "example_in_chatgpt_as": "Rail vertikal di sisi kiri.",
+      "other_domain_examples": [
+        "Navigasi modul di aplikasi operasional.",
+        "Navigasi jenis pekerjaan dalam editor."
+      ]
+    },
+    {
+      "id": "P02",
+      "role": "expandable_context_navigation",
+      "layer": "L2",
+      "evidence": "observed",
+      "sources": [
+        "image_02",
+        "image_05",
+        "image_06"
+      ],
+      "purpose": "Menjelajah objek atau kategori yang relevan dengan area aktif.",
+      "anatomy": [
+        "context_heading",
+        "optional_search",
+        "optional_create_action",
+        "group_heading",
+        "item_collection",
+        "scroll_region"
+      ],
+      "state_axes": {
+        "visibility": [
+          "expanded",
+          "collapsed",
+          "drawer"
+        ],
+        "data": [
+          "loading",
+          "empty",
+          "populated",
+          "error"
+        ],
+        "filter": [
+          "none",
+          "matched",
+          "no_match"
+        ]
+      },
+      "conditions": [
+        "Collapse tidak menghapus pilihan, data, atau posisi scroll.",
+        "Pencarian tanpa hasil berbeda dari koleksi yang benar-benar kosong."
+      ],
+      "project_mapping_slots": [
+        "collection_type",
+        "group_strategy",
+        "item_renderer",
+        "create_action"
+      ],
+      "example_in_chatgpt_as": "Sidebar daftar percakapan atau kategori pengaturan.",
+      "other_domain_examples": [
+        "Daftar tiket per antrean.",
+        "Kategori aset.",
+        "Struktur berkas."
+      ]
+    },
+    {
+      "id": "P03",
+      "role": "grouped_object_collection",
+      "layer": "L2",
+      "evidence": "observed",
+      "sources": [
+        "image_02",
+        "image_05",
+        "image_06"
+      ],
+      "purpose": "Membantu pemindaian koleksi melalui kategori atau prioritas.",
+      "anatomy": [
+        "group_label",
+        "optional_group_action",
+        "collection_row",
+        "optional_row_metadata"
+      ],
+      "state_axes": {
+        "group": [
+          "expanded",
+          "collapsed"
+        ],
+        "row": [
+          "rest",
+          "selected",
+          "focused",
+          "unavailable"
+        ],
+        "data": [
+          "empty",
+          "populated"
+        ]
+      },
+      "conditions": [
+        "Pengelompokan mengikuti kebutuhan domain.",
+        "Baris kosong menjelaskan scope koleksi."
+      ],
+      "project_mapping_slots": [
+        "group_keys",
+        "sort_policy",
+        "row_identity",
+        "secondary_metadata"
+      ],
+      "example_in_chatgpt_as": "Kelompok Pinned, Projects, Recents atau Installed."
+    },
+    {
+      "id": "P04",
+      "role": "exclusive_mode_control",
+      "layer": "L3",
+      "evidence": "observed",
+      "sources": [
+        "image_02",
+        "image_03"
+      ],
+      "purpose": "Memilih satu mode kerja dari opsi yang saling eksklusif.",
+      "anatomy": [
+        "option",
+        "selection_indicator",
+        "optional_mode_description"
+      ],
+      "state_axes": {
+        "selection": [
+          "option_a",
+          "option_b",
+          "project_defined_option"
+        ],
+        "process": [
+          "ready",
+          "switching",
+          "unavailable"
+        ]
+      },
+      "conditions": [
+        "Pilihan mode tidak otomatis menghapus draft.",
+        "Jelaskan dampak mode jika kemampuan berubah."
+      ],
+      "project_mapping_slots": [
+        "mode_ids",
+        "mode_labels",
+        "mode_capabilities"
+      ],
+      "example_in_chatgpt_as": "Switch Chat dan Work."
+    },
+    {
+      "id": "P05",
+      "role": "unstarted_primary_surface",
+      "layer": "L3",
+      "evidence": "observed",
+      "sources": [
+        "image_02",
+        "image_03"
+      ],
+      "purpose": "Memberikan titik mulai sebelum objek kerja utama tercipta.",
+      "anatomy": [
+        "entry_heading",
+        "primary_action_surface",
+        "optional_context_shortcuts"
+      ],
+      "state_axes": {
+        "draft": [
+          "none",
+          "text",
+          "attachments",
+          "mixed"
+        ],
+        "context": [
+          "unselected",
+          "selected"
+        ]
+      },
+      "conditions": [
+        "Belum ada objek kerja tidak berarti draft harus kosong.",
+        "Jangan menciptakan objek domain sebelum aksi commit jika produk tidak membutuhkannya."
+      ],
+      "project_mapping_slots": [
+        "entry_copy",
+        "creation_method",
+        "context_requirements"
+      ],
+      "example_in_chatgpt_as": "Ajakan memulai dan composer sebelum percakapan dibuat.",
+      "other_domain_examples": [
+        "Formulir pesanan baru.",
+        "Pembuatan dokumen.",
+        "Permintaan layanan baru."
+      ]
+    },
+    {
+      "id": "P06",
+      "role": "primary_context_header",
+      "layer": "L3",
+      "evidence": "observed",
+      "sources": [
+        "image_01",
+        "image_03"
+      ],
+      "purpose": "Mengidentifikasi objek aktif dan aksi yang berlaku pada objek tersebut.",
+      "anatomy": [
+        "object_title",
+        "optional_parent_context",
+        "context_actions",
+        "overflow_action"
+      ],
+      "state_axes": {
+        "title": [
+          "loading",
+          "untitled",
+          "named",
+          "editing"
+        ],
+        "availability": [
+          "ready",
+          "restricted"
+        ]
+      },
+      "conditions": [
+        "Aksi objek berbeda scope dari navigasi global."
+      ],
+      "project_mapping_slots": [
+        "object_title",
+        "parent_reference",
+        "object_actions"
+      ],
+      "example_in_chatgpt_as": "Judul percakapan dan aksi header."
+    },
+    {
+      "id": "P07",
+      "role": "sequential_activity_surface",
+      "layer": "L3",
+      "evidence": "observed",
+      "sources": [
+        "image_01"
+      ],
+      "purpose": "Menyajikan rangkaian kontribusi, peristiwa, atau hasil secara berurutan.",
+      "anatomy": [
+        "entry",
+        "actor_or_type_marker",
+        "content",
+        "optional_timestamp",
+        "optional_entry_actions",
+        "optional_process_summary"
+      ],
+      "state_axes": {
+        "data": [
+          "loading",
+          "empty",
+          "populated",
+          "history_error"
+        ],
+        "live": [
+          "idle",
+          "receiving",
+          "paused"
+        ],
+        "position": [
+          "at_latest",
+          "reading_history"
+        ]
+      },
+      "conditions": [
+        "Data baru tidak mengganggu posisi baca lama.",
+        "Satu entri harus punya identitas stabil untuk retry dan pembaruan."
+      ],
+      "project_mapping_slots": [
+        "entry_schema",
+        "ordering_policy",
+        "entry_types",
+        "live_update_policy"
+      ],
+      "example_in_chatgpt_as": "Timeline pesan dan aktivitas pekerjaan.",
+      "other_domain_examples": [
+        "Riwayat tiket.",
+        "Log persetujuan.",
+        "Linimasa perubahan dokumen."
+      ]
+    },
+    {
+      "id": "P08",
+      "role": "multimodal_draft_action_surface",
+      "layer": "L3",
+      "evidence": "observed",
+      "sources": [
+        "image_01",
+        "image_02",
+        "image_03"
+      ],
+      "purpose": "Menyusun payload sebelum menjalankan aksi utama.",
+      "anatomy": [
+        "draft_input",
+        "optional_asset_previews",
+        "add_asset_trigger",
+        "optional_execution_options",
+        "primary_commit_action",
+        "optional_alternate_input"
+      ],
+      "state_axes": {
+        "payload": [
+          "empty",
+          "text_only",
+          "assets_only",
+          "mixed"
+        ],
+        "validation": [
+          "unknown",
+          "validating",
+          "valid",
+          "invalid"
+        ],
+        "submission": [
+          "idle",
+          "submitting",
+          "accepted",
+          "failed"
+        ]
+      },
+      "conditions": [
+        "Commit mengikuti validitas payload dan status proses.",
+        "Draft dipertahankan sampai penerimaan berhasil.",
+        "Placeholder bukan satu-satunya label input."
+      ],
+      "project_mapping_slots": [
+        "payload_schema",
+        "supported_asset_types",
+        "commit_label",
+        "validation_policy",
+        "execution_options"
+      ],
+      "example_in_chatgpt_as": "Composer dengan teks, lampiran, pilihan model, dan tombol kirim.",
+      "other_domain_examples": [
+        "Formulir instruksi kerja.",
+        "Editor catatan dengan lampiran.",
+        "Pembuatan permintaan berkas."
+      ]
+    },
+    {
+      "id": "P09",
+      "role": "precommit_asset_preview",
+      "layer": "L3",
+      "evidence": "observed",
+      "sources": [
+        "image_02",
+        "image_03"
+      ],
+      "purpose": "Menunjukkan aset yang akan ikut dikomit.",
+      "anatomy": [
+        "preview",
+        "asset_identity",
+        "optional_remove_action",
+        "optional_progress",
+        "optional_local_error"
+      ],
+      "state_axes": {
+        "process": [
+          "validating",
+          "transferring",
+          "ready",
+          "failed"
+        ],
+        "interaction": [
+          "rest",
+          "focused",
+          "preview_open"
+        ]
+      },
+      "conditions": [
+        "Thumbnail tidak membuktikan proses transfer sudah selesai.",
+        "Error satu aset tidak menghapus aset lain."
+      ],
+      "project_mapping_slots": [
+        "asset_limits",
+        "preview_renderer",
+        "transfer_strategy"
+      ],
+      "example_in_chatgpt_as": "Thumbnail gambar di dalam composer."
+    },
+    {
+      "id": "P10",
+      "role": "supporting_context_action_bar",
+      "layer": "L3",
+      "evidence": "observed",
+      "sources": [
+        "image_02",
+        "image_03"
+      ],
+      "purpose": "Memilih konteks dan sumber pendukung sebelum aksi utama.",
+      "anatomy": [
+        "context_selector",
+        "resource_entry",
+        "capability_entry",
+        "optional_auxiliary_action"
+      ],
+      "state_axes": {
+        "availability": [
+          "ready",
+          "partial",
+          "unavailable"
+        ],
+        "interaction": [
+          "rest",
+          "picker_open"
+        ]
+      },
+      "conditions": [
+        "Aksi pendukung tidak lebih dominan dari aksi commit."
+      ],
+      "project_mapping_slots": [
+        "context_type",
+        "resource_types",
+        "support_actions"
+      ],
+      "example_in_chatgpt_as": "Bar di bawah composer untuk proyek, berkas, dan plugin."
+    },
+    {
+      "id": "P11",
+      "role": "execution_configuration_control",
+      "layer": "L3",
+      "evidence": "observed",
+      "sources": [
+        "image_01",
+        "image_02",
+        "image_03"
+      ],
+      "purpose": "Menampilkan dan mengubah parameter cara suatu aksi dijalankan.",
+      "anatomy": [
+        "current_value",
+        "selection_trigger",
+        "optional_description"
+      ],
+      "state_axes": {
+        "interaction": [
+          "closed",
+          "open"
+        ],
+        "value": [
+          "available",
+          "pending",
+          "unavailable"
+        ]
+      },
+      "conditions": [
+        "Parameter berasal dari kemampuan aktual produk.",
+        "Jangan menyalin nama penyedia referensi sebagai syarat pola."
+      ],
+      "project_mapping_slots": [
+        "parameter_schema",
+        "option_source",
+        "default_policy"
+      ],
+      "example_in_chatgpt_as": "Pilihan model dan tingkat penalaran.",
+      "other_domain_examples": [
+        "Prioritas proses.",
+        "Kualitas ekspor.",
+        "Metode pemrosesan."
+      ]
+    },
+    {
+      "id": "P12",
+      "role": "access_scope_control",
+      "layer": "L3",
+      "evidence": "observed",
+      "sources": [
+        "image_01",
+        "image_02",
+        "image_03"
+      ],
+      "purpose": "Menjelaskan cakupan tindakan yang diizinkan.",
+      "anatomy": [
+        "scope_indicator",
+        "current_scope_label",
+        "optional_change_action"
+      ],
+      "state_axes": {
+        "authority": [
+          "unknown",
+          "allowed",
+          "restricted",
+          "expired"
+        ],
+        "change": [
+          "idle",
+          "pending",
+          "confirmed",
+          "failed"
+        ]
+      },
+      "conditions": [
+        "Indikator visual tidak memberi izin dengan sendirinya.",
+        "Perubahan harus mengikuti sumber otoritatif."
+      ],
+      "project_mapping_slots": [
+        "scope_levels",
+        "capability_rules",
+        "authorization_source"
+      ],
+      "example_in_chatgpt_as": "Indikator Full access."
+    },
+    {
+      "id": "P13",
+      "role": "context_resource_summary",
+      "layer": "L5",
+      "evidence": "observed",
+      "sources": [
+        "image_01"
+      ],
+      "purpose": "Merangkum entitas terkait tanpa mengganti tugas utama.",
+      "anatomy": [
+        "section",
+        "section_heading",
+        "resource_row",
+        "optional_status",
+        "optional_section_action"
+      ],
+      "state_axes": {
+        "visibility": [
+          "hidden",
+          "visible"
+        ],
+        "data": [
+          "loading",
+          "empty",
+          "populated",
+          "partial_error"
+        ]
+      },
+      "conditions": [
+        "Jenis entitas mengikuti domain produk.",
+        "Pemicu dan cara dismiss ditentukan terpisah karena tidak terbukti dari gambar."
+      ],
+      "project_mapping_slots": [
+        "related_entity_types",
+        "section_order",
+        "resource_actions"
+      ],
+      "example_in_chatgpt_as": "Ringkasan Pull requests, Outputs, Subagents, dan Sources.",
+      "other_domain_examples": [
+        "Bukti, dokumen, penanggung jawab, dan keluaran suatu kasus."
+      ]
+    },
+    {
+      "id": "P14",
+      "role": "secondary_work_surface",
+      "layer": "L4",
+      "evidence": "observed",
+      "sources": [
+        "image_01",
+        "image_03"
+      ],
+      "purpose": "Memeriksa atau mengerjakan konten terkait sambil mempertahankan konteks utama.",
+      "anatomy": [
+        "region_boundary",
+        "optional_resize_handle",
+        "content_navigation",
+        "active_content",
+        "visibility_controls"
+      ],
+      "state_axes": {
+        "layout": [
+          "hidden",
+          "adjacent",
+          "focused"
+        ],
+        "data": [
+          "restoring",
+          "ready",
+          "partial_error"
+        ]
+      },
+      "conditions": [
+        "Menyembunyikan region tidak sama dengan menutup kontennya.",
+        "Layout menyesuaikan ruang tanpa membuang data."
+      ],
+      "project_mapping_slots": [
+        "supported_content_types",
+        "ownership_scope",
+        "default_open_behavior"
+      ],
+      "example_in_chatgpt_as": "Panel kerja kanan.",
+      "other_domain_examples": [
+        "Pratinjau dokumen pada sistem kasus.",
+        "Detail objek pada aplikasi analitik."
+      ]
+    },
+    {
+      "id": "P15",
+      "role": "tabbed_content_navigation",
+      "layer": "L4",
+      "evidence": "observed",
+      "sources": [
+        "image_01",
+        "image_03"
+      ],
+      "purpose": "Beralih di antara beberapa konten dalam region yang sama.",
+      "anatomy": [
+        "tab_identity",
+        "tab_label",
+        "active_marker",
+        "optional_close",
+        "optional_add",
+        "overflow"
+      ],
+      "state_axes": {
+        "selection": [
+          "active",
+          "inactive"
+        ],
+        "resource": [
+          "loading",
+          "ready",
+          "error"
+        ],
+        "modification": [
+          "clean",
+          "dirty"
+        ]
+      },
+      "conditions": [
+        "Identitas tab terpisah dari judul yang dapat berubah.",
+        "Satu tab aktif per region.",
+        "Close tab berbeda dari hide region."
+      ],
+      "project_mapping_slots": [
+        "tab_types",
+        "deduplication_key",
+        "closing_policy",
+        "overflow_policy"
+      ],
+      "example_in_chatgpt_as": "Tab konten di bagian atas panel kanan."
+    },
+    {
+      "id": "P16",
+      "role": "resource_navigation_toolbar",
+      "layer": "L4",
+      "evidence": "observed",
+      "sources": [
+        "image_01",
+        "image_03"
+      ],
+      "purpose": "Menavigasi isi resource aktif dalam scope lokal.",
+      "anatomy": [
+        "previous_action",
+        "next_action",
+        "refresh_action",
+        "location_input",
+        "optional_resource_actions"
+      ],
+      "state_axes": {
+        "location": [
+          "empty",
+          "valid",
+          "invalid"
+        ],
+        "process": [
+          "idle",
+          "loading",
+          "loaded",
+          "failed"
+        ]
+      },
+      "conditions": [
+        "Navigasi lokal tidak dicampur dengan riwayat navigasi aplikasi."
+      ],
+      "project_mapping_slots": [
+        "location_schema",
+        "history_strategy",
+        "resource_actions"
+      ],
+      "example_in_chatgpt_as": "Toolbar browser dengan alamat dan kontrol navigasi.",
+      "other_domain_examples": [
+        "Navigasi halaman dokumen.",
+        "Penjelajah koleksi aset."
+      ]
+    },
+    {
+      "id": "P17",
+      "role": "resource_start_surface",
+      "layer": "L4",
+      "evidence": "observed",
+      "sources": [
+        "image_01",
+        "image_03"
+      ],
+      "purpose": "Memberikan pilihan awal ketika belum ada resource tujuan.",
+      "anatomy": [
+        "optional_empty_notice",
+        "suggested_collection",
+        "optional_recent_collection",
+        "optional_quick_actions"
+      ],
+      "state_axes": {
+        "history": [
+          "unknown",
+          "empty",
+          "populated"
+        ],
+        "suggestions": [
+          "loading",
+          "empty",
+          "populated"
+        ]
+      },
+      "conditions": [
+        "Resource belum dipilih berbeda dari resource gagal dimuat.",
+        "Empty notice menyebut scope yang kosong dengan jelas."
+      ],
+      "project_mapping_slots": [
+        "suggestion_source",
+        "recent_policy",
+        "entry_actions"
+      ],
+      "example_in_chatgpt_as": "Halaman tab baru dengan saran dan riwayat."
+    },
+    {
+      "id": "P18",
+      "role": "anchored_destination_menu",
+      "layer": "L5",
+      "evidence": "observed",
+      "sources": [
+        "image_04"
+      ],
+      "purpose": "Menyediakan destinasi tambahan tanpa memperpanjang navigasi utama.",
+      "anatomy": [
+        "anchor",
+        "menu_surface",
+        "destination_item",
+        "optional_item_action"
+      ],
+      "state_axes": {
+        "visibility": [
+          "closed",
+          "open"
+        ],
+        "interaction": [
+          "pointer",
+          "keyboard"
+        ],
+        "action": [
+          "idle",
+          "pending",
+          "failed"
+        ]
+      },
+      "conditions": [
+        "Aksi tambahan pada baris memiliki target terpisah.",
+        "Menu tetap berada dalam viewport.",
+        "Dismiss mengembalikan fokus ke anchor."
+      ],
+      "project_mapping_slots": [
+        "destination_set",
+        "pin_policy",
+        "item_actions"
+      ],
+      "example_in_chatgpt_as": "Menu elipsis dengan destinasi tambahan."
+    },
+    {
+      "id": "P19",
+      "role": "capability_management_surface",
+      "layer": "L2",
+      "evidence": "observed_partial",
+      "sources": [
+        "image_05"
+      ],
+      "purpose": "Menemukan dan mengelola ekstensi atau kemampuan tambahan.",
+      "anatomy": [
+        "type_navigation",
+        "search",
+        "state_group",
+        "capability_item",
+        "optional_detail_region"
+      ],
+      "state_axes": {
+        "installation": [
+          "absent",
+          "installing",
+          "installed",
+          "failed"
+        ],
+        "connection": [
+          "not_connected",
+          "connecting",
+          "connected",
+          "expired",
+          "error"
+        ],
+        "health": [
+          "unknown",
+          "healthy",
+          "degraded",
+          "unavailable"
+        ]
+      },
+      "conditions": [
+        "Installation, connection, authorization, dan health adalah dimensi terpisah.",
+        "Tidak semua proyek membutuhkan kemampuan tambahan."
+      ],
+      "project_mapping_slots": [
+        "capability_schema",
+        "supported_providers",
+        "management_actions"
+      ],
+      "example_in_chatgpt_as": "Daftar Plugins dan Skills."
+    },
+    {
+      "id": "P20",
+      "role": "categorized_configuration_surface",
+      "layer": "L3",
+      "evidence": "observed",
+      "sources": [
+        "image_06"
+      ],
+      "purpose": "Mengubah preferensi aplikasi melalui kategori yang dapat ditemukan.",
+      "anatomy": [
+        "searchable_category_navigation",
+        "selected_category_heading",
+        "section_group",
+        "field_row"
+      ],
+      "state_axes": {
+        "navigation": [
+          "default",
+          "category_selected",
+          "search_results"
+        ],
+        "data": [
+          "loading",
+          "ready",
+          "error"
+        ],
+        "editing": [
+          "clean",
+          "dirty",
+          "saving",
+          "saved",
+          "invalid",
+          "save_error"
+        ]
+      },
+      "conditions": [
+        "Navigasi kategori terpisah dari state simpan field.",
+        "Label kategori diisi proyek sendiri."
+      ],
+      "project_mapping_slots": [
+        "category_schema",
+        "field_schema",
+        "save_policy"
+      ],
+      "example_in_chatgpt_as": "Halaman Settings dengan General terpilih."
+    },
+    {
+      "id": "P21",
+      "role": "typed_configuration_field",
+      "layer": "L3",
+      "evidence": "observed",
+      "sources": [
+        "image_06"
+      ],
+      "purpose": "Mengedit satu nilai sesuai tipe datanya.",
+      "anatomy": [
+        "label",
+        "optional_description",
+        "current_value",
+        "typed_control",
+        "optional_feedback"
+      ],
+      "state_axes": {
+        "value": [
+          "valid",
+          "invalid",
+          "unavailable"
+        ],
+        "process": [
+          "clean",
+          "editing",
+          "saving",
+          "saved",
+          "failed"
+        ]
+      },
+      "conditions": [
+        "Boolean memakai switch atau checkbox sesuai makna.",
+        "Enum memakai select atau pilihan eksklusif.",
+        "Aksi eksternal memakai tombol.",
+        "Field gagal simpan tidak menampilkan sukses."
+      ],
+      "project_mapping_slots": [
+        "field_key",
+        "value_type",
+        "validation",
+        "save_handler"
+      ],
+      "example_in_chatgpt_as": "Baris preferensi dengan toggle, dropdown, nilai path, atau tombol."
+    },
+    {
+      "id": "P22",
+      "role": "process_summary",
+      "layer": "L6",
+      "evidence": "observed",
+      "sources": [
+        "image_01"
+      ],
+      "purpose": "Meringkas pekerjaan yang sedang berlangsung atau sudah selesai.",
+      "anatomy": [
+        "process_label",
+        "optional_duration",
+        "optional_details_trigger",
+        "optional_status"
+      ],
+      "state_axes": {
+        "process": [
+          "queued",
+          "running",
+          "waiting",
+          "completed",
+          "failed",
+          "cancelled"
+        ],
+        "details": [
+          "collapsed",
+          "expanded"
+        ]
+      },
+      "conditions": [
+        "Durasi bukan persentase kemajuan.",
+        "Status dihitung dari pekerjaan sebenarnya."
+      ],
+      "project_mapping_slots": [
+        "process_types",
+        "status_source",
+        "details_renderer"
+      ],
+      "example_in_chatgpt_as": "Ringkasan aktivitas dan durasi pengerjaan."
+    },
+    {
+      "id": "P23",
+      "role": "inline_constraint_feedback",
+      "layer": "L6",
+      "evidence": "observed",
+      "sources": [
+        "image_01"
+      ],
+      "purpose": "Menjelaskan kendala yang memengaruhi aksi tertentu.",
+      "anatomy": [
+        "severity_indicator",
+        "message",
+        "optional_recovery_action"
+      ],
+      "state_axes": {
+        "severity": [
+          "info",
+          "warning",
+          "blocking"
+        ],
+        "resolution": [
+          "active",
+          "resolving",
+          "resolved"
+        ]
+      },
+      "conditions": [
+        "Pembatasan memblokir hanya aksi yang benar-benar terdampak.",
+        "Tampilkan jalur pemulihan sesuai kemampuan produk."
+      ],
+      "project_mapping_slots": [
+        "constraint_types",
+        "blocking_scope",
+        "recovery_actions"
+      ],
+      "example_in_chatgpt_as": "Pemberitahuan batas penggunaan."
+    }
+  ],
+  "independent_state_dimensions": [
+    {
+      "id": "D01",
+      "name": "location",
+      "values": [
+        "application_area",
+        "context_collection",
+        "active_object",
+        "active_secondary_content"
+      ],
+      "meaning": "Lokasi pengguna dalam hierarki."
+    },
+    {
+      "id": "D02",
+      "name": "visibility",
+      "values": [
+        "shown",
+        "hidden",
+        "overlay"
+      ],
+      "meaning": "Cara region tersedia di layar."
+    },
+    {
+      "id": "D03",
+      "name": "layout",
+      "values": [
+        "single_region",
+        "adjacent_regions",
+        "focused_region"
+      ],
+      "meaning": "Hubungan spasial region utama dan pendamping."
+    },
+    {
+      "id": "D04",
+      "name": "data",
+      "values": [
+        "unknown",
+        "loading",
+        "empty",
+        "populated",
+        "partial",
+        "error"
+      ],
+      "meaning": "Ketersediaan data pada scope komponen."
+    },
+    {
+      "id": "D05",
+      "name": "interaction",
+      "values": [
+        "rest",
+        "hover",
+        "focus",
+        "pressed",
+        "selected",
+        "disabled"
+      ],
+      "meaning": "Respons kontrol terhadap interaksi."
+    },
+    {
+      "id": "D06",
+      "name": "draft",
+      "values": [
+        "empty",
+        "modified",
+        "validating",
+        "valid",
+        "invalid"
+      ],
+      "meaning": "Kondisi payload sebelum commit."
+    },
+    {
+      "id": "D07",
+      "name": "process",
+      "values": [
+        "idle",
+        "queued",
+        "running",
+        "waiting",
+        "success",
+        "failed",
+        "cancelled"
+      ],
+      "meaning": "Siklus operasi asinkron."
+    },
+    {
+      "id": "D08",
+      "name": "persistence",
+      "values": [
+        "clean",
+        "dirty",
+        "saving",
+        "saved",
+        "save_error"
+      ],
+      "meaning": "Hubungan nilai lokal dengan penyimpanan."
+    },
+    {
+      "id": "D09",
+      "name": "authority",
+      "values": [
+        "unknown",
+        "allowed",
+        "restricted",
+        "expired"
+      ],
+      "meaning": "Status izin untuk aksi tertentu."
+    },
+    {
+      "id": "D10",
+      "name": "connectivity",
+      "values": [
+        "online",
+        "offline",
+        "reconnecting"
+      ],
+      "meaning": "Ketersediaan koneksi yang diperlukan."
+    }
+  ],
+  "generic_state_contract": {
+    "evidence": "proposed",
+    "notation": "Ekspresi konseptual; adapter proyek menerjemahkannya ke framework dan model data masing-masing.",
+    "variables": [
+      {
+        "key": "activeAreaId",
+        "type": "string",
+        "scope": "application"
+      },
+      {
+        "key": "activeContextId",
+        "type": "string|null",
+        "scope": "area"
+      },
+      {
+        "key": "activeObjectId",
+        "type": "string|null",
+        "scope": "context"
+      },
+      {
+        "key": "contextNavigationMode",
+        "type": "expanded|collapsed|drawer",
+        "scope": "viewport_group"
+      },
+      {
+        "key": "secondaryLayout",
+        "type": "hidden|adjacent|focused",
+        "scope": "workspace"
+      },
+      {
+        "key": "secondaryItems",
+        "type": "ContentItem[]",
+        "scope": "ownership_scope"
+      },
+      {
+        "key": "activeSecondaryItemId",
+        "type": "string|null",
+        "scope": "secondary_region"
+      },
+      {
+        "key": "activeOverlayId",
+        "type": "string|null",
+        "scope": "application"
+      },
+      {
+        "key": "draft",
+        "type": "Draft",
+        "scope": "draft_identity"
+      },
+      {
+        "key": "operation",
+        "type": "Operation",
+        "scope": "object_or_draft"
+      },
+      {
+        "key": "authority",
+        "type": "unknown|allowed|restricted|expired",
+        "scope": "action"
+      },
+      {
+        "key": "capacity",
+        "type": "unknown|available|limited|unavailable",
+        "scope": "action"
+      },
+      {
+        "key": "connection",
+        "type": "online|offline|reconnecting",
+        "scope": "required_service"
+      },
+      {
+        "key": "availableWorkspaceWidth",
+        "type": "number",
+        "scope": "viewport"
+      }
+    ],
+    "entities": {
+      "Draft": {
+        "id": "string",
+        "ownerKey": "string",
+        "fields": "project_defined_object",
+        "assets": "Asset[]",
+        "validation": "unknown|validating|valid|invalid",
+        "revision": "number"
+      },
+      "Asset": {
+        "id": "string",
+        "kind": "project_defined_type",
+        "identity": "string",
+        "status": "validating|transferring|ready|failed",
+        "error": "object|null"
+      },
+      "ContentItem": {
+        "id": "string",
+        "kind": "project_defined_type",
+        "resourceKey": "string",
+        "ownerKey": "string",
+        "status": "loading|ready|error",
+        "dirty": "boolean",
+        "viewState": "project_defined_object"
+      },
+      "Operation": {
+        "id": "string",
+        "status": "idle|queued|running|waiting|success|failed|cancelled",
+        "requestKey": "string|null",
+        "sourceDraftRevision": "number|null",
+        "error": "object|null"
+      },
+      "ConfigurationValue": {
+        "key": "string",
+        "currentValue": "unknown",
+        "persistedValue": "unknown",
+        "status": "clean|dirty|saving|saved|invalid|save_error",
+        "revision": "number"
+      }
+    },
+    "derived_conditions": [
+      {
+        "id": "G01",
+        "name": "hasPayload",
+        "condition": "projectAdapter.isMeaningful(draft.fields) || draft.assets.length > 0"
+      },
+      {
+        "id": "G02",
+        "name": "assetsReady",
+        "condition": "draft.assets.every(asset => asset.status == 'ready')"
+      },
+      {
+        "id": "G03",
+        "name": "validationReady",
+        "condition": "draft.validation == 'valid'"
+      },
+      {
+        "id": "G04",
+        "name": "operationBusy",
+        "condition": "operation.status in ['queued','running']"
+      },
+      {
+        "id": "G05",
+        "name": "connectionReady",
+        "condition": "!projectAdapter.requiresNetwork(action) || connection == 'online'"
+      },
+      {
+        "id": "G06",
+        "name": "capacityReady",
+        "condition": "capacity == 'available' || (capacity == 'limited' && projectAdapter.actionAllowedUnderLimit(action))"
+      },
+      {
+        "id": "G07",
+        "name": "canCommit",
+        "condition": "hasPayload && assetsReady && validationReady && !operationBusy && authority == 'allowed' && capacityReady && connectionReady"
+      },
+      {
+        "id": "G08",
+        "name": "canUseAdjacentLayout",
+        "condition": "availableWorkspaceWidth >= minimumPrimaryWidth + dividerWidth + minimumSecondaryWidth"
+      },
+      {
+        "id": "G09",
+        "name": "showUnstartedSurface",
+        "condition": "activeObjectId == null"
+      },
+      {
+        "id": "G10",
+        "name": "hasUnpersistedContent",
+        "condition": "draftChanged || secondaryItems.some(item => item.dirty)"
+      },
+      {
+        "id": "G11",
+        "name": "showFilteredEmpty",
+        "condition": "query != '' && filteredCount == 0 && queryStatus == 'complete'"
+      },
+      {
+        "id": "G12",
+        "name": "showTrueEmpty",
+        "condition": "query == '' && totalCount == 0 && collectionStatus == 'loaded'"
+      }
+    ],
+    "invariants": [
+      "activeSecondaryItemId harus null atau merujuk item yang masih ada.",
+      "Object identity tidak bergantung pada label tampilannya.",
+      "State aktif, fokus, dan hover tidak disamakan.",
+      "Unknown authority tidak diperlakukan sebagai allowed.",
+      "State kosong harus menyebut scope: koleksi, hasil filter, draft, atau resource.",
+      "Panel yang disembunyikan tidak menghapus item konten.",
+      "Pindah area aplikasi tidak otomatis membuang draft.",
+      "Respons terlambat hanya diterapkan jika ownerKey, requestKey, dan revision masih sesuai.",
+      "Sukses visual membutuhkan konfirmasi sumber penyimpanan atau proses.",
+      "Instalasi tidak menyiratkan koneksi atau otorisasi.",
+      "Adapter dapat menghapus pola yang tidak relevan tanpa memalsukan fitur yang tidak tersedia."
+    ]
+  },
+  "state_conditions": [
+    {
+      "id": "S01",
+      "name": "context_navigation_expanded",
+      "evidence": "observed",
+      "sources": [
+        "image_02",
+        "image_05",
+        "image_06"
+      ],
+      "condition": "contextNavigationMode == 'expanded'",
+      "appearance": "Navigasi kontekstual terlihat di samping navigasi global.",
+      "enter": [
+        "expand_context_navigation"
+      ],
+      "exit": [
+        "collapse_context_navigation",
+        "viewport_changes"
+      ],
+      "preserve": [
+        "selection",
+        "scroll",
+        "group_expansion"
+      ]
+    },
+    {
+      "id": "S02",
+      "name": "context_navigation_collapsed",
+      "evidence": "observed",
+      "sources": [
+        "image_01",
+        "image_03"
+      ],
+      "condition": "contextNavigationMode == 'collapsed'",
+      "appearance": "Navigasi global tetap terlihat; daftar kontekstual tersembunyi.",
+      "enter": [
+        "collapse_context_navigation"
+      ],
+      "exit": [
+        "expand_context_navigation"
+      ],
+      "preserve": [
+        "collection_data",
+        "selection",
+        "scroll"
+      ]
+    },
+    {
+      "id": "S03",
+      "name": "unstarted_with_assets",
+      "evidence": "observed",
+      "sources": [
+        "image_02",
+        "image_03"
+      ],
+      "condition": "activeObjectId == null && draft.assets.length > 0",
+      "appearance": "Permukaan awal tetap tampil dengan pratinjau aset.",
+      "enter": [
+        "add_asset"
+      ],
+      "exit": [
+        "remove_all_assets",
+        "commit_accepted"
+      ],
+      "preserve": [
+        "draft_fields",
+        "asset_order"
+      ]
+    },
+    {
+      "id": "S04",
+      "name": "populated_with_local_draft",
+      "evidence": "observed",
+      "sources": [
+        "image_01"
+      ],
+      "condition": "activeObjectId != null && draftModified",
+      "appearance": "Konten utama terisi; area aksi masih memiliki draft.",
+      "enter": [
+        "edit_draft"
+      ],
+      "exit": [
+        "commit_accepted",
+        "clear_draft"
+      ],
+      "preserve": [
+        "existing_content"
+      ]
+    },
+    {
+      "id": "S05",
+      "name": "secondary_adjacent",
+      "evidence": "observed",
+      "sources": [
+        "image_01",
+        "image_03"
+      ],
+      "condition": "secondaryLayout == 'adjacent'",
+      "appearance": "Region utama dan pendamping berdampingan.",
+      "enter": [
+        "open_resource_with_space"
+      ],
+      "exit": [
+        "hide_secondary",
+        "focus_secondary",
+        "insufficient_width"
+      ],
+      "preserve": [
+        "active_content",
+        "region_width"
+      ]
+    },
+    {
+      "id": "S06",
+      "name": "secondary_hidden",
+      "evidence": "observed",
+      "sources": [
+        "image_02"
+      ],
+      "condition": "secondaryLayout == 'hidden'",
+      "appearance": "Region utama memakai ruang yang tersedia.",
+      "enter": [
+        "hide_secondary"
+      ],
+      "exit": [
+        "show_secondary"
+      ],
+      "preserve": [
+        "secondary_items",
+        "active_secondary_item"
+      ]
+    },
+    {
+      "id": "S07",
+      "name": "secondary_unselected_resource",
+      "evidence": "observed",
+      "sources": [
+        "image_01",
+        "image_03"
+      ],
+      "condition": "activeSecondaryItem.resourceKey == null",
+      "appearance": "Permukaan awal resource dengan saran atau pilihan.",
+      "enter": [
+        "create_empty_content_item"
+      ],
+      "exit": [
+        "choose_resource"
+      ],
+      "preserve": [
+        "optional_recent_resources"
+      ]
+    },
+    {
+      "id": "S08",
+      "name": "related_collection_empty",
+      "evidence": "observed",
+      "sources": [
+        "image_03"
+      ],
+      "condition": "Exact source condition unknown; adapter equivalent: relatedCollection.loaded && relatedCollection.count == 0",
+      "appearance": "Pesan kosong merujuk koleksi terkait.",
+      "enter": [
+        "load_related_collection"
+      ],
+      "exit": [
+        "related_item_added"
+      ],
+      "preserve": [
+        "visible_secondary_start_item"
+      ]
+    },
+    {
+      "id": "S09",
+      "name": "destination_menu_open",
+      "evidence": "observed",
+      "sources": [
+        "image_04"
+      ],
+      "condition": "activeOverlayId == 'destination_overflow'",
+      "appearance": "Popup dekat pemicu dengan item destinasi.",
+      "enter": [
+        "activate_overflow"
+      ],
+      "exit": [
+        "select_destination",
+        "escape",
+        "outside_click"
+      ],
+      "preserve": [
+        "return_focus_target"
+      ]
+    },
+    {
+      "id": "S10",
+      "name": "capability_collection_populated",
+      "evidence": "observed",
+      "sources": [
+        "image_05"
+      ],
+      "condition": "capabilityCollection.count > 0",
+      "appearance": "Daftar kemampuan dalam kelompok status.",
+      "enter": [
+        "open_capability_area"
+      ],
+      "exit": [
+        "filter_collection",
+        "navigate_elsewhere"
+      ],
+      "preserve": [
+        "selected_capability"
+      ]
+    },
+    {
+      "id": "S11",
+      "name": "configuration_category_selected",
+      "evidence": "observed",
+      "sources": [
+        "image_06"
+      ],
+      "condition": "activeConfigurationCategoryId != null",
+      "appearance": "Kategori aktif dan kumpulan field terkait.",
+      "enter": [
+        "select_category"
+      ],
+      "exit": [
+        "select_other_category",
+        "navigate_elsewhere"
+      ],
+      "preserve": [
+        "field_values",
+        "scroll"
+      ]
+    },
+    {
+      "id": "S12",
+      "name": "context_summary_visible",
+      "evidence": "observed",
+      "sources": [
+        "image_01"
+      ],
+      "condition": "contextSummaryVisible",
+      "appearance": "Ringkasan entitas terkait terlihat.",
+      "enter": [
+        "activate_summary"
+      ],
+      "exit": [
+        "dismiss_summary"
+      ],
+      "preserve": [
+        "resource_links"
+      ]
+    },
+    {
+      "id": "S13",
+      "name": "constraint_visible",
+      "evidence": "observed",
+      "sources": [
+        "image_01"
+      ],
+      "condition": "activeConstraint != null",
+      "appearance": "Pemberitahuan kendala pada scope konten.",
+      "enter": [
+        "receive_constraint"
+      ],
+      "exit": [
+        "constraint_resolved"
+      ],
+      "preserve": [
+        "draft",
+        "existing_results"
+      ]
+    },
+    {
+      "id": "S14",
+      "name": "draft_pristine",
+      "evidence": "proposed",
+      "condition": "!hasPayload",
+      "appearance": "Area aksi kosong dengan panduan singkat.",
+      "enter": [
+        "initialize_empty_draft"
+      ],
+      "exit": [
+        "edit_field",
+        "add_asset"
+      ],
+      "recovery": "Tidak diperlukan."
+    },
+    {
+      "id": "S15",
+      "name": "asset_processing",
+      "evidence": "proposed",
+      "condition": "draft.assets.some(asset => asset.status in ['validating','transferring'])",
+      "appearance": "Progres atau indikator pada aset terkait.",
+      "enter": [
+        "add_asset",
+        "retry_asset"
+      ],
+      "exit": [
+        "asset_ready",
+        "asset_failed"
+      ],
+      "recovery": "Batalkan atau coba ulang aset."
+    },
+    {
+      "id": "S16",
+      "name": "asset_failed",
+      "evidence": "proposed",
+      "condition": "draft.assets.some(asset => asset.status == 'failed')",
+      "appearance": "Pesan lokal dan aksi pemulihan.",
+      "enter": [
+        "asset_validation_or_transfer_error"
+      ],
+      "exit": [
+        "asset_removed",
+        "asset_retry_success"
+      ],
+      "recovery": "Pertahankan aset lain."
+    },
+    {
+      "id": "S17",
+      "name": "commit_pending",
+      "evidence": "proposed",
+      "condition": "operation.status == 'queued'",
+      "appearance": "Aksi commit menampilkan proses dan mencegah duplikasi.",
+      "enter": [
+        "commit_with_valid_payload"
+      ],
+      "exit": [
+        "accepted",
+        "rejected"
+      ],
+      "recovery": "Draft tetap tersedia sampai penerimaan terkonfirmasi."
+    },
+    {
+      "id": "S18",
+      "name": "operation_running",
+      "evidence": "proposed",
+      "condition": "operation.status == 'running'",
+      "appearance": "Indikator pekerjaan dan aksi berhenti bila didukung.",
+      "enter": [
+        "request_accepted"
+      ],
+      "exit": [
+        "success",
+        "failed",
+        "waiting",
+        "cancelled"
+      ],
+      "recovery": "Pertahankan hasil parsial yang valid."
+    },
+    {
+      "id": "S19",
+      "name": "operation_waiting",
+      "evidence": "proposed",
+      "condition": "operation.status == 'waiting'",
+      "appearance": "Permintaan input atau keputusan spesifik.",
+      "enter": [
+        "operation_needs_input"
+      ],
+      "exit": [
+        "input_accepted",
+        "operation_cancelled"
+      ],
+      "recovery": "Sebutkan input yang dibutuhkan."
+    },
+    {
+      "id": "S20",
+      "name": "operation_failed",
+      "evidence": "proposed",
+      "condition": "operation.status == 'failed'",
+      "appearance": "Pesan error pada scope operasi dan aksi retry.",
+      "enter": [
+        "operation_error"
+      ],
+      "exit": [
+        "retry",
+        "dismiss_if_allowed"
+      ],
+      "recovery": "Retry menggunakan identitas request yang sesuai."
+    },
+    {
+      "id": "S21",
+      "name": "content_dirty",
+      "evidence": "proposed",
+      "condition": "activeContent.dirty",
+      "appearance": "Penanda perubahan belum tersimpan.",
+      "enter": [
+        "edit_content"
+      ],
+      "exit": [
+        "save_success",
+        "discard_confirmed"
+      ],
+      "recovery": "Simpan, buang, atau batalkan penutupan."
+    },
+    {
+      "id": "S22",
+      "name": "configuration_saving",
+      "evidence": "proposed",
+      "condition": "configurationValue.status == 'saving'",
+      "appearance": "Feedback simpan dekat field.",
+      "enter": [
+        "valid_value_changed"
+      ],
+      "exit": [
+        "save_success",
+        "save_failed"
+      ],
+      "recovery": "Respons lama tidak menimpa revisi terbaru."
+    },
+    {
+      "id": "S23",
+      "name": "configuration_save_failed",
+      "evidence": "proposed",
+      "condition": "configurationValue.status == 'save_error'",
+      "appearance": "Pesan gagal, retry, dan opsi kembali.",
+      "enter": [
+        "save_failed"
+      ],
+      "exit": [
+        "retry_success",
+        "revert"
+      ],
+      "recovery": "Bedakan nilai lokal dan nilai tersimpan."
+    },
+    {
+      "id": "S24",
+      "name": "connection_unavailable",
+      "evidence": "proposed",
+      "condition": "connection == 'offline'",
+      "appearance": "Status koneksi tanpa menghilangkan draft.",
+      "enter": [
+        "connection_lost"
+      ],
+      "exit": [
+        "connection_restored"
+      ],
+      "recovery": "Retry eksplisit untuk operasi yang dapat berdampak ganda."
+    },
+    {
+      "id": "S25",
+      "name": "authorization_expired",
+      "evidence": "proposed",
+      "condition": "authority == 'expired'",
+      "appearance": "Status perlu otorisasi ulang.",
+      "enter": [
+        "authorization_expired"
+      ],
+      "exit": [
+        "authorization_restored"
+      ],
+      "recovery": "Perbarui otorisasi tanpa menghapus data kerja."
+    },
+    {
+      "id": "S26",
+      "name": "filtered_collection_empty",
+      "evidence": "proposed",
+      "condition": "showFilteredEmpty",
+      "appearance": "Tidak ada hasil yang cocok dan aksi hapus filter.",
+      "enter": [
+        "filter_completed"
+      ],
+      "exit": [
+        "filter_changed",
+        "filter_cleared"
+      ],
+      "recovery": "Pertahankan koleksi sumber."
+    },
+    {
+      "id": "S27",
+      "name": "resource_loading",
+      "evidence": "proposed",
+      "condition": "activeContent.status == 'loading'",
+      "appearance": "Loading lokal pada region resource.",
+      "enter": [
+        "open_resource",
+        "reload_resource"
+      ],
+      "exit": [
+        "resource_ready",
+        "resource_failed"
+      ],
+      "recovery": "Aksi lain tetap tersedia bila tidak bergantung resource tersebut."
+    },
+    {
+      "id": "S28",
+      "name": "resource_failed",
+      "evidence": "proposed",
+      "condition": "activeContent.status == 'error'",
+      "appearance": "Pesan gagal pada item konten yang terdampak.",
+      "enter": [
+        "resource_load_failed"
+      ],
+      "exit": [
+        "retry_success",
+        "close_item"
+      ],
+      "recovery": "Tidak merusak item konten lain."
+    }
+  ],
+  "transition_contracts": [
+    {
+      "id": "T01",
+      "event": "TOGGLE_CONTEXT_NAVIGATION",
+      "guard": "Tidak ada modal pemblokir.",
+      "from": "expanded|collapsed",
+      "to": "collapsed|expanded",
+      "effects": [
+        "Simpan preferensi per kelompok viewport."
+      ],
+      "preserve": [
+        "selected_object",
+        "draft"
+      ]
+    },
+    {
+      "id": "T02",
+      "event": "OPEN_DESTINATION_MENU",
+      "guard": "Pemicu tersedia.",
+      "from": "overlay_none",
+      "to": "destination_menu_open",
+      "effects": [
+        "Tetapkan target pengembalian fokus."
+      ],
+      "preserve": [
+        "active_area"
+      ]
+    },
+    {
+      "id": "T03",
+      "event": "SELECT_GLOBAL_DESTINATION",
+      "guard": "Destinasi diizinkan; perubahan belum tersimpan ditangani.",
+      "from": "any_area",
+      "to": "selected_area",
+      "effects": [
+        "Simpan konteks area lama.",
+        "Pulihkan konteks area tujuan."
+      ],
+      "preserve": [
+        "drafts_by_owner"
+      ]
+    },
+    {
+      "id": "T04",
+      "event": "SELECT_CONTEXT_OBJECT",
+      "guard": "Objek ada dan dapat diakses.",
+      "from": "current_object",
+      "to": "target_object_loading",
+      "effects": [
+        "Gunakan request dengan owner identity.",
+        "Pulihkan state objek tujuan."
+      ],
+      "preserve": [
+        "previous_object_draft"
+      ]
+    },
+    {
+      "id": "T05",
+      "event": "CREATE_UNSTARTED_CONTEXT",
+      "guard": "Draft sebelumnya telah dipertahankan.",
+      "from": "existing_context",
+      "to": "unstarted_primary",
+      "effects": [
+        "Buat draft identity terpisah."
+      ],
+      "preserve": [
+        "existing_objects"
+      ]
+    },
+    {
+      "id": "T06",
+      "event": "CHANGE_EXCLUSIVE_MODE",
+      "guard": "Dampak terhadap payload kompatibel atau sudah ditangani.",
+      "from": "mode_a",
+      "to": "mode_b",
+      "effects": [
+        "Perbarui kemampuan yang tersedia."
+      ],
+      "preserve": [
+        "compatible_payload"
+      ]
+    },
+    {
+      "id": "T07",
+      "event": "ADD_ASSET",
+      "guard": "Tipe, ukuran, dan jumlah valid menurut adapter.",
+      "from": "editable_draft",
+      "to": "asset_validating",
+      "effects": [
+        "Tampilkan preview.",
+        "Mulai transfer jika diperlukan."
+      ],
+      "preserve": [
+        "other_assets",
+        "draft_fields"
+      ]
+    },
+    {
+      "id": "T08",
+      "event": "COMMIT_DRAFT",
+      "guard": "canCommit",
+      "from": "valid_draft",
+      "to": "commit_pending",
+      "effects": [
+        "Buat request identity.",
+        "Catat draft revision yang dikirim."
+      ],
+      "preserve": [
+        "draft_until_acceptance"
+      ]
+    },
+    {
+      "id": "T09",
+      "event": "COMMIT_ACCEPTED",
+      "guard": "Request identity dan revision sesuai.",
+      "from": "commit_pending",
+      "to": "operation_running_or_success",
+      "effects": [
+        "Tetapkan object identity bila baru.",
+        "Bersihkan hanya payload revisi yang diterima."
+      ],
+      "preserve": [
+        "edits_created_after_submission"
+      ]
+    },
+    {
+      "id": "T10",
+      "event": "CANCEL_OPERATION",
+      "guard": "Operasi mendukung pembatalan.",
+      "from": "running",
+      "to": "cancelled_after_confirmation",
+      "effects": [
+        "Pertahankan hasil parsial."
+      ],
+      "preserve": [
+        "accepted_input",
+        "valid_partial_results"
+      ]
+    },
+    {
+      "id": "T11",
+      "event": "OPEN_SECONDARY_RESOURCE",
+      "guard": "Resource dapat diakses.",
+      "from": "any_secondary_layout",
+      "to": "adjacent_if_space_else_focused",
+      "effects": [
+        "Pilih item identik atau buat item baru.",
+        "Muat konten."
+      ],
+      "preserve": [
+        "primary_context"
+      ]
+    },
+    {
+      "id": "T12",
+      "event": "SELECT_SECONDARY_ITEM",
+      "guard": "Item masih ada.",
+      "from": "current_secondary_item",
+      "to": "target_secondary_item",
+      "effects": [
+        "Pulihkan view state item."
+      ],
+      "preserve": [
+        "other_content_items"
+      ]
+    },
+    {
+      "id": "T13",
+      "event": "CLOSE_SECONDARY_ITEM",
+      "guard": "Konten clean atau simpan/buang telah dipilih.",
+      "from": "item_open",
+      "to": "item_closed",
+      "effects": [
+        "Pilih tetangga valid.",
+        "Gunakan kebijakan konsisten untuk item terakhir."
+      ],
+      "preserve": [
+        "other_items"
+      ]
+    },
+    {
+      "id": "T14",
+      "event": "HIDE_SECONDARY_REGION",
+      "guard": "Aksi hanya menyembunyikan region.",
+      "from": "adjacent|focused",
+      "to": "hidden",
+      "effects": [
+        "Simpan layout terakhir."
+      ],
+      "preserve": [
+        "content_items",
+        "dirty_content"
+      ]
+    },
+    {
+      "id": "T15",
+      "event": "RESIZE_REGION_BOUNDARY",
+      "guard": "Lebar minimum kedua region terpenuhi.",
+      "from": "adjacent",
+      "to": "adjacent_with_clamped_width",
+      "effects": [
+        "Simpan ukuran sesudah interaksi selesai."
+      ],
+      "preserve": [
+        "active_content"
+      ]
+    },
+    {
+      "id": "T16",
+      "event": "CHANGE_CONFIGURATION_VALUE",
+      "guard": "Nilai valid dan dapat diubah.",
+      "from": "clean|saved|save_error",
+      "to": "saving_or_dirty_according_to_policy",
+      "effects": [
+        "Simpan revision baru.",
+        "Pertahankan persisted value."
+      ],
+      "preserve": [
+        "unrelated_fields"
+      ]
+    },
+    {
+      "id": "T17",
+      "event": "AUTHORIZE_CAPABILITY",
+      "guard": "Kapabilitas mendukung metode otorisasi.",
+      "from": "not_connected|expired",
+      "to": "connecting",
+      "effects": [
+        "Mulai otorisasi."
+      ],
+      "preserve": [
+        "installation_state"
+      ]
+    },
+    {
+      "id": "T18",
+      "event": "VIEWPORT_CHANGED",
+      "guard": "Ukuran valid.",
+      "from": "any_layout",
+      "to": "layout_that_meets_constraints",
+      "effects": [
+        "Sesuaikan region dan fokus."
+      ],
+      "preserve": [
+        "drafts",
+        "content_items",
+        "selection"
+      ]
+    },
+    {
+      "id": "T19",
+      "event": "DISMISS_TRANSIENT_SURFACE",
+      "guard": "Permukaan boleh ditutup.",
+      "from": "overlay_open",
+      "to": "overlay_closed",
+      "effects": [
+        "Kembalikan fokus ke pemicu."
+      ],
+      "preserve": [
+        "primary_context"
+      ]
+    },
+    {
+      "id": "T20",
+      "event": "RETRY_FAILED_OPERATION",
+      "guard": "Alasan gagal telah dapat dipulihkan.",
+      "from": "failed",
+      "to": "queued_or_loading",
+      "effects": [
+        "Gunakan kebijakan idempotensi.",
+        "Hindari aksi ganda."
+      ],
+      "preserve": [
+        "valid_input",
+        "unaffected_results"
+      ]
+    }
+  ],
+  "adaptation_contract": {
+    "purpose": "Bagian ini diisi per proyek agar struktur dan perilaku tetap serupa tanpa menyalin label sumber.",
+    "required_mapping": {
+      "product_identity": null,
+      "domain_object_type": null,
+      "primary_user_job": null,
+      "global_destinations": [],
+      "contextual_groups": [],
+      "primary_surface_type": null,
+      "secondary_content_types": [],
+      "action_payload_schema": null,
+      "commit_action_label": null,
+      "configuration_categories": [],
+      "permission_rules": null,
+      "persistence_scope": null
+    },
+    "mapping_entry_schema": {
+      "pattern_id": "Pxx",
+      "project_role": "Peran pola dalam proyek.",
+      "display_label": "Label milik proyek sendiri.",
+      "domain_entity": "Jenis data milik proyek.",
+      "enabled": "boolean",
+      "route_or_action": "string|null",
+      "state_adapter": "Pemetaan state domain ke kontrak generik."
+    },
+    "examples": [
+      {
+        "domain": "Manajemen layanan",
+        "pattern_id": "P02",
+        "project_role": "Antrean pekerjaan",
+        "display_label": "Permintaan",
+        "domain_entity": "ServiceRequest",
+        "reference_relation": "Mengikuti navigasi koleksi; tidak perlu memakai label percakapan."
+      },
+      {
+        "domain": "Pengelolaan dokumen",
+        "pattern_id": "P14",
+        "project_role": "Pemeriksaan hasil",
+        "display_label": "Pratinjau",
+        "domain_entity": "Document",
+        "reference_relation": "Mengikuti region pendamping yang bisa disembunyikan."
+      },
+      {
+        "domain": "Operasional penjualan",
+        "pattern_id": "P08",
+        "project_role": "Penyusunan instruksi",
+        "display_label": "Buat tindak lanjut",
+        "domain_entity": "FollowUpRequest",
+        "reference_relation": "Mengikuti draft, attachment, validasi, dan commit."
+      },
+      {
+        "domain": "Manajemen aset",
+        "pattern_id": "P20",
+        "project_role": "Preferensi aplikasi",
+        "display_label": "Preferensi",
+        "domain_entity": "UserPreference",
+        "reference_relation": "Mengikuti kategori dan field bertipe."
+      }
+    ],
+    "invariants_to_preserve": [
+      "Hierarki area global, konteks, objek utama, dan konten pendamping.",
+      "Pembedaan state kosong, loading, gagal, dan tidak diizinkan.",
+      "Pemisahan menyembunyikan panel dan menutup konten.",
+      "Pemulihan draft berdasarkan pemiliknya.",
+      "Konsistensi fokus, pilihan, dan feedback.",
+      "Label dapat berbeda sepenuhnya tanpa mengubah identitas pattern."
+    ],
+    "freely_replaceable": [
+      "Nama produk dan label.",
+      "Ikon dan ilustrasi.",
+      "Warna dan tipografi.",
+      "Jenis data bisnis.",
+      "Daftar kemampuan.",
+      "Susunan grup yang sesuai domain.",
+      "Jumlah mode.",
+      "Jenis resource yang didukung."
+    ],
+    "avoid": [
+      "Menggunakan label produk sumber sebagai nama arsitektur wajib.",
+      "Mengharuskan semua proyek mempunyai asisten, percakapan, browser, atau integrasi.",
+      "Membuat menu tanpa fungsi hanya agar tampak serupa.",
+      "Menyalin nilai pribadi, alamat lokal, atau nama layanan dari screenshot.",
+      "Menyamakan layout mirip dengan perilaku yang sudah terverifikasi."
+    ]
+  },
+  "layout_and_responsiveness": {
+    "evidence": "proposed",
+    "principles": [
+      "Prioritaskan penyelesaian tugas di region utama.",
+      "Perlihatkan region pendamping bersamaan hanya jika masing-masing tetap dapat digunakan.",
+      "Ketika ruang berkurang, ubah presentasi; jangan membuang konteks.",
+      "Ukuran dan breakpoint merupakan parameter proyek."
+    ],
+    "parameters": {
+      "global_navigation_width": "project_defined",
+      "context_navigation_width": "project_defined",
+      "minimum_primary_width": "project_defined",
+      "minimum_secondary_width": "project_defined",
+      "content_reading_max_width": "project_defined",
+      "divider_width": "project_defined",
+      "touch_target_size": "project_defined_and_accessibility_verified"
+    },
+    "layouts": [
+      {
+        "id": "R01",
+        "condition": "Ruang mencukupi seluruh region yang aktif.",
+        "composition": [
+          "global_navigation",
+          "optional_context_navigation",
+          "primary_region",
+          "optional_secondary_region"
+        ]
+      },
+      {
+        "id": "R02",
+        "condition": "Region utama dan pendamping muat setelah navigasi kontekstual disembunyikan.",
+        "composition": [
+          "global_navigation",
+          "primary_region",
+          "secondary_region"
+        ],
+        "behavior": "Navigasi kontekstual dapat dibuka sementara."
+      },
+      {
+        "id": "R03",
+        "condition": "Dua region konten tidak memenuhi lebar minimum.",
+        "composition": [
+          "compact_navigation",
+          "one_focused_content_region"
+        ],
+        "behavior": "Pengguna berpindah region tanpa kehilangan state."
+      },
+      {
+        "id": "R04",
+        "condition": "Keyboard virtual aktif.",
+        "composition": [
+          "active_input_region",
+          "visible_commit_action"
+        ],
+        "behavior": "Hindari input tertutup keyboard dan jaga safe area."
+      }
+    ]
+  },
+  "persistence_and_recovery": {
+    "evidence": "proposed",
+    "ownership_options": [
+      {
+        "scope": "application",
+        "data": [
+          "active_area",
+          "global_preferences"
+        ]
+      },
+      {
+        "scope": "context",
+        "data": [
+          "selected_object",
+          "collection_filters"
+        ]
+      },
+      {
+        "scope": "object",
+        "data": [
+          "draft",
+          "related_resources",
+          "reading_position"
+        ]
+      },
+      {
+        "scope": "content_item",
+        "data": [
+          "view_state",
+          "dirty_state",
+          "resource_identity"
+        ]
+      },
+      {
+        "scope": "viewport_group",
+        "data": [
+          "context_navigation_visibility",
+          "region_width"
+        ]
+      }
+    ],
+    "rules": [
+      "Pilih kepemilikan secondary content secara eksplisit; jangan mencampur milik objek dan milik aplikasi.",
+      "Pemulihan resource memeriksa izin dan keberadaan resource.",
+      "Aset lokal mungkin perlu dipilih ulang; metadata bukan file itu sendiri.",
+      "Token dan kredensial bukan preferensi UI biasa.",
+      "Nilai izin dari cache tidak menggantikan otorisasi aktual.",
+      "Jika simpan gagal, nilai lokal dan persisted value tetap bisa dibedakan."
+    ],
+    "conflict_handling": [
+      "Owner identity mencegah respons objek lama muncul pada objek baru.",
+      "Revision mencegah respons penyimpanan lama menimpa perubahan terbaru.",
+      "Request identity membantu mencegah commit ganda.",
+      "Pemulihan sesi tidak mencuri fokus setelah pengguna memilih konten lain."
+    ]
+  },
+  "accessibility_contract": {
+    "evidence": "proposed",
+    "rules": [
+      "Setiap aksi berbasis ikon memiliki nama aksesibel.",
+      "Selection, focus, hover, dan disabled memiliki makna terpisah.",
+      "Gunakan semantics sesuai perilaku aktual komponen.",
+      "Overlay yang ditutup mengembalikan fokus ke pemicunya.",
+      "Perubahan layout tidak meninggalkan fokus pada elemen tersembunyi.",
+      "Feedback proses tidak hanya mengandalkan warna.",
+      "Pesan error berada dekat sumber masalah dan memberi cara pemulihan.",
+      "Data baru tidak memaksa pengguna meninggalkan posisi baca.",
+      "Target interaksi, kontras, zoom, dan reflow diperiksa saat implementasi.",
+      "Animasi mengikuti preferensi reduced motion."
+    ],
+    "keyboard_contract": [
+      {
+        "input": "Tab / Shift+Tab",
+        "behavior": "Urutan fokus mengikuti struktur tugas."
+      },
+      {
+        "input": "Escape",
+        "behavior": "Tutup permukaan sementara yang boleh ditutup."
+      },
+      {
+        "input": "Arrow keys",
+        "behavior": "Navigasi di tab, menu, atau kelompok pilihan sesuai semantics."
+      },
+      {
+        "input": "Enter / Space",
+        "behavior": "Aktivasi sesuai jenis kontrol."
+      },
+      {
+        "input": "Input commit shortcut",
+        "behavior": "Didefinisikan proyek; tidak mengganggu komposisi IME."
+      }
+    ]
+  },
+  "acceptance_criteria": [
+    {
+      "id": "A01",
+      "scenario": "Proyek menggunakan label dan domain berbeda.",
+      "expected": "Pattern dan state tetap dapat dipetakan tanpa menyebut label sumber sebagai identitas utama."
+    },
+    {
+      "id": "A02",
+      "scenario": "Objek belum tercipta tetapi draft memiliki aset.",
+      "expected": "Permukaan awal tetap valid; draft tidak dianggap kosong."
+    },
+    {
+      "id": "A03",
+      "scenario": "Satu aset gagal diproses.",
+      "expected": "Aset lain tetap tersedia dan pesan gagal menyebut aset terkait."
+    },
+    {
+      "id": "A04",
+      "scenario": "Commit diaktifkan dua kali cepat.",
+      "expected": "Satu operasi logis dibuat."
+    },
+    {
+      "id": "A05",
+      "scenario": "Pengguna pindah objek lalu kembali.",
+      "expected": "Draft dipulihkan berdasarkan identitas pemilik."
+    },
+    {
+      "id": "A06",
+      "scenario": "Region pendamping disembunyikan lalu dibuka.",
+      "expected": "Item konten dan pilihan aktif dipertahankan."
+    },
+    {
+      "id": "A07",
+      "scenario": "Item berubah tetapi belum tersimpan lalu ditutup.",
+      "expected": "Pengguna dapat simpan, buang, atau batal sesuai kebijakan."
+    },
+    {
+      "id": "A08",
+      "scenario": "Viewport tidak lagi muat dua region.",
+      "expected": "Presentasi berubah tanpa kehilangan konten."
+    },
+    {
+      "id": "A09",
+      "scenario": "Menu dibuka lewat keyboard lalu ditutup.",
+      "expected": "Fokus kembali ke pemicu."
+    },
+    {
+      "id": "A10",
+      "scenario": "Penyimpanan revisi lama selesai belakangan.",
+      "expected": "Nilai terbaru tidak tertimpa."
+    },
+    {
+      "id": "A11",
+      "scenario": "Kapabilitas terpasang tetapi belum terotorisasi.",
+      "expected": "UI tidak menampilkannya sebagai siap digunakan."
+    },
+    {
+      "id": "A12",
+      "scenario": "Pencarian tidak menemukan kecocokan.",
+      "expected": "Pesan berbeda dari koleksi sumber yang kosong."
+    },
+    {
+      "id": "A13",
+      "scenario": "Otorisasi belum diketahui.",
+      "expected": "Aksi terlindungi tidak menganggap izin tersedia."
+    },
+    {
+      "id": "A14",
+      "scenario": "Respons datang setelah pengguna mengganti konteks.",
+      "expected": "Respons tidak mengganti isi konteks aktif yang berbeda."
+    },
+    {
+      "id": "A15",
+      "scenario": "Pengguna membaca bagian lama saat data baru masuk.",
+      "expected": "Posisi baca tidak digeser paksa."
+    },
+    {
+      "id": "A16",
+      "scenario": "Proyek tidak menggunakan pola tertentu.",
+      "expected": "Pola dapat dihilangkan tanpa menambahkan fitur palsu."
+    }
+  ],
+  "html_reference_artifact": {
+    "filename": "index.html",
+    "purpose": "Prototipe HTML yang mengikuti komposisi visual enam gambar, dengan label placeholder lintas proyek.",
+    "presentation": "Enam komposisi dapat dipilih melalui kontrol di bar atas.",
+    "label_format": "{generic_role_or_content_slot}",
+    "standalone": true,
+    "external_dependencies": false,
+    "interaction_scope": "Simulasi frontend; tidak terhubung ke layanan, izin sistem, mikrofon, atau backend.",
+    "reference_document": "reference.html",
+    "compositions": [
+      {
+        "reference": "image_01",
+        "view": 1,
+        "pattern_ids": [
+          "P06",
+          "P07",
+          "P08",
+          "P13",
+          "P14",
+          "P15",
+          "P16",
+          "P17"
+        ]
+      },
+      {
+        "reference": "image_02",
+        "view": 2,
+        "pattern_ids": [
+          "P01",
+          "P02",
+          "P03",
+          "P04",
+          "P05",
+          "P08",
+          "P09",
+          "P10"
+        ]
+      },
+      {
+        "reference": "image_03",
+        "view": 3,
+        "pattern_ids": [
+          "P01",
+          "P04",
+          "P05",
+          "P08",
+          "P09",
+          "P14",
+          "P15",
+          "P16",
+          "P17"
+        ]
+      },
+      {
+        "reference": "image_04",
+        "view": 4,
+        "pattern_ids": [
+          "P01",
+          "P18"
+        ]
+      },
+      {
+        "reference": "image_05",
+        "view": 5,
+        "pattern_ids": [
+          "P01",
+          "P02",
+          "P19"
+        ]
+      },
+      {
+        "reference": "image_06",
+        "view": 6,
+        "pattern_ids": [
+          "P01",
+          "P02",
+          "P20",
+          "P21"
+        ]
+      }
+    ]
+  }
+}

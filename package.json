@@ -1,25 +1,25 @@
 {
-	"name": "svelte-convex-starter",
+	"name": "codex-clone-placeholder",
 	"private": true,
-	"version": "0.6.1",
-	"description": "Svelte 5 Runes, SvelteKit, Bun and Convex starter with typed feature slices and an adaptive app shell.",
+	"version": "0.1.0",
+	"description": "Codex-style workspace shell clone with placeholder content on the Svelte 5 + Bun + Convex rr starter contract.",
 	"license": "MIT",
 	"repository": {
 		"type": "git",
-		"url": "git+https://github.com/rahmanef63/template-svelte-convex-starter.git"
+		"url": "git+https://github.com/rahmanef63/codex-clone-placeholder.git"
 	},
 	"bugs": {
-		"url": "https://github.com/rahmanef63/template-svelte-convex-starter/issues"
+		"url": "https://github.com/rahmanef63/codex-clone-placeholder/issues"
 	},
-	"homepage": "https://github.com/rahmanef63/template-svelte-convex-starter#readme",
+	"homepage": "https://github.com/rahmanef63/codex-clone-placeholder#readme",
 	"keywords": [
 		"svelte",
 		"sveltekit",
 		"bun",
 		"convex",
-		"typescript",
-		"starter",
-		"template"
+		"workspace",
+		"placeholder",
+		"ui"
 	],
 	"type": "module",
 	"scripts": {

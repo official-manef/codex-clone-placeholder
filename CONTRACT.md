@@ -56,13 +56,33 @@ chat history stay in current request/tab memory. Tool output is untrusted data; 
 require configured endpoint/tool allowlists and explicit review, never automatic model execution. See the focused
 [Svelte](docs/svelte-best-practices.md) and [Convex](docs/convex-best-practices.md) rules.
 
-## Adapting this contract to a product
+## This product
 
-The base has no product PRD or client-specific deployment commitment. When creating a
-product, add `docs/PRD.md` from [the template](docs/prd-template.md), then replace this
-paragraph with its link and current scope. Record the product owner, deployment/operations
-owner, enabled capabilities and acceptance evidence there; never invent names or credentials.
-Keep product identity in its code config and runtime values in their environment.
+This repository is the **placeholder workspace shell**: a Codex-style assistant workspace
+rebuilt on the starter contract, with every visible string kept as a token so the
+structure can be reviewed before product copy exists.
+
+- Product scope and acceptance: [docs/PRD.md](docs/PRD.md)
+- Execution order and slice map: [docs/implementation-plan.md](docs/implementation-plan.md)
+- Visual and interaction contract: [docs/ui-spec.md](docs/ui-spec.md)
+- State ownership, transitions, persistence, races: [docs/state-model.md](docs/state-model.md)
+- Copy token contract: [docs/placeholder-copy.md](docs/placeholder-copy.md)
+- Cloud start: [docs/cloud-handoff.md](docs/cloud-handoff.md)
+- Reference prototype and classification sources: `docs/reference/`
+- UI/UX pointer: [UIUX.md](UIUX.md)
+
+Enabled capabilities: none. Auth, Convex persistence, AI, MCP, payments and email remain
+available in the starter but are **not** part of this product's MVP. The shell must boot
+and be reviewable without credentials.
+
+Slices planned for the product: `app-shell`, `workspace`, `composer`, `workbench`,
+`capabilities`, `settings-surface`, plus the shared `placeholders` resolver. The starter
+demo slices (`dashboard`, `live-data`, `notes`, `assistant`, `settings`) are removed in the
+first implementation step rather than left as fake features.
+
+Product identity is intentionally unset in `src/lib/config/app.ts` beyond a neutral name.
+Filling it in is a product decision recorded in the PRD's open decisions, not an
+implementation detail.
 
 ## Maintenance and proof
 

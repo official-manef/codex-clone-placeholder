@@ -14,16 +14,17 @@ conversation history is supporting context, not a substitute for current files.
 
 ## Load only what the task needs
 
-| Work                               | Guide                                                                    |
-| ---------------------------------- | ------------------------------------------------------------------------ |
-| Feature and runtime boundaries     | [Architecture](docs/architecture.md)                                     |
-| Components, routes and state       | [Svelte](docs/svelte-best-practices.md)                                  |
-| Schema, functions and private data | [Convex](docs/convex-best-practices.md)                                  |
-| Layout, accessibility and identity | [Design](DESIGN.md), [assets](docs/assets.md)                            |
-| Payment, email, auth or cloud      | [Integrations](docs/integrations.md), [environment](docs/environment.md) |
-| Auth, private notes, AI or MCP     | [Auth](docs/auth.md), [AI/MCP](docs/ai-mcp.md)                           |
-| Type-aware lint or import rules    | [Linting](docs/linting.md)                                               |
-| Deployment or release              | [Deployment](docs/deployment.md), [releasing](docs/releasing.md)         |
+| Work                               | Guide                                                                                                                                                                                |
+| ---------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| **This product's MVP**             | [PRD](docs/PRD.md), [implementation plan](docs/implementation-plan.md), [UI spec](docs/ui-spec.md), [state model](docs/state-model.md), [placeholder copy](docs/placeholder-copy.md) |
+| Feature and runtime boundaries     | [Architecture](docs/architecture.md)                                                                                                                                                 |
+| Components, routes and state       | [Svelte](docs/svelte-best-practices.md)                                                                                                                                              |
+| Schema, functions and private data | [Convex](docs/convex-best-practices.md)                                                                                                                                              |
+| Layout, accessibility and identity | [Design](DESIGN.md), [assets](docs/assets.md)                                                                                                                                        |
+| Payment, email, auth or cloud      | [Integrations](docs/integrations.md), [environment](docs/environment.md)                                                                                                             |
+| Auth, private notes, AI or MCP     | [Auth](docs/auth.md), [AI/MCP](docs/ai-mcp.md)                                                                                                                                       |
+| Type-aware lint or import rules    | [Linting](docs/linting.md)                                                                                                                                                           |
+| Deployment or release              | [Deployment](docs/deployment.md), [releasing](docs/releasing.md)                                                                                                                     |
 
 ## Work within the contract
 
