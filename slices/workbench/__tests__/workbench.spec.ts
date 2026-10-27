@@ -118,6 +118,48 @@ describe('workbench state', () => {
 		expect(state.tabs[0].dirty).toBe(false);
 	});
 
+	it('commitTab saves a dirty tab and clears dirty (AC09)', async () => {
+		const state = createWorkbenchState({ saveOutcome: 'saved' });
+		const tab = makeTab({ dirty: true });
+		state.addTab(tab);
+
+		await expect(state.commitTab(tab.id)).resolves.toBe('saved');
+		expect(state.tabs[0].dirty).toBe(false);
+		expect(state.tabs[0].status).toBe('ready');
+	});
+
+	it('a failed save keeps the tab dirty, open and unclosable (AC09)', async () => {
+		const state = createWorkbenchState({ saveOutcome: 'failed' });
+		const tab = makeTab({ dirty: true });
+		state.addTab(tab);
+
+		await expect(state.commitTab(tab.id)).resolves.toBe('failed');
+		expect(state.tabs[0].dirty).toBe(true);
+		expect(state.tabs[0].status).toBe('error');
+		expect(state.tabs[0].error).toEqual({
+			code: 'save_failed',
+			messageKey: 'settings_save_error'
+		});
+
+		expect(state.closeTab(tab.id)).toBe(false);
+		expect(state.tabs).toHaveLength(1);
+	});
+
+	it('markDirty marks a clean tab dirty without switching tabs (AC09)', () => {
+		const state = createWorkbenchState();
+		const [a, b] = [makeTab(), makeTab()];
+		state.addTab(a);
+		state.addTab(b);
+		state.activateTab(a.id);
+
+		state.markDirty(b.id, true);
+		expect(state.tabs.find((tab) => tab.id === b.id)?.dirty).toBe(true);
+		expect(state.activeTabId).toBe(a.id);
+
+		state.markDirty(b.id, false);
+		expect(state.tabs.find((tab) => tab.id === b.id)?.dirty).toBe(false);
+	});
+
 	it('closing a missing tab changes nothing', () => {
 		const state = createWorkbenchState();
 		state.addTab(makeTab());

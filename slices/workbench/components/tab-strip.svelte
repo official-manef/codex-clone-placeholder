@@ -13,6 +13,7 @@
 		hidden,
 		onactivate,
 		onclose,
+		onsave,
 		onadd,
 		ontoggle
 	}: {
@@ -22,6 +23,8 @@
 		onactivate: (id: string) => void;
 		/** False means the tab is dirty and still needs a keep/discard/cancel decision (T10). */
 		onclose: (id: string, decision?: CloseDecision) => boolean;
+		/** AC09: persist a dirty tab; a 'failed' outcome leaves it dirty and open. */
+		onsave: (id: string) => Promise<'saved' | 'failed'>;
 		onadd: () => void;
 		/** Hides the region without touching tabs (AC08). */
 		ontoggle: () => void;
@@ -29,9 +32,26 @@
 
 	/** Tab whose close request is waiting on a decision; drives the confirm popover. */
 	let pendingCloseId = $state<string | null>(null);
+	/** Tab whose save attempt is running, and the tab whose save failed (AC09). */
+	let savingId = $state<string | null>(null);
+	let saveFailedId = $state<string | null>(null);
 
 	function decide(id: string, decision: CloseDecision): void {
 		onclose(id, decision);
+		pendingCloseId = null;
+		saveFailedId = null;
+	}
+
+	async function save(id: string): Promise<void> {
+		savingId = id;
+		saveFailedId = null;
+		const outcome = await onsave(id);
+		savingId = null;
+		if (outcome === 'failed') {
+			// Failure keeps the tab dirty and the surface open so the error stays visible.
+			saveFailedId = id;
+			return;
+		}
 		pendingCloseId = null;
 	}
 
@@ -42,6 +62,7 @@
 	function onOpenChange(id: string, next: boolean): void {
 		if (!next) {
 			pendingCloseId = null;
+			saveFailedId = null;
 			return;
 		}
 		if (!onclose(id)) pendingCloseId = id;
@@ -58,6 +79,8 @@
 			role="tab"
 			aria-selected={tab.id === activeTabId}
 			tabindex="-1"
+			data-dirty={tab.dirty ? 'true' : 'false'}
+			data-tab-status={tab.status}
 			class="flex min-w-0 items-center gap-0.5 rounded-md bg-[var(--shell-surface-raised)] pr-1"
 		>
 			<Button
@@ -83,6 +106,17 @@
 				</PopoverTrigger>
 				<PopoverContent align="end" class="w-56">
 					<p class="text-sm">{t('tab_close_dirty_prompt')}</p>
+					<Button
+						variant="ghost"
+						class="justify-start"
+						disabled={savingId === tab.id}
+						onclick={() => save(tab.id)}
+					>
+						{savingId === tab.id ? t('settings_saving') : t('settings_saved')}
+					</Button>
+					{#if saveFailedId === tab.id}
+						<p role="status" class="text-xs text-destructive">{t('settings_save_error')}</p>
+					{/if}
 					<Button variant="ghost" class="justify-start" onclick={() => decide(tab.id, 'keep')}>
 						{t('tab_close_dirty_keep')}
 					</Button>
