@@ -13,14 +13,21 @@ Read in this order:
 
 ## Repository facts
 
-| Item            | Value                                                                                     |
-| --------------- | ----------------------------------------------------------------------------------------- |
-| Repo            | `rahmanef63/codex-clone-placeholder` (public)                                             |
-| Base template   | `rahmanef63/template-svelte-convex-starter` @ `eead6b5`                                   |
-| Package manager | Bun `1.4.2` — `bun.lock` only                                                             |
-| Stack           | Svelte 5.57, SvelteKit 2.70, Tailwind 4.3, shadcn-svelte 1.5, TypeScript 6.0, Convex 1.45 |
-| Feature alias   | `$features` → `./slices`                                                                  |
-| Entry route     | `/` redirects to `/workspace`                                                             |
+| Item             | Value                                                                                     |
+| ---------------- | ----------------------------------------------------------------------------------------- |
+| Repo             | `rahmanef63/codex-clone-placeholder` (public)                                             |
+| Base template    | `rahmanef63/template-svelte-convex-starter` @ `eead6b5`                                   |
+| Package manager  | Bun — `bun.lock` only; `package.json` engines `>=1.4.2 <2`, `packageManager` `bun@1.4.2`  |
+| Stack            | Svelte 5.57, SvelteKit 2.70, Tailwind 4.3, shadcn-svelte 1.5, TypeScript 6.0, Convex 1.45 |
+| Feature alias    | `$features` → `./slices`                                                                  |
+| Entry route      | `/` 307s to `/workspace`                                                                  |
+| Deployed preview | https://codex-clone-placeholder.vercel.app                                                |
+
+Vercel auto-deploys `main` on push. `/` answers 307 to `/workspace`, and the build no longer
+depends on the host Node version: the Vercel adapter runtime is pinned to `nodejs22.x` in
+`svelte.config.js`. `bun --version` on the machine that ran these checks was `1.3.14`; CI
+installs from `package.json` (`bun-version-file`), so the declared floor above is what CI
+enforces.
 
 ## Cloud environment setup
 
@@ -87,6 +94,13 @@ bun run assets:check
 Then state, in the handoff message: commit SHA, which ACs are covered with which test,
 which compositions were checked at which widths, and every deviation with its
 `TODO(rr)` marker. Typecheck alone is not evidence.
+
+## What is still open
+
+- AC02/AC03 attachment add and validate; AC05/AC06 network loss and streaming cancel;
+  AC09 dirty-tab discard against a real save; AC11 overlay Escape return beyond the shell
+  host; AC12/AC13/AC14 settings and capability persistence. Each is implemented at the
+  state/unit level only — no backend, so no browser-verified end-to-end path.
 
 ## What is deliberately absent
 

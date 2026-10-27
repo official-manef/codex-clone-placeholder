@@ -24,15 +24,23 @@ Slice ownership for the MVP: `app-shell`, `workspace`, `composer`, `workbench`,
 `live-data`, `notes`, `assistant`, `settings`) are removed in the first implementation step
 because leaving them in place would present fake features.
 
+### Shipped state
+
+All seven slices exist with a barrel and co-located specs. `composer` and `workbench` have no
+route of their own: they mount through snippets on `workspace-screen.svelte`, which the two
+workspace routes pass in. Convex stays wired (schema, functions, committed generated types)
+but the shell reads and writes nothing. The shell boots with zero credentials and no `.env`.
+
 The full specification set is [PRD](PRD.md), [implementation plan](implementation-plan.md),
 [UI spec](ui-spec.md), [state model](state-model.md) and
 [placeholder copy](placeholder-copy.md). Reference prototype and classification sources
 live in `docs/reference/`.
 
 ```text
-/apps/[slug] → load validates slug → registry lazily loads screen and resolves metadata
-            → shell renders feature → convex-svelte subscription
-            → generated API reference → validated Convex function
+/workspace, /workspace/[chatId] → chatId validated in the route loader → workspace slice
+                                → composer + workbench mounted as snippets
+/capabilities/[slug]            → registry lookup → detail pane; unknown slug → 404
+/settings/[section]             → registry lookup → grouped field rows; unknown → 404
 
 app config + asset catalog → page identity, icons, social metadata and manifests
 private environment → selected integration resolver → server transport
@@ -139,3 +147,7 @@ tool loop, server-key fallback or durable conversation store is installed.
 
 [Linter rules](linting.md) check authored TypeScript/Svelte promises, validators and
 import boundaries. These gates supplement runtime authorization and behavioral tests.
+
+```
+
+```
