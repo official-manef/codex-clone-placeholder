@@ -3,6 +3,50 @@
 This repository starts from `rahmanef63/template-svelte-convex-starter` and now carries
 its own history. Notable changes follow [Semantic Versioning](https://semver.org/).
 
+## [0.3.0] - 2026-10-28
+
+### Added
+
+- `tests/acceptance.e2e.ts`: browser proof for AC03, AC05, AC06, AC09, AC11, AC12, AC13,
+  AC14, AC15, AC17 and AC18 at 375 / 390 / 1280, so AC01–AC18 are now all browser-verified.
+- Local asynchronous stubs that make those flows observable without a backend: attachment
+  validation with a real `validating` phase and cancellation, offline submit with request-id
+  reuse on retry, cancel-keeps-partial-output, dirty-tab save that can fail and keep the tab
+  open, settings saves where the newest revision wins, capability connect with a pending
+  phase and revert, and shell overlay Escape with focus return.
+- Workbench state persistence through sessionStorage (tabs, active tab, layout, split width).
+
+### Changed
+
+- `workspace-screen.svelte`'s `appendDraft` takes the composer payload and uses its
+  `requestId` as the timeline entry id, so a retry appends once instead of twice.
+- `resource-body.svelte` exposes its edit surface for any open tab, not only a ready one.
+
+### Fixed
+
+- Offline retry duplicated the user message (AC05).
+- A freshly added tab could never become dirty, leaving the AC09 close guard unreachable.
+- Leaving the workspace for settings and returning lost the workbench tabs (AC14).
+
+### Evidence
+
+Observed in this working tree: `bun run test:unit` → 26 files, 189 tests passed;
+`svelte-check` 0 errors; prettier + eslint + Svelte 5 guard clean.
+
+Browser suites, counts from `tests/` file inspection — **tests defined**, not tests
+passed in this docs pass, and multiplied by the configured Playwright projects:
+
+| Spec                      | ACs                                                   | Tests defined | Runs (3 projects) |
+| ------------------------- | ----------------------------------------------------- | ------------- | ----------------- |
+| `tests/workspace.e2e.ts`  | AC01, AC02, AC04, AC07, AC08, AC10, AC16              | 15            | 45                |
+| `tests/acceptance.e2e.ts` | AC03, AC05, AC06, AC09, AC11–AC15, AC17, AC18         | 12            | 36                |
+| `tests/dev-smoke.e2e.ts`  | first boot, hydration gate (`test:dev`, desktop only) | 2             | 6                 |
+
+87 Playwright runs in total (`bun x playwright test --list` confirms 87 in 3 files).
+
+AC01–AC18 therefore all have browser coverage; AC15 is covered on both the settings and
+the capability catalog surfaces.
+
 ## [0.2.0] - 2026-10-28
 
 ### Added

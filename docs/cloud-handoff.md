@@ -97,10 +97,13 @@ which compositions were checked at which widths, and every deviation with its
 
 ## What is still open
 
-- AC02/AC03 attachment add and validate; AC05/AC06 network loss and streaming cancel;
-  AC09 dirty-tab discard against a real save; AC11 overlay Escape return beyond the shell
-  host; AC12/AC13/AC14 settings and capability persistence. Each is implemented at the
-  state/unit level only — no backend, so no browser-verified end-to-end path.
+- Acceptance criteria are all browser-verified: AC01–AC18 are covered by
+  `tests/workspace.e2e.ts` and `tests/acceptance.e2e.ts` against local asynchronous stubs.
+- What remains open is everything that needs a real backend: persistence beyond
+  sessionStorage, authentication, uploads, and streaming providers.
+- The product decisions in [PRD §9](PRD.md#9-open-decisions-block-product-copy-not-the-mvp-shell)
+  (identity and copy, tab kinds and ownership, platform, authorization, attachment limits,
+  settings source) are still unanswered.
 
 ## What is deliberately absent
 

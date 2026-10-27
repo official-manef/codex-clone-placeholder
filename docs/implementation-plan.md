@@ -177,14 +177,18 @@ passes 4.5:1.
 
 ## 10. Tests and evidence
 
-| Layer | File / command                                         | Covers                                                                |
-| ----- | ------------------------------------------------------ | --------------------------------------------------------------------- |
-| Unit  | `bun run test:unit`                                    | slice barrels, guards, registry parity, `t()` coverage                |
-| Type  | `bun run check`                                        | svelte-check + `tsc -p src/convex`                                    |
-| Lint  | `bun run lint`                                         | prettier + eslint + Svelte-5 guard                                    |
-| Build | `bun run build`                                        | production bundle                                                     |
-| E2E   | `tests/workspace.spec.ts` under `bunx playwright test` | C1–C6 at 390/768/1440, Escape focus return, split toggle, no overflow |
-| Dev   | `bun run test:dev`                                     | hydration + navigation keeps drafts                                   |
+| Layer | File / command                                                                    | Covers                                                         |
+| ----- | --------------------------------------------------------------------------------- | -------------------------------------------------------------- |
+| Unit  | `bun run test:unit`                                                               | slice barrels, guards, registry parity, `t()` coverage         |
+| Type  | `bun run check`                                                                   | svelte-check + `tsc -p src/convex`                             |
+| Lint  | `bun run lint`                                                                    | prettier + eslint + Svelte-5 guard                             |
+| Build | `bun run build`                                                                   | production bundle                                              |
+| E2E   | `tests/workspace.e2e.ts` + `tests/acceptance.e2e.ts` under `bunx playwright test` | AC01–AC18 at 390/768/1440                                      |
+| Dev   | `bun run test:dev`                                                                | hydration + navigation keeps drafts (`tests/dev-smoke.e2e.ts`) |
+
+AC coverage: `tests/workspace.e2e.ts` covers AC01, AC02, AC04, AC07, AC08, AC10 and AC16;
+`tests/acceptance.e2e.ts` covers AC03, AC05, AC06, AC09, AC11–AC15, AC17 and AC18. Every
+acceptance criterion therefore has a browser test.
 
 Playwright selects by role/name. No snapshot-only assertions. Add one test per AC that is
 not already covered by unit tests.
