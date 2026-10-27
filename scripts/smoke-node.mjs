@@ -34,12 +34,28 @@ try {
 		await setTimeout(200);
 	}
 	assert.ok(ready, 'Node server did not start');
-	for (const path of ['/', '/apps/dashboard', '/apps/notes', '/apps/assistant']) {
-		const response = await fetch(`${origin}${path}`, { signal: AbortSignal.timeout(5000) });
-		assert.equal(response.status, 200, path);
+	const routes = [
+		{ path: '/', status: 307 },
+		{ path: '/workspace', status: 200 },
+		{ path: '/workspace/chat-1', status: 200 },
+		{ path: '/capabilities', status: 200 },
+		{ path: '/capabilities/capability_01', status: 200 },
+		{ path: '/settings/configuration_category_01', status: 200 }
+	];
+	for (const route of routes) {
+		const response = await fetch(`${origin}${route.path}`, {
+			redirect: 'manual',
+			signal: AbortSignal.timeout(5000)
+		});
+		assert.equal(response.status, route.status, route.path);
+		if (route.path === '/') {
+			const location = response.headers.get('location') ?? '';
+			assert.ok(location.endsWith('/workspace'), `${route.path} must redirect to /workspace`);
+			continue;
+		}
 		const html = await response.text();
-		assert.match(html, /noindex,nofollow/, path);
-		if (path === '/') {
+		assert.match(html, /noindex,nofollow/, route.path);
+		if (route.path === '/workspace') {
 			const asset = html.match(/(_app\/immutable\/[^"'\s<>]+\.js)/)?.[1];
 			assert.ok(asset, 'HTML must reference the client entry');
 			const script = await fetch(`${origin}/${asset}`, { signal: AbortSignal.timeout(5000) });
@@ -53,10 +69,18 @@ try {
 		mcp: { enabled: false, servers: [] }
 	});
 	assert.equal(config.headers.get('cache-control'), 'no-store');
-	assert.equal(
-		(await fetch(`${origin}/apps/missing`, { signal: AbortSignal.timeout(5000) })).status,
-		404
-	);
+	for (const path of [
+		'/workspace/bad!id',
+		'/capabilities/not-a-capability',
+		'/settings/not-a-section',
+		'/nope'
+	]) {
+		const response = await fetch(`${origin}${path}`, {
+			redirect: 'manual',
+			signal: AbortSignal.timeout(5000)
+		});
+		assert.equal(response.status, 404, path);
+	}
 	console.log('Standalone Node routes, private-cache headers and disabled capabilities passed.');
 } finally {
 	child.kill('SIGTERM');
