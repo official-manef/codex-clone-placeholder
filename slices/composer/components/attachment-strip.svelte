@@ -24,7 +24,11 @@
 			{/if}
 			<div class="min-w-0">
 				<p class="truncate text-xs">{attachment.name}</p>
-				{#if attachment.status === 'failed' && attachment.reasonKey}
+				{#if attachment.status === 'validating'}
+					<p class="truncate text-xs" role="status" style="color: var(--shell-fg-muted)">
+						{t('loading_state')}
+					</p>
+				{:else if attachment.status === 'failed' && attachment.reasonKey}
 					<p class="truncate text-xs text-destructive">{t(attachment.reasonKey)}</p>
 				{/if}
 			</div>
