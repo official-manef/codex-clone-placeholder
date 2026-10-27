@@ -1,22 +1,12 @@
-import { notesFeature } from '$features/notes';
-import { assistantFeature } from '$features/assistant';
-import { dashboardFeature } from '$features/dashboard';
-import { liveDataFeature } from '$features/live-data';
-import { settingsFeature } from '$features/settings';
-import type { FeatureDefinition } from './types';
+import type { Destination } from './types';
 
-export const APP_REGISTRY = [
-	dashboardFeature,
-	liveDataFeature,
-	notesFeature,
-	assistantFeature,
-	settingsFeature
-] as const satisfies readonly FeatureDefinition[];
+// Destinations are added per composition as the shell slices land (plan steps 4-8).
+export const DESTINATIONS: readonly Destination[] = [];
 
-export type AppSlug = (typeof APP_REGISTRY)[number]['slug'];
-export function getApp(slug: string) {
-	return APP_REGISTRY.find((item) => item.slug === slug);
+export function getDestination(id: string): Destination | undefined {
+	return DESTINATIONS.find((item) => item.id === id);
 }
-export function isAppSlug(slug: string): slug is AppSlug {
-	return APP_REGISTRY.some((item) => item.slug === slug);
+
+export function isDestinationId(id: string): boolean {
+	return DESTINATIONS.some((item) => item.id === id);
 }

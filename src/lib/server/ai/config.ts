@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import type { AiProvider, ChatMessage } from '$features/assistant';
+import type { AiProvider, ChatMessage } from './contracts';
 import type { IntegrationEnv } from '../integrations/config';
 
 const modelName = z.string().regex(/^[A-Za-z0-9][A-Za-z0-9._:-]{0,119}$/);

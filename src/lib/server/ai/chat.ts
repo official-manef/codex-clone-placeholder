@@ -2,7 +2,7 @@ import { streamText } from 'ai';
 import { createOpenAI } from '@ai-sdk/openai';
 import { createAnthropic } from '@ai-sdk/anthropic';
 import { createGoogleGenerativeAI } from '@ai-sdk/google';
-import type { ChatEvent } from '$features/assistant';
+import type { ChatEvent } from './contracts';
 import type { parseChat } from './config';
 
 export function providerFetch(
