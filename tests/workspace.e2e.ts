@@ -3,8 +3,15 @@ import { expect, test, type Page } from '@playwright/test';
 /** The shell opens its sidebar as a drawer below 650px; it covers the primary region. */
 async function closeDrawer(page: Page): Promise<void> {
 	const drawer = page.locator('#shell-sidebar[data-mode="drawer_open"]');
-	if ((await drawer.count()) > 0)
+	// The shell applies the drawer mode in onMount, so it can arrive after `load`. A one-shot
+	// count() races that mount and leaves the drawer covering the primary region.
+	await expect
+		.poll(async () => (await drawer.count()) > 0 || (await page.evaluate(() => innerWidth >= 650)))
+		.toBe(true);
+	if ((await drawer.count()) > 0) {
 		await page.locator('button[aria-controls="shell-sidebar"]').click();
+		await expect(drawer).toHaveCount(0);
+	}
 }
 
 async function open(page: Page, url: string): Promise<void> {
@@ -140,14 +147,27 @@ test.describe('secondary work region', () => {
 			await expect(page.getByRole('separator')).toBeVisible();
 		}
 
-		// Closing the last tab is the only control that hides the region today.
+		// The strip starts empty; one tab gives the tab-survival assertion teeth.
 		await tablist.getByRole('button', { name: 'Add' }).click();
-		await tablist.getByRole('button', { name: 'Close' }).click();
-		await expect(tablist).toBeHidden();
+		await expect(page.getByRole('tab')).toHaveCount(1);
 
-		await page.getByRole('button', { name: '{resource_show}' }).click();
+		// AC10 is layout degradation: the dedicated hide control, not closing the last tab.
+		await page.getByRole('button', { name: '{resource_hide}' }).click();
+		await expect(page.getByRole('tablist')).toBeHidden();
+		const reopen = page.getByRole('button', { name: '{resource_show}' });
+		await expect(reopen).toBeVisible();
+
+		await reopen.click();
 		await expect(page.getByRole('tablist')).toBeVisible();
+		await expect(page.getByRole('tab')).toHaveCount(1);
 		await expect(textarea).toHaveValue('draft across toggle');
+
+		const project = test.info().project.name;
+		if (project === 'narrow-mobile' || project === 'mobile') {
+			expect(
+				await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth + 1)
+			).toBe(true);
+		}
 	});
 
 	test('AC08 hide then show keeps tab count and active tab', async ({ page }) => {
