@@ -1,7 +1,7 @@
 {
 	"name": "codex-clone-placeholder",
 	"private": true,
-	"version": "0.2.0",
+	"version": "0.3.0",
 	"description": "Codex-style workspace shell clone with placeholder content on the Svelte 5 + Bun + Convex rr starter contract.",
 	"license": "MIT",
 	"repository": {

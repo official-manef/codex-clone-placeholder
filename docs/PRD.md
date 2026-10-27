@@ -151,6 +151,10 @@ Collection counts are data (24 recent items, 16/6/5 settings categories), not co
 | M6  | Restore/persistence + overlay keyboard                 | AC07, AC11, AC12, AC14 green                                 |
 | M7  | Full release evidence                                  | See §8                                                       |
 
+All AC01–AC18 now have a browser test: `tests/workspace.e2e.ts` covers AC01, AC02, AC04,
+AC07, AC08, AC10 and AC16, and `tests/acceptance.e2e.ts` covers AC03, AC05, AC06, AC09,
+AC11–AC15, AC17 and AC18.
+
 ## 8. Release evidence
 
 ```bash
