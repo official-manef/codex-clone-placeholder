@@ -19,8 +19,6 @@ function entry(id: string, overrides: Partial<TimelineEntry> = {}): TimelineEntr
 	};
 }
 
-const BRACE = /^\{[a-z][a-z0-9_]*(?:\.[a-z][a-z0-9_]*)?\}$/;
-
 describe('derivePopulated', () => {
 	it('stays unpopulated without a chat, populated with one', () => {
 		expect(derivePopulated(null, 0)).toBe(false);
@@ -107,7 +105,8 @@ describe('placeholder coverage', () => {
 		'sources'
 	];
 
-	it.each(contentKeys)('resolves %s to a brace token', (key) => {
-		expect(t(key)).toMatch(BRACE);
+	it.each(contentKeys)('resolves %s to readable copy', (key) => {
+		expect(t(key)).not.toMatch(/[{}]/);
+		expect(t(key).length).toBeGreaterThan(0);
 	});
 });
