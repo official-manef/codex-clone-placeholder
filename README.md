@@ -1,79 +1,56 @@
-# Placeholder Workspace Shell
+# Workspace Shell Template
 
-Codex-style assistant workspace rebuilt as a real SvelteKit application on the
-`template-svelte-convex-starter` contract. Every visible string is a placeholder token, so
-the shell can be reviewed on structure alone before product copy exists.
+The Laya NPU workspace UI/UX as a standalone SvelteKit template: rail, sidebar, chat surface
+with a tabbed output region, lazy feature screens, layout persistence. The shell is copied
+verbatim from [`rahmanef63/laya-npu`](https://github.com/rahmanef63/laya-npu); this repository
+re-hosts it with a local stub backend so it boots with zero credentials.
 
-Live preview: https://codex-clone-placeholder.vercel.app (`/` 307s to `/workspace`).
-
-[Product requirements](docs/PRD.md) · [Implementation plan](docs/implementation-plan.md)
-· [UI spec](docs/ui-spec.md) · [State model](docs/state-model.md)
-· [Placeholder copy](docs/placeholder-copy.md) · [Cloud handoff](docs/cloud-handoff.md)
-· [Contract](CONTRACT.md) · [Changelog](CHANGELOG.md)
+[Laya parity and provenance](docs/laya-parity.md) · [Rebuild plan](docs/REBUILD-PLAN-laya-parity.md)
+· [Contract](CONTRACT.md) · [UI/UX](UIUX.md) · [Changelog](CHANGELOG.md)
 
 ## What this is
 
-Six compositions rendered from one state object: unstarted workspace, populated
-conversation with a tabbed work region, anchored destination overflow, capability catalog
-and categorized configuration. Desktop, tablet and phone are all first-class.
+| Part                                             | Source                                                        |
+| ------------------------------------------------ | ------------------------------------------------------------- |
+| Shell: regions, layout, menus, tabs, overlays    | `slices/workspace-shell/**` — vendored from Laya `9a893b2`    |
+| Shared modules: icons, layout math, base tokens  | `shared/**`                                                   |
+| Chat surface                                     | `slices/chat/**` — local stub behind the shell's own contract |
+| Composition root: registry, runtime, persistence | `slices/workspace-surface/**`                                 |
+| Route                                            | `src/routes/+page.svelte`                                     |
 
-The reference prototype lives at `docs/reference/workspace-prototype.html`; the two
-classification sources it was derived from sit beside it. They are specification inputs,
-not code to port.
+The shell's own README (`slices/workspace-shell/README.md`) documents the consumer contract in
+full. This repository is one working consumer of it.
 
-## Scope
+## Zero backend by design
 
-In scope: shell, rail, sidebar, primary and secondary regions, composer mechanics, tab
-handling, capability catalog, configuration surface, responsive composition, and the
-placeholder resolver.
-
-Not in scope: auth, backend persistence, AI calls, upload, search, payments, email,
-analytics, marketing pages, and any real product copy.
+No network call, no provider key, no NPU. `createLocalRuntime()` reports one in-browser
+backend and the chat stub answers locally after a short delay. Persistence is
+`sessionStorage`/`localStorage` namespaced `workspace-template:`. A clean clone needs no
+`.env`.
 
 ## Stack
 
-Svelte 5 Runes · SvelteKit 2.70 · Bun 1.4.2 · Tailwind 4 + shadcn-svelte · TypeScript 6 ·
-Convex 1.45 (wired, unused by the MVP shell)
-
-## Run it
+Svelte 5 Runes · SvelteKit 2.70 · Bun 1.4.2 · Tailwind 4 + shadcn-svelte · TypeScript 6
 
 ```bash
 bun install --frozen-lockfile
-bun run dev        # http://localhost:5173
-bun run verify     # check + lint + unit + build
-bunx playwright test
-bun run test:dev   # dev-server hydration and navigation smoke
+bun run dev
+bun run verify           # check + lint + unit + build
+bunx playwright test     # 390 / 768 / 1440
+bun run test:dev         # dev hydration smoke
+DEPLOY_TARGET=node node scripts/smoke-node.mjs
 ```
-
-No `.env` is required. The clean clone boots without credentials and with every optional
-capability disabled.
-
-## Slices
-
-| Slice              | Owns                                                               |
-| ------------------ | ------------------------------------------------------------------ |
-| `app-shell`        | Outer chrome, global rail, sidebar host, overlay host, composition |
-| `workspace`        | Unstarted and populated primary surfaces, timeline, context header |
-| `composer`         | Draft, attachments, submit guard, access and execution controls    |
-| `workbench`        | Secondary region, tabs, resource toolbar, splitter                 |
-| `capabilities`     | Installed list, detail pane, connection state                      |
-| `settings-surface` | Category sidebar, search, typed field rows                         |
-| `placeholders`     | Token dictionary and `t()` resolver                                |
-
-Cross-slice imports go through the slice barrel (`$features/<slug>`). Routes only adapt
-params and render.
 
 ## Routes
 
-| Route                  | Composition                                       |
-| ---------------------- | ------------------------------------------------- |
-| `/`                    | redirects to `/workspace`                         |
-| `/workspace`           | C2/C1 — unstarted or populated primary region     |
-| `/workspace/[chatId]`  | populated conversation, validated by the shell    |
-| `/capabilities`        | C5 — catalog list                                 |
-| `/capabilities/[slug]` | C5 — capability detail, validated by registry     |
-| `/settings/[section]`  | C6 — configuration surface, validated by registry |
-| unknown slug or id     | 404 boundary with a recovery link                 |
+| Route         | What renders                                                       |
+| ------------- | ------------------------------------------------------------------ |
+| `/`           | the workspace shell (single page; the shell owns navigation state) |
+| anything else | 404 boundary                                                       |
+
+The shell renders its own areas — chat, lazily loaded feature screens, the output region —
+through state, not routes. There is deliberately no `/workspace`, `/capabilities` or
+`/settings` route: a second navigation family would be a second source of truth.
 
 ## Commands
 

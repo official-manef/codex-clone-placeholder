@@ -23,6 +23,8 @@
 		"src/**/*.svelte",
 		"slices/**/*.ts",
 		"slices/**/*.svelte",
+		"shared/**/*.ts",
+		"shared/**/*.svelte",
 		"assets.config.ts",
 		"scripts/**/*.ts",
 		"vite.config.ts"

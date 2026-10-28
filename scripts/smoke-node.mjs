@@ -34,28 +34,17 @@ try {
 		await setTimeout(200);
 	}
 	assert.ok(ready, 'Node server did not start');
-	const routes = [
-		{ path: '/', status: 307 },
-		{ path: '/workspace', status: 200 },
-		{ path: '/workspace/chat-1', status: 200 },
-		{ path: '/capabilities', status: 200 },
-		{ path: '/capabilities/capability_01', status: 200 },
-		{ path: '/settings/configuration_category_01', status: 200 }
-	];
+	// The workspace is the product; `/` mounts it directly as the Laya-derived shell does.
+	const routes = [{ path: '/', status: 200 }];
 	for (const route of routes) {
 		const response = await fetch(`${origin}${route.path}`, {
 			redirect: 'manual',
 			signal: AbortSignal.timeout(5000)
 		});
 		assert.equal(response.status, route.status, route.path);
-		if (route.path === '/') {
-			const location = response.headers.get('location') ?? '';
-			assert.ok(location.endsWith('/workspace'), `${route.path} must redirect to /workspace`);
-			continue;
-		}
 		const html = await response.text();
 		assert.match(html, /noindex,nofollow/, route.path);
-		if (route.path === '/workspace') {
+		{
 			const asset = html.match(/(_app\/immutable\/[^"'\s<>]+\.js)/)?.[1];
 			assert.ok(asset, 'HTML must reference the client entry');
 			const script = await fetch(`${origin}/${asset}`, { signal: AbortSignal.timeout(5000) });
@@ -69,12 +58,7 @@ try {
 		mcp: { enabled: false, servers: [] }
 	});
 	assert.equal(config.headers.get('cache-control'), 'no-store');
-	for (const path of [
-		'/workspace/bad!id',
-		'/capabilities/not-a-capability',
-		'/settings/not-a-section',
-		'/nope'
-	]) {
+	for (const path of ['/nope']) {
 		const response = await fetch(`${origin}${path}`, {
 			redirect: 'manual',
 			signal: AbortSignal.timeout(5000)

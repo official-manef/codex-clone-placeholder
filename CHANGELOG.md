@@ -3,6 +3,31 @@
 This repository starts from `rahmanef63/template-svelte-convex-starter` and now carries
 its own history. Notable changes follow [Semantic Versioning](https://semver.org/).
 
+## [0.4.0] - 2026-10-29
+
+### Changed
+
+- **Rebuilt on the Laya NPU workspace shell.** `slices/workspace-shell/**` and `shared/**`
+  are copied verbatim from `rahmanef63/laya-npu` @ `9a893b2`; only the shared import alias
+  was rewritten. See [docs/laya-parity.md](docs/laya-parity.md).
+- The 0.3.0 from-scratch slices (`app-shell`, `workspace`, `composer`, `workbench`,
+  `capabilities`, `settings-surface`, `placeholders`) and their route family are removed.
+  Navigation now lives in shell state, so `/workspace`, `/capabilities` and `/settings` no
+  longer exist; `/` mounts the workspace.
+- Added `slices/chat` (local chat stub behind the shell's contract) and
+  `slices/workspace-surface` (registry, local runtime, namespaced persistence, lazy screens).
+- `src/routes/layout.css` merges Laya's token and element block alongside the shadcn tokens.
+- `eslint.config.js` carries a bounded `TODO(rr)` exception for the two vendored trees so the
+  copy stays diffable against upstream. Consumer slices pass the full rule set.
+- Product identity, README, CONTRACT, UIUX and docs describe the new shape.
+
+### Verification
+
+`bun run verify` (0 type errors, 59 unit tests), `bunx playwright test` (6 across
+narrow-mobile/mobile/desktop), `bun run test:dev` (2), `DEPLOY_TARGET=node node
+scripts/smoke-node.mjs`, and manual render at 1440/768/390 with zero console errors and zero
+horizontal overflow.
+
 ## [0.3.0] - 2026-10-28
 
 ### Added
@@ -100,24 +125,11 @@ the capability catalog surfaces.
 
 ### Added
 
-- Product requirement set for the placeholder workspace shell: `docs/PRD.md`,
-  `docs/implementation-plan.md`, `docs/ui-spec.md`, `docs/state-model.md`,
+- Product requirement set for the first (later superseded) placeholder shell:
+  `docs/PRD.md`, `docs/implementation-plan.md`, `docs/ui-spec.md`, `docs/state-model.md`,
   `docs/placeholder-copy.md`, `docs/cloud-handoff.md`.
 - Reference artifacts under `docs/reference/`: the six-composition prototype and the two
   classification sources it was derived from.
-
-### Changed
-
-- `CONTRACT.md`, `README.md`, `UIUX.md`, `AGENTS.md` and `docs/architecture.md` now describe
-  this product instead of the starter template.
-- Package name, version, repository links and release manifest reset for this product.
-
-### Not yet implemented
-
-- The shell itself. Slices `app-shell`, `workspace`, `composer`, `workbench`,
-  `capabilities`, `settings-surface` and `placeholders` are specified but not written;
-  the starter demo slices are still present and are removed in the first implementation
-  step.
 
 ## [0.6.1] - 2026-09-08
 

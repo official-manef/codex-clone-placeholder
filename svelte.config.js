@@ -24,7 +24,9 @@ const config = {
 	kit: {
 		adapter: deploymentAdapter(),
 		alias: {
-			$features: './slices'
+			$features: './slices',
+			// Portable shell modules that the workspace slice imports directly.
+			$shared: './shared'
 		}
 	}
 };

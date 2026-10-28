@@ -58,44 +58,44 @@ require configured endpoint/tool allowlists and explicit review, never automatic
 
 ## This product
 
-This repository is the **placeholder workspace shell**: a Codex-style assistant workspace
-rebuilt on the starter contract, with every visible string kept as a token so the
-structure can be reviewed before product copy exists.
+This repository is the **shared workspace shell template**: the Laya NPU workspace UI/UX,
+copied verbatim and re-hosted with a local stub backend. Every visible string is real copy
+(Laya's own labels), not a `{}` token.
 
-- Product scope and acceptance: [docs/PRD.md](docs/PRD.md)
-- Execution order and slice map: [docs/implementation-plan.md](docs/implementation-plan.md)
-- Visual and interaction contract: [docs/ui-spec.md](docs/ui-spec.md)
-- State ownership, transitions, persistence, races: [docs/state-model.md](docs/state-model.md)
-- Copy token contract: [docs/placeholder-copy.md](docs/placeholder-copy.md)
-- Cloud start: [docs/cloud-handoff.md](docs/cloud-handoff.md)
-- Reference prototype and classification sources: `docs/reference/`
-- UI/UX pointer: [UIUX.md](UIUX.md)
+Read [docs/laya-parity.md](docs/laya-parity.md) first; it records provenance, the consumer
+contracts, deliberate deviations and the re-sync procedure.
 
-File map as shipped:
+### Authoritative inputs for this product
 
-| Path                       | Owns                                                               |
-| -------------------------- | ------------------------------------------------------------------ |
-| `slices/placeholders/`     | Token dictionary, `t()` / `tp()` resolver                          |
-| `slices/app-shell/`        | `DESTINATIONS` registry, rail, sidebar host, overlay host          |
-| `slices/workspace/`        | Unstarted and populated primary surfaces, timeline, snippet slots  |
-| `slices/composer/`         | Draft store, submit guard, attachment validation                   |
-| `slices/workbench/`        | Secondary region, tabs, resource toolbar, splitter                 |
-| `slices/capabilities/`     | Capability registry, detail pane, connection state                 |
-| `slices/settings-surface/` | Section and field registries, typed field rows                     |
-| `src/routes/workspace/`    | `/workspace` and `/workspace/[chatId]`, id validated in the loader |
-| `src/routes/capabilities/` | `/capabilities` and `/capabilities/[slug]`, registry-validated     |
-| `src/routes/settings/`     | `/settings` redirect and `/settings/[section]`, registry-validated |
-| `src/routes/+page.svelte`  | `/` → 307 redirect to `/workspace`                                 |
+| Concern                                          | Source of truth                                                               |
+| ------------------------------------------------ | ----------------------------------------------------------------------------- |
+| Shell UI, layout, menus, tabs                    | `slices/workspace-shell/**` (vendored from `rahmanef63/laya-npu` @ `9a893b2`) |
+| Shared shell modules and tokens                  | `shared/**`; token block merged into `src/routes/layout.css`                  |
+| Chat surface (consumer side)                     | `slices/chat/**`                                                              |
+| Composition root: registry, runtime, persistence | `slices/workspace-surface/**`                                                 |
+| Route                                            | `src/routes/+page.svelte` (mounts `WorkspaceApp`; the shell owns navigation)  |
+| Product identity and metadata                    | `src/lib/config/app.ts`, `src/lib/config/metadata.ts`                         |
 
-`composer` and `workbench` have no route; they mount as snippets on
-`workspace-screen.svelte`. Enabled capabilities: none. Auth, Convex persistence, AI, MCP,
-payments and email remain available in the starter but are **not** part of this product's
-MVP. Convex stays wired but unused; the shell must boot and be reviewable without
-credentials.
+### Rules specific to this product
 
-Product identity is intentionally unset in `src/lib/config/app.ts` beyond a neutral name.
-Filling it in is a product decision recorded in the PRD's open decisions, not an
-implementation detail.
+- **Do not edit the vendored trees to fix a lint or type finding.** Fix it upstream in
+  `laya-npu`, re-copy, then delete the override. `eslint.config.js` carries the bounded
+  exception with its `TODO(rr)` marker.
+- **Do not add `/workspace`, `/capabilities` or `/settings` routes.** The shell owns
+  navigation; a second route family would be a second source of truth.
+- **Zero backend, zero credential, zero network.** The runtime adapter reports one in-browser
+  backend. A clean clone boots with no `.env`.
+- **Omitted optional props stay omitted.** `runtimeControls`, `hostedGate`, `settingsWindow`,
+  `workspaceLauncher` are not passed; the shell does not mount them. Do not add stubs that
+  render nothing.
+- `DEPLOY_TARGET=node node scripts/smoke-node.mjs` asserts the shipped route family. Any
+  route change must update it in the same commit.
+
+### Superseded documents
+
+`docs/PRD.md`, `docs/ui-spec.md`, `docs/implementation-plan.md`, `docs/state-model.md` and
+`docs/placeholder-copy.md` describe the earlier 0.3.0 from-scratch shell. They are kept for
+history; `docs/REBUILD-PLAN-laya-parity.md` and `docs/laya-parity.md` are current.
 
 ## Maintenance and proof
 

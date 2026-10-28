@@ -10,60 +10,41 @@ function collectErrors(page: Page): string[] {
 	return errors;
 }
 
-/**
- * The segment control flips its buttons from disabled to enabled in `onMount`, so it is the
- * app's own "client took over" marker. Waiting on it keeps the hydration assertions below
- * honest instead of racing the dev server's module graph.
- */
+/** The chat stub focuses its composer on mount; that is the app's "client took over" marker. */
 async function waitForShellHydration(page: Page): Promise<void> {
-	const mode = page.getByRole('group', { name: 'Workspace' });
-	await expect(mode.getByRole('button').first()).toBeEnabled();
+	await expect(page.getByRole('textbox', { name: 'Message' })).toBeEnabled();
 }
 
 test('fresh clone boots without credentials and hydrates the workspace shell', async ({ page }) => {
 	const errors = collectErrors(page);
 
-	// Direct path: the root redirect is covered elsewhere; this test is about hydration.
-	await page.goto('/workspace');
+	await page.goto('/');
 
-	await expect(page.getByRole('navigation')).toBeVisible();
-	await expect(page.getByRole('main')).toBeVisible();
-	await expect(page.getByRole('heading', { name: 'Open local chat' })).toBeVisible();
+	await expect(page.getByRole('menubar', { name: 'Workspace menu' })).toBeVisible();
+	await expect(page.getByRole('heading', { name: 'What do you want to work on?' })).toBeVisible();
 	await waitForShellHydration(page);
 
 	// No credentials configured: the composer is usable, nothing is disabled by config.
-	const textarea = page.getByRole('textbox', { name: 'Open local chat' });
-	await expect(textarea).toBeVisible();
-	await expect(textarea).toBeEnabled();
+	const composer = page.getByRole('textbox', { name: 'Message' });
+	await expect(composer).toBeEnabled();
+	await composer.fill('Hello');
+	await expect(page.getByRole('button', { name: 'Send' })).toBeEnabled();
 
 	expect(errors).toEqual([]);
 });
 
-test('client controls wait for hydration before they accept input', async ({ page }) => {
-	await page.goto('/workspace');
-	await waitForShellHydration(page);
+test('a local send produces a timeline entry and keeps the draft mounted', async ({ page }) => {
+	await page.goto('/');
+	const composer = page.getByRole('textbox', { name: 'Message' });
+	await composer.fill('First message');
+	await page.getByRole('button', { name: 'Send' }).click();
 
-	const textarea = page.getByRole('textbox', { name: 'Open local chat' });
-	await textarea.fill('draft-before-hydration');
-	await expect(textarea).toHaveValue('draft-before-hydration');
-
-	// Authority is `unknown` on /workspace, so the button stays closed; the reason paragraph
-	// must move off the server-rendered `empty` reason to `invalid`, which only the reactive
-	// derivation can do once text exists after hydration.
-	const reason = page.locator('#composer-submit-reason');
-	await expect(reason).toBeVisible();
-	await expect(reason).toHaveText('Submit is disabled because sending is not allowed here.');
-	await expect(page.getByRole('button', { name: 'Open local chat' })).toBeDisabled();
-
-	// Client-side round trip: the mounted draft store mirrors to sessionStorage and back.
-	// "Capabilities" and "Workspace" also name composer controls, so scope to the rail nav.
-	const rail = page.getByRole('navigation', { name: 'More destinations' });
-	await rail.getByRole('button', { name: 'Capabilities' }).click();
-	await expect(page).toHaveURL(/\/capabilities$/);
-	await rail.getByRole('button', { name: 'Workspace' }).click();
-	await expect(page).toHaveURL(/\/workspace$/);
-
-	await expect(page.getByRole('textbox', { name: 'Open local chat' })).toHaveValue(
-		'draft-before-hydration'
-	);
+	// The stub replies after a short delay. Scope to the log: the same text also becomes
+	// the session title in the sidebar, so an unscoped locator is ambiguous by design.
+	const log = page.getByRole('log', { name: 'Messages' });
+	await expect(log.getByText('First message')).toBeVisible();
+	// One user entry plus one stub reply; the reply text rotates by turn index, so the
+	// assertion is on the count and on the user's own text.
+	await expect(log.locator('.chat-message')).toHaveCount(2);
+	await expect(log.locator('.chat-message[data-tone="assistant"]')).toHaveCount(1);
 });

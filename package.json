@@ -1,8 +1,8 @@
 {
 	"name": "codex-clone-placeholder",
 	"private": true,
-	"version": "0.3.0",
-	"description": "Codex-style workspace shell clone with placeholder content on the Svelte 5 + Bun + Convex rr starter contract.",
+	"version": "0.4.0",
+	"description": "Configurable Svelte workspace shell: rail, chat surface, tabbed output region and lazy feature screens.",
 	"license": "MIT",
 	"repository": {
 		"type": "git",
@@ -48,6 +48,7 @@
 	"devDependencies": {
 		"@convex-dev/eslint-plugin": "4.0.0",
 		"@eslint/js": "^10.0.1",
+		"@fontsource-variable/inter": "^5.3.0",
 		"@internationalized/date": "^3.12.0",
 		"@playwright/test": "1.62.1",
 		"@resvg/resvg-js": "2.6.2",

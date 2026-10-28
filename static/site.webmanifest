@@ -1,7 +1,7 @@
 {
-  "name": "Placeholder Workspace",
+  "name": "Workspace Template",
   "short_name": "Workspace",
-  "description": "Workspace shell structure with placeholder copy.",
+  "description": "Configurable Svelte workspace shell with a consumer-owned chat surface.",
   "lang": "en",
   "start_url": "/",
   "display": "standalone",

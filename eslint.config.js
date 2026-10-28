@@ -105,5 +105,24 @@ export default defineConfig(
 			// Generated shadcn primitives intentionally accept external href values.
 			'svelte/no-navigation-without-resolve': 'off'
 		}
+	},
+	{
+		// TODO(rr): vendored upstream template. `slices/workspace-shell/**` and `shared/**` are
+		// copied byte-identical from rahmanef63/laya-npu so the copy can be re-synced with a
+		// plain diff. Upstream runs a looser rule set; fixing these here would fork the
+		// source and make the next pull a manual merge. Compliant shape: delete this block
+		// and fix each finding upstream in laya-npu, then re-copy.
+		// Consumer code (slices/chat, slices/workspace-surface) is NOT covered here.
+		files: ['slices/workspace-shell/**', 'shared/**'],
+		rules: {
+			'@typescript-eslint/no-floating-promises': 'off',
+			'@typescript-eslint/no-misused-promises': 'off',
+			'@typescript-eslint/await-thenable': 'off',
+			'@typescript-eslint/no-explicit-any': 'off',
+			'@typescript-eslint/no-empty-object-type': 'off',
+			'@typescript-eslint/no-unused-vars': 'off',
+			'@typescript-eslint/no-unused-expressions': 'off',
+			'svelte/require-each-key': 'off'
+		}
 	}
 );

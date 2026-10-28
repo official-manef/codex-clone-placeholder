@@ -9,7 +9,7 @@ Read [the asset workflow](assets.md) first. Approve one mark, then reuse it for 
 - Canvas: 64 × 64
 - Status: placeholder
 
-Create a distinctive simple brand mark for Placeholder Workspace. Legible at 16px. Flat vector geometry, no text, no fine details. Use #171717. Transparent background.
+Create a distinctive simple brand mark for Workspace Template. Legible at 16px. Flat vector geometry, no text, no fine details. Use #171717. Transparent background.
 
 ## logo
 
@@ -17,7 +17,7 @@ Create a distinctive simple brand mark for Placeholder Workspace. Legible at 16p
 - Canvas: 64 × 64
 - Status: placeholder
 
-Use the approved favicon mark for Placeholder Workspace as the logo symbol. Preserve its exact geometry and colors. Transparent background; no invented wordmark.
+Use the approved favicon mark for Workspace Template as the logo symbol. Preserve its exact geometry and colors. Transparent background; no invented wordmark.
 
 ## appleIcon
 
@@ -25,7 +25,7 @@ Use the approved favicon mark for Placeholder Workspace as the logo symbol. Pres
 - Canvas: 180 × 180
 - Status: placeholder
 
-Adapt the approved Placeholder Workspace mark to an opaque square icon. Keep generous padding. No rounded outer corners baked into the image.
+Adapt the approved Workspace Template mark to an opaque square icon. Keep generous padding. No rounded outer corners baked into the image.
 
 ## appIcon
 
@@ -33,7 +33,7 @@ Adapt the approved Placeholder Workspace mark to an opaque square icon. Keep gen
 - Canvas: 192 × 192
 - Status: placeholder
 
-Export the approved Placeholder Workspace app icon on an opaque background. Same mark and palette as appleIcon.
+Export the approved Workspace Template app icon on an opaque background. Same mark and palette as appleIcon.
 
 ## maskableIcon
 
@@ -41,7 +41,7 @@ Export the approved Placeholder Workspace app icon on an opaque background. Same
 - Canvas: 512 × 512
 - Status: placeholder
 
-Create a maskable variant of the approved Placeholder Workspace app icon. Essential artwork must fit inside the central circle with radius 40% of the canvas.
+Create a maskable variant of the approved Workspace Template app icon. Essential artwork must fit inside the central circle with radius 40% of the canvas.
 
 ## socialImage
 
@@ -49,7 +49,7 @@ Create a maskable variant of the approved Placeholder Workspace app icon. Essent
 - Canvas: 1200 × 630
 - Status: placeholder
 
-Create a social sharing illustration for Placeholder Workspace: Workspace shell structure with placeholder copy.. Follow the approved brand mark and #171717 palette. Leave safe margins and room for the title. Do not generate text; overlay the exact app name with typography in a design tool after generation.
+Create a social sharing illustration for Workspace Template: Configurable Svelte workspace shell with a consumer-owned chat surface.. Follow the approved brand mark and #171717 palette. Leave safe margins and room for the title. Do not generate text; overlay the exact app name with typography in a design tool after generation.
 
 ## hero
 
@@ -57,7 +57,7 @@ Create a social sharing illustration for Placeholder Workspace: Workspace shell 
 - Canvas: 1600 × 900
 - Status: placeholder
 
-Create a product hero illustration for Placeholder Workspace: Workspace shell structure with placeholder copy.. Show only capabilities approved in the PRD. Use the approved visual direction and #171717 accent. No fake product screenshots, statistics, testimonials, logos, or text.
+Create a product hero illustration for Workspace Template: Configurable Svelte workspace shell with a consumer-owned chat surface.. Show only capabilities approved in the PRD. Use the approved visual direction and #171717 accent. No fake product screenshots, statistics, testimonials, logos, or text.
 
 ## emptyState
 
@@ -65,4 +65,4 @@ Create a product hero illustration for Placeholder Workspace: Workspace shell st
 - Canvas: 480 × 320
 - Status: placeholder
 
-Create a quiet empty-state illustration for Placeholder Workspace. Clear at small sizes, restrained #171717 accent, transparent background, no text or implied error. Match the hero illustration style.
+Create a quiet empty-state illustration for Workspace Template. Clear at small sizes, restrained #171717 accent, transparent background, no text or implied error. Match the hero illustration style.

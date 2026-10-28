@@ -1,4 +1,5 @@
 <script lang="ts">
-	import { redirect } from '@sveltejs/kit';
-	redirect(307, '/workspace');
+	import { WorkspaceApp } from '$features/workspace-surface';
 </script>
+
+<WorkspaceApp />

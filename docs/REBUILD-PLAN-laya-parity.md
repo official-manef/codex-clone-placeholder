@@ -1,6 +1,7 @@
 # Rebuild plan — align this repo with the Laya NPU workspace UI/UX
 
-Status: **decided, not started**. Owner: rahmanef63. Date: 2026-10-28.
+Status: **executed 2026-10-29** (steps 1–7 landed; see `docs/laya-parity.md` for the shipped
+shape and step 8–10 status). Owner: rahmanef63. Date: 2026-10-28, updated 2026-10-29.
 This document supersedes the shell structure described in `docs/PRD.md`, `docs/ui-spec.md`,
 `docs/implementation-plan.md`, `docs/state-model.md` and `docs/placeholder-copy.md` for the
 next milestone. Those files describe the shipped 0.3.0 shell, which the owner judged too far

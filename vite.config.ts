@@ -5,7 +5,7 @@ import { sveltekit } from '@sveltejs/kit/vite';
 export default defineConfig({
 	plugins: [tailwindcss(), sveltekit()],
 	// SvelteKit merges its own allowlist; root feature slices also need client dev access.
-	server: { fs: { allow: ['slices'] } },
+	server: { fs: { allow: ['slices', 'shared'] } },
 	test: {
 		expect: { requireAssertions: true },
 		projects: [
