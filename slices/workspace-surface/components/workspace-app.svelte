@@ -7,7 +7,10 @@
 	import SettingsWindow from '#lib/SettingsWindow.svelte';
 	import SiteHeader from '#lib/SiteHeader.svelte';
 	import WorkspaceLauncher from '#lib/WorkspaceLauncher.svelte';
+	import { onMount } from 'svelte';
 	import { CHAT_OUTPUTS, LAUNCHER_CONFIG, PROJECT, RAIL_VIEWS, SECTIONS } from '#lib/registry.js';
+	import { ALWAYS_ENABLED, resolveEnabled } from '#lib/feature_access.js';
+	import { featureSettings } from '#lib/feature_settings.svelte.js';
 	import { backendSelection, workspaceRuntime } from '#lib/template_runtime_adapter.js';
 	import { workspacePersistence } from '#lib/workspace_persistence.js';
 	import {
@@ -76,10 +79,20 @@
 		]
 	};
 
-	// Registry metadata selects what is enabled; it grants no authority.
-	const registry = createFeatureRegistry({ features: [...SECTIONS, ...CHAT_OUTPUTS] });
-	const sections = SECTIONS.filter((feature) => registry.get(feature.id));
-	const auxiliaryViews = CHAT_OUTPUTS.filter((feature) => registry.get(feature.id));
+	// Registry metadata selects what is enabled; it grants no authority. The Tools screen
+	// owns the per-feature toggle, so the registry is recreated when that selection changes.
+	const registry = $derived(
+		createFeatureRegistry({
+			features: [...SECTIONS, ...CHAT_OUTPUTS],
+			enabledIds: resolveEnabled(featureSettings.enabled, featureSettings.surface),
+			requiredIds: ALWAYS_ENABLED
+		})
+	);
+	const sections = $derived(SECTIONS.filter((feature) => registry.get(feature.id)));
+	const auxiliaryViews = $derived(CHAT_OUTPUTS.filter((feature) => registry.get(feature.id)));
+
+	// Resolve the surface and the stored tool selection once, after hydration.
+	onMount(() => featureSettings.start());
 
 	// Local approval policy, expressed as UI only. The template has no executor to gate.
 	const approval: ApprovalControlConfig = {

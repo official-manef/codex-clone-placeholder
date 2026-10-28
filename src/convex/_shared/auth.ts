@@ -35,7 +35,11 @@ export type ErrorCode =
 	| 'rate_limited'
 	| 'quota_exceeded'
 	| 'provider_error'
-	| 'unsupported';
+	| 'unsupported'
+	/** A one-shot MCP approval was already used or passed its 120-second lifetime. */
+	| 'expired'
+	/** The requested remote tool is not in the stored allowlist or is not advertised. */
+	| 'not_allowed';
 
 export function fail(code: ErrorCode, message: string): never {
 	throw new ConvexError({ code, message });

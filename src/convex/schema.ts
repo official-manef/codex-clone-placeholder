@@ -32,6 +32,38 @@ export default defineSchema({
 		.index('by_owner', ['owner'])
 		.index('by_owner_provider', ['owner', 'provider']),
 
+	// ── per-user MCP (BYOK) ──────────────────────────────────────────────────────────────
+	// One row per (owner, alias). `ciphertext` is the same AES-256-GCM blob as `modelCreds`;
+	// `tools` is the allowlist enforced on discovery and again before every call.
+	mcpConnections: defineTable({
+		owner: v.string(),
+		alias: v.string(),
+		url: v.string(),
+		/** 'bearer' | 'x-api-key' — the header convention the credential is sent with. */
+		auth: v.union(v.literal('bearer'), v.literal('x-api-key')),
+		ciphertext: v.string(),
+		tools: v.array(v.string()),
+		label: v.optional(v.string()),
+		enabled: v.boolean(),
+		updatedAt: v.number()
+	})
+		.index('by_owner', ['owner'])
+		.index('by_owner_alias', ['owner', 'alias']),
+
+	// Pending one-shot tool approvals. `tokenHash` is SHA-256 of a token shown to the browser
+	// once; the row is deleted by the next call and never contains the plaintext token.
+	mcpApprovals: defineTable({
+		owner: v.string(),
+		tokenHash: v.string(),
+		alias: v.string(),
+		tool: v.string(),
+		/** Exact JSON argument snapshot the user confirmed, sent verbatim on the call. */
+		arguments: v.string(),
+		expiresAt: v.number()
+	})
+		.index('by_owner_token', ['owner', 'tokenHash'])
+		.index('by_owner', ['owner']),
+
 	// ── chat ─────────────────────────────────────────────────────────────────────────────
 	sessions: defineTable({
 		owner: v.string(),
@@ -83,6 +115,8 @@ export default defineSchema({
 		name: v.string(),
 		kind: v.string(),
 		tokenHash: v.string(),
+		/** Validated http/https origin of the user's bridge; absent when unset or not an origin. */
+		endpoint: v.optional(v.string()),
 		lastSeenAt: v.number(),
 		revokedAt: v.optional(v.number())
 	}).index('by_owner', ['owner']),

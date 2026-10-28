@@ -4,7 +4,7 @@ import { generateText } from 'ai';
 import { createOpenAI } from '@ai-sdk/openai';
 import { createAnthropic } from '@ai-sdk/anthropic';
 import { ConvexError, v } from 'convex/values';
-import { action, internalMutation } from './_generated/server';
+import { action } from './_generated/server';
 import { internal } from './_generated/api';
 import { fail, requireUser } from './_shared/auth';
 import { decryptSecret } from './crypto';
@@ -172,11 +172,4 @@ export const providers = action({
 		}));
 		return rows;
 	}
-});
-
-/** Reserved so the generated API stays stable when local-only writes are added later. */
-export const _unused = internalMutation({
-	args: {},
-	returns: v.null(),
-	handler: async () => null
 });

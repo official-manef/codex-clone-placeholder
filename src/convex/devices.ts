@@ -1,6 +1,9 @@
 import { v } from 'convex/values';
 import { mutation, query } from './_generated/server';
+import type { MutationCtx } from './_generated/server';
+import type { Id } from './_generated/dataModel';
 import { requireUser } from './_shared/auth';
+import { normalizeEndpoint } from './_shared/endpoint';
 
 /**
  * Device pairing, so a user's own machine (a local runtime, an NPU box, a laptop) can stream to
@@ -14,13 +17,16 @@ import { requireUser } from './_shared/auth';
  */
 
 const MAX_DEVICES = 20;
+const KINDS = new Set(['terminal', 'browser', 'npu', 'runtime']);
 
 const device = v.object({
 	_id: v.id('devices'),
 	name: v.string(),
 	kind: v.string(),
 	lastSeenAt: v.number(),
-	revokedAt: v.optional(v.number())
+	revokedAt: v.optional(v.number()),
+	/** Omitted when the stored value fails validation, so a bad row never reaches a client. */
+	endpoint: v.optional(v.string())
 });
 
 export const list = query({
@@ -32,27 +38,49 @@ export const list = query({
 			.query('devices')
 			.withIndex('by_owner', (q) => q.eq('owner', owner))
 			.take(MAX_DEVICES);
-		return rows.map(({ _id, name, kind, lastSeenAt, revokedAt }) => ({
-			_id,
-			name,
-			kind,
-			lastSeenAt,
-			revokedAt
-		}));
+		return rows.map(({ _id, name, kind, lastSeenAt, revokedAt, endpoint }) => {
+			const origin = normalizeEndpoint(endpoint);
+			return {
+				_id,
+				name,
+				kind,
+				lastSeenAt,
+				revokedAt,
+				...(origin ? { endpoint: origin } : {})
+			};
+		});
 	}
 });
+
+/**
+ * The one ownership check for a device row. A revoked row is treated as gone, so a leaked
+ * token cannot keep a retired device alive.
+ */
+async function ownedDevice(ctx: MutationCtx, owner: string, id: Id<'devices'>) {
+	const row = await ctx.db.get('devices', id);
+	if (!row || row.owner !== owner || row.revokedAt) return null;
+	return row;
+}
 
 /**
  * Register a device. The caller sends the SHA-256 of a token it generated; the plaintext token
  * never reaches this function.
  */
 export const register = mutation({
-	args: { name: v.string(), kind: v.string(), tokenHash: v.string() },
+	args: {
+		name: v.string(),
+		kind: v.string(),
+		tokenHash: v.string(),
+		endpoint: v.optional(v.string())
+	},
 	returns: v.id('devices'),
 	handler: async (ctx, args) => {
 		const owner = await requireUser(ctx);
 		if (!/^[a-f0-9]{64}$/.test(args.tokenHash))
 			throw new Error('The device token hash must be a SHA-256 hex digest.');
+		const endpoint = args.endpoint === undefined ? null : normalizeEndpoint(args.endpoint);
+		if (args.endpoint !== undefined && !endpoint)
+			throw new Error('The endpoint must be an http or https origin, with no path or credentials.');
 		const existing = await ctx.db
 			.query('devices')
 			.withIndex('by_owner', (q) => q.eq('owner', owner))
@@ -62,8 +90,9 @@ export const register = mutation({
 		return await ctx.db.insert('devices', {
 			owner,
 			name: args.name.trim().slice(0, 80) || 'This device',
-			kind: args.kind === 'npu' || args.kind === 'runtime' ? args.kind : 'runtime',
+			kind: KINDS.has(args.kind) ? args.kind : 'runtime',
 			tokenHash: args.tokenHash,
+			...(endpoint ? { endpoint } : {}),
 			lastSeenAt: Date.now()
 		});
 	}
@@ -75,10 +104,27 @@ export const touch = mutation({
 	returns: v.boolean(),
 	handler: async (ctx, args) => {
 		const owner = await requireUser(ctx);
-		const row = await ctx.db.get('devices', args.id);
-		if (!row || row.owner !== owner || row.revokedAt) return false;
+		const row = await ownedDevice(ctx, owner, args.id);
+		if (!row) return false;
 		await ctx.db.patch('devices', args.id, { lastSeenAt: Date.now() });
 		return true;
+	}
+});
+
+/**
+ * The same heartbeat, reporting when the device was last seen. `lastSeenAt` is `0` when the
+ * row is missing, revoked or owned by someone else: the caller learns nothing about it.
+ */
+export const heartbeat = mutation({
+	args: { id: v.id('devices') },
+	returns: v.object({ ok: v.boolean(), lastSeenAt: v.number() }),
+	handler: async (ctx, args) => {
+		const owner = await requireUser(ctx);
+		const row = await ownedDevice(ctx, owner, args.id);
+		if (!row) return { ok: false, lastSeenAt: 0 };
+		const lastSeenAt = Date.now();
+		await ctx.db.patch('devices', args.id, { lastSeenAt });
+		return { ok: true, lastSeenAt };
 	}
 });
 

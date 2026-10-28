@@ -166,6 +166,22 @@ export const SECTIONS = [
 		group: 'Settings & help',
 		navigationRole: 'settings',
 		loadScreen: () => import('#lib/views/Faq.svelte')
+	},
+	{
+		id: 'tools',
+		label: 'Tools',
+		icon: 'sliders',
+		group: 'Settings & help',
+		navigationRole: 'settings',
+		loadScreen: () => import('#lib/views/ToolsSettings.svelte')
+	},
+	{
+		id: 'devices',
+		label: 'Devices & compute',
+		icon: 'cpu',
+		group: 'Settings & help',
+		navigationRole: 'settings',
+		loadScreen: () => import('#lib/views/Devices.svelte')
 	}
 ] as const;
 

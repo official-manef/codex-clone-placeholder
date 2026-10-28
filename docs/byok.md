@@ -91,7 +91,28 @@ entropy and drops as the option count grows.
 A verdict may be attached to a cloud turn as `decisionNote`; `chat.send` prefixes it as
 untrusted context, never as an instruction.
 
-## 5. What is intentionally absent
+## 5. Paired devices and the bridge
+
+A `device` turn needs an execution target the browser cannot provide: a shell, or a real
+browser session. That target is the user's own machine, reached over a self-hosted bridge
+(`/v1/health`, `/v1/terminal`, `/v1/browser/view`).
+
+- `src/lib/runtime/endpoint.ts` classifies an endpoint `loopback | lan | tailscale | public |
+invalid`. Plain `http:` is accepted for loopback, LAN and Tailscale (a MagicDNS name is
+  already inside an encrypted tailnet) and refused for public hosts.
+- The pairing token is generated in the browser with `crypto.getRandomValues` and shown once.
+  Only `SHA-256(token)` reaches `devices.register`; the plaintext stays in that tab's memory.
+  A WebSocket sends it in `Sec-WebSocket-Protocol: bearer.<token>`, never in the URL.
+- `src/convex/_shared/endpoint.ts` re-validates the stored origin; Convex cannot import the
+  browser module.
+- Both device tools are off by default and appear only when a device of that kind is paired
+  and the user enables the tool in Tools. A remote browser view is not framed: a token in an
+  iframe URL would leak, so the UI names that limit instead of showing a broken frame.
+
+The template does not ship the bridge, and no `ssh -L`, `tailscale serve` or `tailscale funnel`
+command in the UI has been run here.
+
+## 6. What is intentionally absent
 
 - OAuth client registration for providers (see §2).
 - A public Jev host endpoint (see §4).
@@ -100,18 +121,20 @@ untrusted context, never as an instruction.
   exists in `models-rahmanef-com` and none of it is needed to ship a workspace that runs on the
   user's own key.
 
-## 6. Verification
+## 7. Verification
 
-| Check        | Command                      | Result                                         |
-| ------------ | ---------------------------- | ---------------------------------------------- |
-| Convex types | `tsc --noEmit -p src/convex` | clean                                          |
-| App types    | `bun run check`              | 0 errors, 0 warnings                           |
-| Unit         | `bun run test:unit`          | 66 passed (7 new for the engine/cloud adapter) |
-| Build        | `bun run build`              | ok                                             |
-| Browser      | `bunx playwright test`       | 12 passed                                      |
+| Check        | Command                      | Result                                                                         |
+| ------------ | ---------------------------- | ------------------------------------------------------------------------------ |
+| Convex types | `tsc --noEmit -p src/convex` | clean                                                                          |
+| App types    | `bun run check`              | 0 errors, 0 warnings                                                           |
+| Unit         | `bun run test:unit`          | 95 passed (21 new: endpoint classification, terminal client, server validator) |
+| Build        | `bun run build`              | ok                                                                             |
+| Browser      | `bunx playwright test`       | 12 passed                                                                      |
 
-Not verified: a live Convex deployment, a real provider call, a real NPU device. Those need
-credentials and hardware the template deliberately does not contain.
+Not verified: a live Convex deployment, a real provider call, a real NPU device, a real
+bridge, and every `ssh -L` / `tailscale serve` / `tailscale funnel` command shown in the
+Devices screen. Those need credentials and hardware the template deliberately does not
+contain.
 
 **Generated types.** `src/convex/_generated/api.d.ts` lists the modules by hand because
 `convex codegen` needs a deployment. `api.js` uses `anyApi`, so runtime is unaffected. Run
