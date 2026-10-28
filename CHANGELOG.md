@@ -3,6 +3,44 @@
 This repository starts from `rahmanef63/template-svelte-convex-starter` and now carries
 its own history. Notable changes follow [Semantic Versioning](https://semver.org/).
 
+## [0.6.0] - 2026-10-29
+
+### Added
+
+- **BYOK backend on Convex**, adapted from `models-rahmanef-com` @ `d211ee2`:
+  - `crypto.ts` — AES-256-GCM at rest, `MODELS_ENC_KEY` master key (copied as-is);
+  - `credentials.ts` — connect/list/disconnect, host-gated, bounded reads, owner derived from
+    the session in every handler;
+  - `providers.ts` — 10 built-in providers with a pinned baseURL and a docs URL each;
+  - `chat.ts` — the model call with the user's own key, typed `ConvexError`, bounded input;
+  - `threads.ts` — sessions, messages and usage counters;
+  - `devices.ts` — pairing rows that store only a SHA-256 token hash;
+  - `decisions.ts` — the Jev/Laya verdict log, with the model's own limits enforced
+    (English-only, one question, ≤8 options, ≤512 state tokens).
+- `slices/cloud` — provider manager UI and the engine-availability SSOT, plus `src/lib/cloud/chat.ts`
+  as the browser adapter wired once in the root layout.
+- `docs/byok.md` — the contract: storage, identity, host gate, manual-key flow, why OAuth is
+  not presented, and the two decision-model engines.
+- 7 new unit tests for engine availability and the cloud adapter.
+
+### Changed
+
+- Three engines coexist: `local`, `device`, `cloud`. With no `PUBLIC_CONVEX_URL` the cloud
+  engine reports `unsupported` and nothing else changes, so local mode is never removed.
+- Replaced the starter `notes` table and function set with the product's own schema. The
+  `notes` routes redirect to `/`; `src/hooks.spec.ts` follows.
+- `src/convex/_generated/api.d.ts` lists the new modules manually: `convex codegen` needs a
+  deployment, and `api.js` uses `anyApi`, so runtime is unaffected. Regenerate with
+  `bun run convex:dev` once a deployment exists.
+
+### Verification
+
+`tsc --noEmit -p src/convex` clean, `bun run verify` (0 type errors, 66 unit tests),
+`bunx playwright test` 12/12 across narrow-mobile/mobile/desktop.
+
+Not verified: a live deployment, a real provider call, a real NPU device — those need
+credentials and hardware the template deliberately omits.
+
 ## [0.5.0] - 2026-10-29
 
 ### Added

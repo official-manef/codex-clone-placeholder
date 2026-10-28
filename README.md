@@ -22,12 +22,22 @@ re-hosts it with a local stub backend so it boots with zero credentials.
 The shell's own README (`slices/workspace-shell/README.md`) documents the consumer contract in
 full. This repository is one working consumer of it.
 
-## Zero backend by design
+## Three engines, one template
 
-No network call, no provider key, no NPU. `createLocalRuntime()` reports one in-browser
-backend and the chat stub answers locally after a short delay. Persistence is
-`sessionStorage`/`localStorage` namespaced `workspace-template:`. A clean clone needs no
-`.env`.
+| Engine   | Runs where                                  | Account      | Key |
+| -------- | ------------------------------------------- | ------------ | --- |
+| `local`  | this browser, no network                    | no           | no  |
+| `device` | a runtime you paired (your own NPU box)     | yes, to pair | no  |
+| `cloud`  | a Convex action using **your** provider key | yes          | yes |
+
+Local mode is not a fallback that gets removed when you configure cloud: with no
+`PUBLIC_CONVEX_URL` the sign-in routes 404, the cloud engine reports `unsupported`, and the
+workspace is exactly the local template. `.env` is optional either way.
+
+**BYOK.** A key is posted once, encrypted with AES-256-GCM (`MODELS_ENC_KEY`) and never
+returned to a browser. A built-in provider's key is pinned to that provider's host, so it
+cannot be redirected. Custom endpoints require HTTPS. Contract, limits and the decision-model
+(Jev) boundary: [docs/byok.md](docs/byok.md).
 
 ## Stack
 

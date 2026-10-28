@@ -1,0 +1,118 @@
+# BYOK, cloud persistence and the decision model
+
+The template ships three engines and one rule: **the browser never holds a provider key.**
+
+## 1. Engines
+
+| Engine   | Runs where                                    | Needs an account | Needs a network | Needs a key |
+| -------- | --------------------------------------------- | ---------------- | --------------- | ----------- |
+| `local`  | the browser (`src/lib/http.local.ts`)         | no               | no              | no          |
+| `device` | a runtime the user paired (their own NPU box) | yes (to pair)    | local link only | no          |
+| `cloud`  | a Convex action with the user's own key       | yes              | yes             | yes         |
+
+All three stay available. Enabling cloud removes nothing: with no `PUBLIC_CONVEX_URL` the
+adapter reports `unsupported`, the sign-in routes 404, and the workspace is exactly the local
+template. `slices/cloud/state/engine.ts` is the single place that decides availability and
+names the reason a control is disabled.
+
+## 2. BYOK contract
+
+**Storage.** `modelCreds` holds one row per `(owner, provider)`. The key is encrypted with
+AES-256-GCM (`src/convex/crypto.ts`) using `MODELS_ENC_KEY`, a base64 32-byte master key set on
+the Convex deployment:
+
+```bash
+openssl rand -base64 32     # put the result in MODELS_ENC_KEY
+```
+
+Losing that key makes every stored credential unreadable; the product must then ask users to
+reconnect. Rotating it is a migration, not a restart.
+
+**Identity.** `owner` is `identity.tokenIdentifier` from the signed-in session. It is derived
+inside every handler (`requireUser`), never sent by the client. A session id is not authority:
+every read of a session or message also checks `owner`.
+
+**Host gate.** A built-in provider's key is pinned to the baseURL in `src/convex/providers.ts`.
+A caller-supplied endpoint is honoured only for a custom slug, and only over HTTPS with no
+embedded credentials. Provider A's key can therefore never be redirected to provider B.
+
+**Manual-key fallback is a flow, not a field.** The connect form shows, for every built-in
+provider: the official key page (`docsUrl`), an instruction to create a key there, the fact
+that the key is shown once, the exact field to paste it into, that it is encrypted
+server-side, and a Disconnect action that deletes the row. A blank secret input is never the
+whole interface.
+
+**OAuth path.** OpenRouter and the other OAuth-capable providers are documented as the preferred
+path in `models-rahmanef-com`, but this template does not ship the OAuth client: the operator
+would need the provider's client registration and a callback route. Until that is configured
+the UI shows the manual-key path as the available one and does **not** present a disabled OAuth
+button as if it were ready (rr P0: do not fake OAuth readiness).
+
+## 3. Chat
+
+`src/convex/chat.ts` calls the provider with the decrypted key and returns text. It is one
+action, with:
+
+- object-form `args` and `returns` validators;
+- bounded input: 32 messages, 32 000 chars each, 4 096 output tokens, 60 s timeout;
+- a typed `ConvexError` payload `{ code, message }` — `invalid_request`, `no_credential`,
+  `provider_error`, `unsupported` — with the provider response never forwarded verbatim;
+- usage logged through an internal mutation, so a failed call is still counted.
+
+`src/lib/cloud/chat.ts` is the browser-side adapter. `src/routes/+layout.svelte` wires it once
+when a deployment URL exists. `configureCloudChat(null)` restores the unconfigured state, which
+is what the local-only build uses.
+
+## 4. Decision model (Jev / Laya)
+
+The model is non-autoregressive: it takes a state and typed questions and returns a label, an
+ordinal score, or `P(yes)`. It never writes prose, so it cannot hallucinate a sentence.
+
+`src/convex/decisions.ts` **records** verdicts; it does not run inference. Two engines produce
+them:
+
+1. **NPU (device)** — the browser POSTs to the user's own runtime (`/v1/systemone`). This cannot
+   go through Convex: a Convex action cannot reach a user's localhost. The verdict is then
+   recorded with `engine: 'npu'`.
+2. **Host (OpenAI-compatible)** — a provider endpoint that speaks the same wire protocol.
+   Recorded with `engine: 'host'`. This path stays a contract; no public endpoint is configured
+   by default.
+
+Hard rules carried from the model's own contract, enforced at the recording boundary:
+
+- English-only input (a non-Latin prompt can score 0.000 with confidence 0.95);
+- one question per request;
+- at most 8 options;
+- at most 512 tokens of state.
+
+The gate value is `probabilities[choice]` or `noul`, never `confidence`, which is normalized
+entropy and drops as the option count grows.
+
+A verdict may be attached to a cloud turn as `decisionNote`; `chat.send` prefixes it as
+untrusted context, never as an instruction.
+
+## 5. What is intentionally absent
+
+- OAuth client registration for providers (see §2).
+- A public Jev host endpoint (see §4).
+- Billing, spend caps, quotas: this is BYOK, so the user's own provider bills them.
+- Teams/workspaces/multi-tenant sharing, agent mode, RAG, memory, channels, embeds. All of that
+  exists in `models-rahmanef-com` and none of it is needed to ship a workspace that runs on the
+  user's own key.
+
+## 6. Verification
+
+| Check        | Command                      | Result                                         |
+| ------------ | ---------------------------- | ---------------------------------------------- |
+| Convex types | `tsc --noEmit -p src/convex` | clean                                          |
+| App types    | `bun run check`              | 0 errors, 0 warnings                           |
+| Unit         | `bun run test:unit`          | 66 passed (7 new for the engine/cloud adapter) |
+| Build        | `bun run build`              | ok                                             |
+| Browser      | `bunx playwright test`       | 12 passed                                      |
+
+Not verified: a live Convex deployment, a real provider call, a real NPU device. Those need
+credentials and hardware the template deliberately does not contain.
+
+**Generated types.** `src/convex/_generated/api.d.ts` lists the modules by hand because
+`convex codegen` needs a deployment. `api.js` uses `anyApi`, so runtime is unaffected. Run
+`bun run convex:dev` once against a real deployment and the file regenerates.

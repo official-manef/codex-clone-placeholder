@@ -1,0 +1,186 @@
+import { v } from 'convex/values';
+import { internalMutation, mutation, query } from './_generated/server';
+import { requireUser } from './_shared/auth';
+
+/**
+ * Chat persistence and usage counters.
+ *
+ * Local mode never touches these. A signed-in user's cloud sessions land here, and a local
+ * session may be pushed with `source: 'local'` so the record stays truthful about where the
+ * text came from.
+ */
+
+const MAX_SESSIONS = 50;
+const MAX_MESSAGES = 200;
+
+const session = v.object({
+	_id: v.id('sessions'),
+	title: v.string(),
+	model: v.string(),
+	engine: v.string(),
+	at: v.number()
+});
+
+const message = v.object({
+	_id: v.id('messages'),
+	sessionId: v.id('sessions'),
+	role: v.string(),
+	content: v.string(),
+	source: v.string(),
+	at: v.number()
+});
+
+export const listSessions = query({
+	args: {},
+	returns: v.array(session),
+	handler: async (ctx) => {
+		const owner = await requireUser(ctx);
+		const rows = await ctx.db
+			.query('sessions')
+			.withIndex('by_owner_at', (q) => q.eq('owner', owner))
+			.order('desc')
+			.take(MAX_SESSIONS);
+		return rows.map(({ _id, title, model, engine, at }) => ({ _id, title, model, engine, at }));
+	}
+});
+
+export const createSession = mutation({
+	args: { title: v.string(), model: v.string(), engine: v.string() },
+	returns: v.id('sessions'),
+	handler: async (ctx, args) => {
+		const owner = await requireUser(ctx);
+		const title = args.title.trim().slice(0, 120) || 'New chat';
+		return await ctx.db.insert('sessions', {
+			owner,
+			title,
+			model: args.model.slice(0, 200),
+			engine: args.engine === 'local' ? 'local' : 'cloud',
+			at: Date.now()
+		});
+	}
+});
+
+export const renameSession = mutation({
+	args: { id: v.id('sessions'), title: v.string() },
+	returns: v.null(),
+	handler: async (ctx, args) => {
+		const owner = await requireUser(ctx);
+		const row = await ctx.db.get('sessions', args.id);
+		// Ownership is checked here, not by the caller: a session id is not authority.
+		if (!row || row.owner !== owner) return null;
+		await ctx.db.patch('sessions', args.id, {
+			title: args.title.trim().slice(0, 120) || 'New chat'
+		});
+		return null;
+	}
+});
+
+export const deleteSession = mutation({
+	args: { id: v.id('sessions') },
+	returns: v.boolean(),
+	handler: async (ctx, args) => {
+		const owner = await requireUser(ctx);
+		const row = await ctx.db.get('sessions', args.id);
+		if (!row || row.owner !== owner) return false;
+		const messages = await ctx.db
+			.query('messages')
+			.withIndex('by_session_at', (q) => q.eq('sessionId', args.id))
+			.take(MAX_MESSAGES);
+		for (const item of messages) await ctx.db.delete('messages', item._id);
+		await ctx.db.delete('sessions', args.id);
+		return true;
+	}
+});
+
+export const listMessages = query({
+	args: { sessionId: v.id('sessions') },
+	returns: v.array(message),
+	handler: async (ctx, args) => {
+		const owner = await requireUser(ctx);
+		const parent = await ctx.db.get('sessions', args.sessionId);
+		if (!parent || parent.owner !== owner) return [];
+		const rows = await ctx.db
+			.query('messages')
+			.withIndex('by_session_at', (q) => q.eq('sessionId', args.sessionId))
+			.order('asc')
+			.take(MAX_MESSAGES);
+		return rows.map(({ _id, sessionId, role, content, source, at }) => ({
+			_id,
+			sessionId,
+			role,
+			content,
+			source,
+			at
+		}));
+	}
+});
+
+/** Append one turn. `source` records whether a device or the cloud produced it. */
+export const appendMessage = mutation({
+	args: {
+		sessionId: v.id('sessions'),
+		role: v.string(),
+		content: v.string(),
+		source: v.string()
+	},
+	returns: v.id('messages'),
+	handler: async (ctx, args) => {
+		const owner = await requireUser(ctx);
+		const parent = await ctx.db.get('sessions', args.sessionId);
+		if (!parent || parent.owner !== owner) throw new Error('That chat is not available.');
+		const content = args.content.slice(0, 32_000);
+		const id = await ctx.db.insert('messages', {
+			owner,
+			sessionId: args.sessionId,
+			role: args.role === 'assistant' ? 'assistant' : 'user',
+			content,
+			source: ['local', 'cloud', 'decision'].includes(args.source) ? args.source : 'cloud',
+			at: Date.now()
+		});
+		await ctx.db.patch('sessions', args.sessionId, { at: Date.now() });
+		return id;
+	}
+});
+
+// ── usage ──────────────────────────────────────────────────────────────────────────────
+
+export const log = internalMutation({
+	args: {
+		owner: v.string(),
+		provider: v.string(),
+		model: v.string(),
+		promptTokens: v.number(),
+		completionTokens: v.number(),
+		status: v.string()
+	},
+	returns: v.null(),
+	handler: async (ctx, args) => {
+		await ctx.db.insert('usage', { ...args, at: Date.now() });
+		return null;
+	}
+});
+
+export const usageSummary = query({
+	args: {},
+	returns: v.object({
+		requests: v.number(),
+		promptTokens: v.number(),
+		completionTokens: v.number(),
+		errors: v.number()
+	}),
+	handler: async (ctx) => {
+		const owner = await requireUser(ctx);
+		// Bounded: the dashboard asks for a rolling window, not the whole history.
+		const rows = await ctx.db
+			.query('usage')
+			.withIndex('by_owner_at', (q) => q.eq('owner', owner))
+			.order('desc')
+			.take(500);
+		return {
+			requests: rows.length,
+			promptTokens: rows.reduce((sum, row) => sum + row.promptTokens, 0),
+			completionTokens: rows.reduce((sum, row) => sum + row.completionTokens, 0),
+			errors: rows.filter((row) => row.status !== 'ok').length
+		};
+	}
+});

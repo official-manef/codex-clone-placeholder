@@ -8,8 +8,15 @@
  * @module
  */
 
-import type * as notes from "../notes.js";
+import type * as _shared_auth from "../_shared/auth.js";
+import type * as chat from "../chat.js";
+import type * as credentials from "../credentials.js";
+import type * as crypto from "../crypto.js";
+import type * as decisions from "../decisions.js";
+import type * as devices from "../devices.js";
+import type * as providers from "../providers.js";
 import type * as starter from "../starter.js";
+import type * as threads from "../threads.js";
 
 import type {
   ApiFromModules,
@@ -18,8 +25,15 @@ import type {
 } from "convex/server";
 
 declare const fullApi: ApiFromModules<{
-  notes: typeof notes;
+  "_shared/auth": typeof _shared_auth;
+  chat: typeof chat;
+  credentials: typeof credentials;
+  crypto: typeof crypto;
+  decisions: typeof decisions;
+  devices: typeof devices;
+  providers: typeof providers;
   starter: typeof starter;
+  threads: typeof threads;
 }>;
 
 /**

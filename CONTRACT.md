@@ -83,8 +83,17 @@ contracts, deliberate deviations and the re-sync procedure.
   exception with its `TODO(rr)` marker.
 - **Do not add `/workspace`, `/capabilities` or `/settings` routes.** The shell owns
   navigation; a second route family would be a second source of truth.
-- **Zero backend, zero credential, zero network.** The runtime adapter reports one in-browser
-  backend. A clean clone boots with no `.env`.
+- **Three engines, no removals.** `local` (browser, no account), `device` (a runtime the user
+  paired), `cloud` (a Convex action on the user's own key). With no `PUBLIC_CONVEX_URL` the
+  cloud engine reports `unsupported` and the workspace is exactly the local template. Never
+  make an engine the only one.
+- **The browser never holds a provider key.** It is posted once to `credentials.connect`, which
+  encrypts it with `MODELS_ENC_KEY` server-side. A built-in provider's key is pinned to the host
+  in `src/convex/providers.ts`; only a custom slug may carry its own HTTPS endpoint.
+- **A disabled control names its reason.** `slices/cloud/state/engine.ts` returns the reason a
+  cloud or device turn is unavailable, and the UI shows it.
+- **Do not fake OAuth readiness.** The OAuth path is not configured in this template, so the UI
+  offers the documented manual-key flow instead of a dead button.
 - **Omitted optional props stay omitted.** `runtimeControls`, `hostedGate`, `settingsWindow`,
   `workspaceLauncher` are not passed; the shell does not mount them. Do not add stubs that
   render nothing.

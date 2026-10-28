@@ -22,7 +22,7 @@ test('auth responses preserve no-referrer, prevent caching and use a server-crea
 		resolve: async () =>
 			new Response(null, {
 				status: 303,
-				headers: { location: '/apps/notes', 'referrer-policy': 'no-referrer' }
+				headers: { location: '/', 'referrer-policy': 'no-referrer' }
 			})
 	});
 	expect(response.headers.get('referrer-policy')).toBe('no-referrer');

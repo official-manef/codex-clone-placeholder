@@ -150,6 +150,16 @@ export const SECTIONS = [
 		loadScreen: () => import('#lib/views/Parameters.svelte')
 	},
 	{
+		id: 'keys',
+		label: 'Model keys',
+		icon: 'shield',
+		group: 'Settings & help',
+		navigationRole: 'settings',
+		// BYOK: the template's own surface, not a vendored Laya view.
+		loadScreen: () =>
+			import('$features/cloud').then((module) => ({ default: module.ProviderManager }))
+	},
+	{
 		id: 'faq',
 		label: 'Help & limits',
 		icon: 'help',

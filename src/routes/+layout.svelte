@@ -5,11 +5,15 @@
 	import { pageMetadata, pageIndexable, seoSettings } from '$lib/config/metadata';
 	import { page } from '$app/state';
 	import { env } from '$env/dynamic/public';
-	import { setupConvex, setupAuth } from 'convex-svelte';
+	import { onMount } from 'svelte';
+	import { setupConvex, setupAuth, useConvexClient } from 'convex-svelte';
+	import { api } from '../convex/_generated/api';
+	import { configureCloudChat } from '$lib/cloud/chat';
 	import type { LayoutProps } from './$types';
 
 	let { children, data }: LayoutProps = $props();
 	const convexUrl = env.PUBLIC_CONVEX_URL;
+
 	if (convexUrl) {
 		setupConvex(convexUrl);
 		setupAuth(() => ({
@@ -38,6 +42,23 @@
 			}
 		}));
 	}
+
+	/**
+	 * Wire the cloud transport once the Convex client exists. Without a deployment URL nothing
+	 * is configured, the adapter reports "unsupported", and the workspace stays on local mode.
+	 */
+	onMount(() => {
+		if (!convexUrl) return;
+		const client = useConvexClient();
+		configureCloudChat((turn) =>
+			client.action(api.chat.send, {
+				ref: turn.ref,
+				messages: turn.messages,
+				decisionNote: turn.decisionNote
+			})
+		);
+	});
+
 	const seo = seoSettings(env);
 	const metadata = $derived(
 		pageMetadata(
@@ -82,6 +103,7 @@
 		/>{/if}
 	{#if seo.bingVerification}<meta name="msvalidate.01" content={seo.bingVerification} />{/if}
 </svelte:head>
+
 <div class="dark h-dvh w-full overflow-hidden bg-background text-foreground">
 	{@render children()}
 </div>
