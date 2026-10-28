@@ -19,6 +19,18 @@ async function open(page: Page, url: string): Promise<void> {
 	await closeDrawer(page);
 }
 
+/**
+ * The region may already be open: the workbench persists its layout per session
+ * (AC08/AC14), so a blind click on the collapsed strip's reopen control would fail
+ * when the tab strip is already expanded. Open it only when it is still closed.
+ */
+async function openWorkbench(page: Page): Promise<void> {
+	const tablist = page.getByRole('tablist');
+	if (await tablist.isVisible().catch(() => false)) return;
+	await page.getByRole('button', { name: '{resource_show}' }).click();
+	await expect(tablist).toBeVisible();
+}
+
 test('/ redirects to /workspace with rail and primary region', async ({ page }) => {
 	await page.goto('/');
 	await expect(page).toHaveURL(/\/workspace$/);
@@ -138,6 +150,7 @@ test.describe('populated surface', () => {
 test.describe('secondary work region', () => {
 	test('toggles the tab strip and keeps the draft (AC10)', async ({ page }) => {
 		await open(page, '/workspace');
+		await openWorkbench(page);
 		const textarea = page.getByRole('textbox', { name: '{entry_heading}' });
 		await textarea.fill('draft across toggle');
 
@@ -172,6 +185,7 @@ test.describe('secondary work region', () => {
 
 	test('AC08 hide then show keeps tab count and active tab', async ({ page }) => {
 		await open(page, '/workspace');
+		await openWorkbench(page);
 		const tablist = page.getByRole('tablist');
 		await expect(tablist).toBeVisible();
 
@@ -206,6 +220,7 @@ test.describe('secondary work region', () => {
 		}) => {
 			await page.setViewportSize({ width: 390, height: 844 });
 			await open(page, route);
+			await openWorkbench(page);
 			await expect(page.getByRole('tablist')).toBeVisible();
 			expect(
 				await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth + 1)

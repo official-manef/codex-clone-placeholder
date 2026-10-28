@@ -28,6 +28,18 @@ async function open(page: Page, url: string): Promise<void> {
 	await closeDrawer(page);
 }
 
+/**
+ * The region may already be open: the workbench persists its layout per session
+ * (AC08/AC14), so a blind click on the collapsed strip's reopen control would fail
+ * when the tab strip is already expanded. Open it only when it is still closed.
+ */
+async function openWorkbench(page: Page): Promise<void> {
+	const tablist = page.getByRole('tablist');
+	if (await tablist.isVisible().catch(() => false)) return;
+	await page.getByRole('button', { name: '{resource_show}' }).click();
+	await expect(tablist).toBeVisible();
+}
+
 function composerTextarea(page: Page) {
 	return page.getByRole('textbox', { name: '{entry_heading}' });
 }
@@ -126,6 +138,7 @@ test.describe('workbench acceptance', () => {
 		page
 	}) => {
 		await open(page, '/workspace');
+		await openWorkbench(page);
 		const aside = page.locator('#workbench-region');
 		const tablist = page.getByRole('tablist');
 		await tablist.getByRole('button', { name: 'Add' }).click();
@@ -147,6 +160,7 @@ test.describe('workbench acceptance', () => {
 
 		// Second half: the same edit path against the forced failure outcome.
 		await open(page, '/workspace?saveOutcome=failed');
+		await openWorkbench(page);
 		const failedAside = page.locator('#workbench-region');
 		await page.getByRole('tablist').getByRole('button', { name: 'Add' }).click();
 		await expect(failedAside.getByRole('textbox', { name: '{resource_location}' })).toHaveCount(2);
@@ -294,6 +308,7 @@ test.describe('workspace and overlay acceptance', () => {
 	// AC14: Settings opened from chat → return to workspace → chat, draft and tabs restored.
 	test('AC14 returning from settings restores the chat draft and its tab', async ({ page }) => {
 		await open(page, '/workspace/chat-1');
+		await openWorkbench(page);
 		const textarea = composerTextarea(page);
 		await textarea.fill('survives settings');
 		await page.getByRole('tablist').getByRole('button', { name: 'Add' }).click();
@@ -303,6 +318,7 @@ test.describe('workspace and overlay acceptance', () => {
 		await expect(page).toHaveURL(/\/settings\/configuration_category_01$/);
 
 		await open(page, '/workspace/chat-1');
+		await openWorkbench(page);
 		await expect(composerTextarea(page)).toHaveValue('survives settings');
 		await expect(page.getByRole('tab')).toHaveCount(1);
 	});
@@ -312,6 +328,7 @@ test.describe('workspace and overlay acceptance', () => {
 		page
 	}) => {
 		await open(page, '/workspace');
+		await openWorkbench(page);
 		const trigger = page.locator('[data-overlay-trigger]');
 
 		await trigger.focus();
@@ -335,6 +352,7 @@ test.describe('workspace and overlay acceptance', () => {
 		page
 	}) => {
 		await open(page, '/workspace/chat-1');
+		await openWorkbench(page);
 		const scroller = page.locator('[data-slot="timeline-scroller"]');
 		await expect(scroller).toBeVisible();
 

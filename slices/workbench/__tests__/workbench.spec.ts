@@ -62,7 +62,13 @@ describe('workbench state', () => {
 		} as unknown as Storage;
 		store.setItem(
 			'workbench:tabs',
-			JSON.stringify({ tabs: [], activeTabId: null, layout: 'split', hidden: false, splitWidth: 400 })
+			JSON.stringify({
+				tabs: [],
+				activeTabId: null,
+				layout: 'split',
+				hidden: false,
+				splitWidth: 400
+			})
 		);
 		const state = createWorkbenchState({ storage: store });
 		expect(state.restored).toBe(true);
