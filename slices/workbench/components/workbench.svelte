@@ -47,6 +47,13 @@
 	const collapsed = $derived(workbench.hidden || layout === 'closed');
 	const current = $derived(activeTab(workbench.tabs, workbench.activeTabId));
 
+	// The region sizes itself instead of inheriting a fixed band from the workspace slot: a
+	// collapsed strip is 44px tall, an open stack claims 45dvh, and the ≥850px column keeps
+	// full shell height in both states.
+	const regionClass = $derived(
+		collapsed ? 'h-11 w-full min-[850px]:h-full' : 'h-[45dvh] w-full min-[850px]:h-full'
+	);
+
 	$effect(() => {
 		const media = window.matchMedia('(min-width: 1100px)');
 		const sync = () => (viewportWidth = window.innerWidth);
@@ -94,10 +101,10 @@
 	aria-label={t('resource_start_title')}
 	data-layout={layout}
 	bind:clientWidth={containerWidth}
-	class="h-full min-h-0 bg-[var(--shell-surface)]"
+	class="{regionClass} min-h-0 bg-[var(--shell-surface)]"
 >
 	{#if collapsed}
-		<div class="flex h-full w-9 items-start justify-center pt-2">
+		<div class="flex h-full w-9 items-center justify-center">
 			<Button
 				variant="ghost"
 				size="icon"

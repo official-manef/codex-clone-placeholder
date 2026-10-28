@@ -72,9 +72,10 @@
 		</div>
 		{#if secondary}
 			<!-- workbench slice mounts here (slices/workbench). Below 850px it stacks under the
-			     primary region in a bounded band; from 850px it becomes the secondary column. -->
+			     primary region and sizes itself: a collapsed strip is 44px, an open workbench
+			     claims its own band. The slot never reserves height the child does not use. -->
 			<div
-				class="workspace-secondary-slot h-[45dvh] min-h-0 w-full min-[850px]:h-auto min-[850px]:w-[46%] min-[850px]:shrink-0 min-[1100px]:w-[40%] min-[1100px]:min-w-[390px]"
+				class="workspace-secondary-slot min-h-0 w-full min-[850px]:h-auto min-[850px]:w-[46%] min-[850px]:shrink-0 min-[1100px]:w-[40%] min-[1100px]:min-w-[390px]"
 				data-slot="secondary"
 			>
 				{@render secondary()}
