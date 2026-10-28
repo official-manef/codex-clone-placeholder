@@ -14,3 +14,57 @@ src/convex/_generated/
 
 # Vendored reference material (prototype HTML + exported classification JSON)
 /docs/reference/
+
+# Vendored Laya files (docs/laya-parity.md §6). Formatting them here would diverge from
+# upstream and turn the next re-copy into a manual merge. Their own style is Prettier-ish
+# but uses 2-space indent and double quotes; leave it byte-identical.
+slices/workspace-shell/
+shared/
+src/lib/views/
+src/lib/AppSelect.svelte
+src/lib/AttachmentPreview.svelte
+src/lib/BackendChip.svelte
+src/lib/BrowserAutomation.svelte
+src/lib/ChatTools.svelte
+src/lib/Deps.svelte
+src/lib/HostedGate.svelte
+src/lib/MicrophoneSelect.svelte
+src/lib/ModelCapabilities.svelte
+src/lib/PanelResizeHandle.svelte
+src/lib/Recorder.svelte
+src/lib/RecoveryNotice.svelte
+src/lib/RichText.svelte
+src/lib/RuntimeControls.svelte
+src/lib/SectionNav.svelte
+src/lib/SettingsWindow.svelte
+src/lib/SiteHeader.svelte
+src/lib/SnakeHistory.svelte
+src/lib/SpeechControls.svelte
+src/lib/View.svelte
+src/lib/WorkflowCanvas.svelte
+src/lib/WorkflowStudio.svelte
+src/lib/WorkspaceLauncher.svelte
+src/lib/api.ts
+src/lib/composer_commands.ts
+src/lib/draft_storage.ts
+src/lib/drafts.ts
+src/lib/file_canvas_layout.ts
+src/lib/file_canvas_tabs.ts
+src/lib/laya_chat_panel.ts
+src/lib/laya_chat_presentation.ts
+src/lib/laya_runtime_adapter.ts
+src/lib/laya_workspace_integration.ts
+src/lib/laya_workspace_layout.ts
+src/lib/laya_workspace_persistence.ts
+src/lib/laya_workspace_routes.ts
+src/lib/markdown.ts
+src/lib/measured.ts
+src/lib/recording.ts
+src/lib/recovery.ts
+src/lib/reference_workspace.ts
+src/lib/snake.ts
+src/lib/webmcp.ts
+src/lib/workflow_graph.ts
+# Copied Laya CSS bundle and the checkbox primitive that came with it (aliased import).
+src/app-laya.css
+src/lib/components/ui/checkbox/

@@ -5,7 +5,7 @@ The working second consumer is `tests/fixtures/second-consumer/`. It uses its ow
 chat component, feature registry, labels, light theme and in-memory adapters.
 
 An installable local package is now available as `@workspace-template/svelte`
-0.1.4. Run `npm run pack:workspace` to create the tarball and see
+0.2.0. Run `npm run pack:workspace` to create the tarball and see
 `packages/workspace-template/README.md` for installation and public exports.
 `npm run test:workspace-package` installs the tarball into an independent consumer
 with its own lockfile and dependencies, then checks its types and production build.
@@ -77,3 +77,17 @@ They are optional host contributions; they do not introduce product HTTP or
 storage defaults. `tests/test_workspace_chrome_browser.mjs` exercises the
 installed Laya menus, editable selection, local file fixture, panel header and
 narrow view through real Chrome input in a disposable profile.
+
+## Enforced consumer boundary (0.2.0)
+
+Consumer Chat handles implement focusComposer(); no input ID or private CSS
+structure is required by shell chrome. Feature navigationRole determines
+Settings/Explore behavior; group text and WorkspaceLabels are presentation.
+Chat presentation IDs are generic. Product controllers narrow their own modes
+and backends. ChatSurface/Header/Composer own reusable frames and styles.
+
+Run npm run check:template for a complete owned-source audit, and npm run
+test:workspace-package for outside-repository installation, artifact/declaration
+audit, independent build and Laya build through that installed public package.
+Svelte and bits-ui are shared peers; linked builds deduplicate their contexts.
+See docs/FRONTEND-RUNTIME-BOUNDARY-AUDIT.md for current evidence and scope.

@@ -1,50 +1,122 @@
 <script lang="ts">
 	import { WorkspaceShell, createFeatureRegistry } from '$features/workspace-shell';
+	import type { ApprovalControlConfig } from '$features/workspace-shell';
 	import type { WorkspaceMenuItem } from '$features/workspace-shell';
-	import { ChatView, createTemplatePersistence } from '$features/chat';
-	import { createLocalRuntime } from '../runtime';
+	import Chat from '#lib/views/Chat.svelte';
+	import RuntimeControls from '#lib/RuntimeControls.svelte';
+	import SettingsWindow from '#lib/SettingsWindow.svelte';
+	import SiteHeader from '#lib/SiteHeader.svelte';
+	import WorkspaceLauncher from '#lib/WorkspaceLauncher.svelte';
+	import { CHAT_OUTPUTS, LAUNCHER_CONFIG, PROJECT, RAIL_VIEWS, SECTIONS } from '#lib/registry.js';
+	import { backendSelection, workspaceRuntime } from '#lib/template_runtime_adapter.js';
+	import { workspacePersistence } from '#lib/workspace_persistence.js';
 	import {
-		AUXILIARY_VIEWS,
-		CHAT_PRESENTATION,
-		FEATURES,
-		LAUNCHER,
-		PROJECT,
-		RAIL_VIEWS
-	} from '../registry';
+		canvasPresentation,
+		chatAppearance,
+		chatPanels,
+		chatPresentation,
+		chatUI,
+		fileMenuViews,
+		launcherId,
+		settingsMenu,
+		workspaceLabels
+	} from '#lib/workspace_routes.js';
 
-	// Registry metadata only selects what is enabled; it grants no authority.
-	const registry = createFeatureRegistry({ features: FEATURES });
-	const enabled = registry.features;
-	const sections = enabled;
-	const auxiliaryViews = enabled.filter((item) => AUXILIARY_VIEWS.includes(item.id));
-	const railViews = RAIL_VIEWS.filter((id) => registry.get(id));
-
-	const runtime = createLocalRuntime();
-	const persistence = createTemplatePersistence();
+	const openDocumentation = (path: string) =>
+		window.open(`${PROJECT.repo}/${path}`, '_blank', 'noopener,noreferrer');
 
 	const menuContributions: Partial<
 		Record<'file' | 'edit' | 'view' | 'help', readonly WorkspaceMenuItem[]>
 	> = {
+		file: [
+			{
+				id: 'new-window',
+				label: 'New window',
+				onSelect: () =>
+					window.open(
+						window.location.href,
+						'_blank',
+						'noopener,noreferrer,popup,width=1280,height=860'
+					)
+			}
+		],
+		view: [
+			{
+				id: 'browser-menu',
+				label: 'Browser',
+				separatorBefore: true,
+				children: [
+					{
+						id: 'browser-open',
+						label: 'Open browser',
+						onSelect: () => (location.hash = 'browser')
+					},
+					{
+						id: 'browser-automation',
+						label: 'Browser automation',
+						onSelect: () => (location.hash = 'apps')
+					}
+				]
+			}
+		],
 		help: [
 			{
 				id: 'documentation',
 				label: 'Documentation',
 				separatorBefore: true,
-				onSelect: () => window.open(`${PROJECT.repo}#readme`, '_blank', 'noopener,noreferrer')
+				onSelect: () => openDocumentation('#readme')
+			},
+			{ id: 'status', label: 'System status', onSelect: () => (location.hash = 'backends') },
+			{
+				id: 'about',
+				label: `About ${PROJECT.displayName}`,
+				separatorBefore: true,
+				onSelect: () => openDocumentation('#readme')
 			}
 		]
+	};
+
+	// Registry metadata selects what is enabled; it grants no authority.
+	const registry = createFeatureRegistry({ features: [...SECTIONS, ...CHAT_OUTPUTS] });
+	const sections = SECTIONS.filter((feature) => registry.get(feature.id));
+	const auxiliaryViews = CHAT_OUTPUTS.filter((feature) => registry.get(feature.id));
+
+	// Local approval policy, expressed as UI only. The template has no executor to gate.
+	const approval: ApprovalControlConfig = {
+		modes: [
+			{
+				id: 'review',
+				label: 'Review each action',
+				description: 'This template has no executor; approvals are shown, never applied.'
+			}
+		],
+		value: 'review',
+		label: 'How are actions approved?'
 	};
 </script>
 
 <WorkspaceShell
 	displayName={PROJECT.displayName}
-	launcher={{ ...LAUNCHER, quick: [...LAUNCHER.quick], suggested: [...LAUNCHER.suggested] }}
+	labels={workspaceLabels}
+	launcher={{ ...LAUNCHER_CONFIG, id: launcherId }}
+	{chatPanels}
+	{chatPresentation}
+	{chatAppearance}
+	{chatUI}
+	{settingsMenu}
+	{fileMenuViews}
+	{canvasPresentation}
 	{sections}
 	{auxiliaryViews}
-	{railViews}
-	{runtime}
-	{persistence}
+	railViews={RAIL_VIEWS}
+	runtime={workspaceRuntime}
+	{backendSelection}
+	persistence={workspacePersistence}
+	chat={Chat}
+	runtimeControls={RuntimeControls}
+	siteHeader={SiteHeader}
+	settingsWindow={SettingsWindow}
+	workspaceLauncher={WorkspaceLauncher}
+	{approval}
 	{menuContributions}
-	chat={ChatView}
-	chatPresentation={CHAT_PRESENTATION}
 />

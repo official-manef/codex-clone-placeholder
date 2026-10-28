@@ -13,14 +13,14 @@ DESIGN.md wins for new product surfaces you add.
 
 ## Region hierarchy (as shipped)
 
-| Layer | Role                                                                   | Owner                       |
-| ----- | ---------------------------------------------------------------------- | --------------------------- |
-| L1    | global rail (destinations, overflow, back/forward)                     | `workspace-shell.svelte`    |
-| L2    | context navigation (chat sessions, settings categories, feature lists) | shell + `slices/chat`       |
-| L3    | primary region (chat surface or feature screen)                        | `slices/chat`, lazy screens |
-| L4    | secondary region (tabbed output, working vs kept)                      | shell                       |
-| L5    | transient layer (menus, launcher, dialogs)                             | shell                       |
-| L6    | feedback layer (status chip, inline notices, error boundary)           | shell + `feature-host`      |
+| Layer | Role                                                                   | Owner                               |
+| ----- | ---------------------------------------------------------------------- | ----------------------------------- |
+| L1    | global rail (destinations, overflow, back/forward)                     | `workspace-shell.svelte`            |
+| L2    | context navigation (chat sessions, settings categories, feature lists) | shell + `src/lib/views/Chat.svelte` |
+| L3    | primary region (chat surface or feature screen)                        | `Chat.svelte`, lazy screens         |
+| L4    | secondary region (tabbed output, working vs kept)                      | shell                               |
+| L5    | transient layer (menus, launcher, dialogs)                             | shell                               |
+| L6    | feedback layer (status chip, inline notices, error boundary)           | shell + `feature-host`              |
 
 ## Tokens
 
@@ -53,4 +53,4 @@ Real copy, not `{}` tokens. The shell's `labels.ts` supplies the neutral default
 `WorkspaceApp` passes only the overrides it needs. Product copy belongs to the product; the
 template's copy is deliberately generic (`Workspace Template`, `Chat`, `Notes`, `Files`).
 
-Do not add a second copy resolver. `slices/placeholders` was removed with the 0.3.0 shell.
+No second copy resolver exists: `slices/placeholders` was removed with the 0.3.0 shell.

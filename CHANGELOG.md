@@ -3,6 +3,48 @@
 This repository starts from `rahmanef63/template-svelte-convex-starter` and now carries
 its own history. Notable changes follow [Semantic Versioning](https://semver.org/).
 
+## [0.5.0] - 2026-10-29
+
+### Added
+
+- **Full Laya parity.** `src/lib/views/**` (all 21 views, including the 3531-line
+  `Chat.svelte`), the 23 components those views compose, the `src/lib/*` helpers and
+  `src/app-laya.css` are copied from `rahmanef63/laya-npu` @ `84c1823`. Together with the
+  shell from 0.4.0 this is the complete Laya frontend, not a subset.
+- The five optional shell contributions are now mounted: `SettingsWindow`,
+  `WorkspaceLauncher`, `SiteHeader`, `RuntimeControls` and the menubar contributions.
+- `src/lib/http.local.ts`: an in-browser implementation of Laya's API client (`api.*`,
+  `get`, `post`, `postAudio`, `headers`, `runtimeFetch`, pairing guards) backed by a local
+  session store. This is what lets the real Chat and all 21 views run with zero backend.
+  `src/lib/http.ts` re-exports it as the single swap point for a real transport.
+
+### Changed
+
+- Re-copied `slices/workspace-shell/**` and `shared/**` from `84c1823`; the 0.4.0 copy was
+  from `9a893b2` and `chat-ui` had since moved inside the shell.
+- `.prettierignore` and `eslint.config.js` now name the full vendored set. Laya has no
+  linter, so fixing findings upstream is not an available path; the exception is recorded
+  as a P1 deviation with the compliant shape at the block.
+- `src/lib/index.ts` is an empty namespace entry for the `#lib` alias, which is what keeps
+  the copied files byte-identical (no import rewrites).
+
+### Fixed
+
+- Stub response shapes now match what each view reads: `Deps.svelte` needs `packages`,
+  `Models.svelte` needs `catalogue.current_model` and `recommendations.hardware.devices`,
+  `Corpus.svelte` needs `roots`/`dir`/`files`. Three crashes and one silent fallback found
+  in probe runs are gone.
+- The composer enables: the stub catalogue publishes the view's default model id
+  (`qwen3-npu`), claims the active device, and the backend id is `local:<DEVICE>` so the
+  view can derive it.
+
+### Verification
+
+`bun run verify` (0 type errors, 59 unit tests), `bunx playwright test` (12 across
+narrow-mobile/mobile/desktop), `bun run test:dev` (4), `DEPLOY_TARGET=node node
+scripts/smoke-node.mjs`, and manual render at 1440/768/390 with zero console errors and zero
+horizontal overflow.
+
 ## [0.4.0] - 2026-10-29
 
 ### Changed

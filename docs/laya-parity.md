@@ -1,146 +1,152 @@
 # Laya parity — shipped template shape
 
-This repository is now the shared workspace template. Its UI comes from
-`rahmanef63/laya-npu` at commit **9a893b2** (`feat(chat): scope modes to sessions and add
-configurable resource picker`), copied, not reimplemented. `docs/REBUILD-PLAN-laya-parity.md`
-is the plan this executed.
+This repository is the shared workspace template. Its UI is `rahmanef63/laya-npu`, copied,
+not reimplemented. `docs/REBUILD-PLAN-laya-parity.md` is the plan this executed.
 
 ## 1. Provenance
 
-| Item              | Value                                                 |
-| ----------------- | ----------------------------------------------------- |
-| Source repository | `rahmanef63/laya-npu`                                 |
-| Source commit     | `9a893b2`                                             |
-| Copied paths      | `slices/workspace-shell/**`, `shared/**`              |
-| Copied verbatim   | Yes — byte-identical apart from import alias rewrites |
-| Re-copy procedure | see §6                                                |
+| Item              | Value                                                                                     |
+| ----------------- | ----------------------------------------------------------------------------------------- |
+| Source repository | `rahmanef63/laya-npu`                                                                     |
+| Source commit     | **`84c1823`** `test(browser): isolate Linux CI launch and retain startup diagnostics`     |
+| Copied shell      | `slices/workspace-shell/**` (shell + 10 shared sub-slices, 2098-line shell)               |
+| Copied shared     | `shared/**` (icons, layout math, token source)                                            |
+| Copied views      | `src/lib/views/**` — all 21, including the 3531-line `Chat.svelte`                        |
+| Copied helpers    | the `src/lib/*` modules those views import (`http` excluded), one `ui/checkbox` primitive |
+| Copied CSS        | `src/app.css` → `src/app-laya.css`, imported from `src/routes/layout.css`                 |
 
-Only two rewrites were applied to the copy:
+Rewrites applied to the copy, and nothing else:
 
-1. `../../ shared/...` → `$shared/...` (an alias, because this repo keeps `shared/` at the
-   repository root and SvelteKit resolves `$shared`).
-2. Nothing else. No formatting, no rename, no logic change.
+1. `../../../../shared/…` → `$shared/…` (alias; this repo keeps `shared/` at the root).
+2. `#lib/utils.js` → `$lib/utils.js` in the copied `ui/checkbox` primitive only, because this
+   repo's `src/lib/utils.ts` already exists and is the same function.
 
-Laya was not modified. It keeps building product features on its own side; it pulls the
-shell back from here when it wants the template's state.
+Laya was not modified. `src/lib/http.ts` is the one file that is **not** a copy: it is the
+template's transport swap point (see §4).
 
 ## 2. What the copy contains
 
 ```text
-slices/workspace-shell/          the shell (2106 lines) + 10 sub-slices
-  workspace-shell.svelte         regions, layout, tabs, menus, overlays
-  feature-host.svelte            lazy feature screen host with error boundary
-  labels.ts                      passive presentation labels
-  shared/
-    chat-ui/                     composer, message frame, mode switch, list rows
-    feature-registry/            validated immutable registry (fails closed)
-    menu/                        menubar, shortcuts, edit commands
-    launcher/                    rail/launcher id selection
-    navigation/                  back/forward trail
-    output-tabs/                 working vs kept tabs, v1→v2 restore
-    runtime/                     chat/runtime/persistence/component contracts
-    approval-mode/               consumer-supplied modes
-    effort/                      consumer-supplied effort options
-    browser-toolbar/             optional view toolbar
-shared/
-  icons/                         name→glyph map the registry speaks
-  workspace-layout/              split math, resize bounds, persistence adapter
-  workspace-styles/base.css      token source (merged into layout.css)
+slices/workspace-shell/       shell (2098 lines) + 10 sub-slices
+shared/                       icons, workspace-layout math, base.css token source
+src/lib/views/                21 views: Chat, Apps, Transcribe, Files, Browser,
+                              Models, Overview, Voice, Playground, Snake,
+                              Embeddings, Performance, Setup, Compute,
+                              Providers, Pricing, Parameters, Faq, Corpus,
+                              Schema, Reference
+src/lib/*.svelte              23 components those views compose
+src/lib/*.ts                  helpers, incl. markdown, snake, workflow_graph, webmcp
+src/app-laya.css              Laya's app stylesheet (1818 lines)
 ```
 
-Consumer-side code that this repository owns:
+Consumer-side code this repository owns:
 
 ```text
-slices/chat/                     local chat stub behind WorkspaceChatProps/Handle
-slices/workspace-surface/        composition root: registry, runtime, persistence, screens
-src/routes/+page.svelte          12-line adapter that mounts WorkspaceApp
+src/routes/+page.svelte       12-line adapter mounting WorkspaceApp
+slices/workspace-surface/     composition root
+src/lib/registry.ts           feature catalogue (Laya's structure, template identity)
+src/lib/workspace_routes.ts   chat panels, menus, labels, appearance, chat UI config
+src/lib/workspace_persistence.ts  namespaced passive storage
+src/lib/template_runtime_adapter.ts  runtime discovery + selection policy
+src/lib/http.local.ts         in-browser transport (see §4)
+src/lib/http.ts               re-export swap point
 ```
 
-`src/routes/` has no `/workspace`, `/capabilities` or `/settings` route. The shell owns
-navigation through its own state, exactly as Laya does. Adding those routes back would create
-a second navigation source of truth.
+## 3. The transport shim
 
-## 3. Consumer contracts the shell expects
+`src/lib/http.local.ts` implements Laya's API client surface — `api.*`, `get`, `post`,
+`postAudio`, `headers`, `runtimeFetch`, `isHostedWorkspace`, `runtimeConnection`,
+`pairRuntime`, `disconnectRuntime`, `configureEndpoint` — against an in-browser store
+instead of a Python server. That is what lets the 3531-line `Chat.svelte` and 21 views run
+unmodified with zero backend.
 
-| Contract                                    | Where it is satisfied here                                  |
-| ------------------------------------------- | ----------------------------------------------------------- |
-| `chat` component                            | `slices/chat/components/chat-view.svelte`                   |
-| `runtime` adapter                           | `slices/workspace-surface/runtime.ts` (one local backend)   |
-| `persistence`                               | `slices/chat/persistence.ts` (`workspace-template:` prefix) |
-| `sections` / `auxiliaryViews` / `railViews` | `slices/workspace-surface/registry.ts`                      |
-| `launcher` preferences                      | same registry                                               |
-| `menuContributions`                         | `WorkspaceApp`                                              |
+**Real:** navigation, sessions, drafts, attachments, layout, the whole UI, the send →
+timeline → reply cycle.
 
-Nothing in this repo calls a network endpoint, reads a credential, or claims NPU/GPU. The
-runtime adapter reports one in-browser backend and says so.
+**Stubbed, and each stub says so in its payload (`stub: true`, `reason`):** model inference,
+transcription, embeddings, automation, MCP, dependency install, corpus, schema, benchmarks,
+workflows, hosted pairing.
 
-## 4. Zero-backend guarantees
+Shapes are not guesses: each stub response was matched against what its view actually reads
+(`Deps.svelte` needs `packages`, `Models.svelte` needs `catalogue.current_model` and
+`recommendations.hardware.devices`, `Corpus.svelte` needs `roots`/`dir`/`files`). Two of the
+shell's own expectations also had to be honoured or the composer stays inert forever:
+the default model id is `qwen3-npu`, and the backend id must be `local:<DEVICE>` so the
+view can derive the active device.
 
-- `createLocalRuntime().listBackends()` resolves a static in-memory backend list.
-- `slices/chat` turns a send into a timeline entry after 450 ms and keeps partial text on
-  cancel. There is no HTTP client in the tree.
-- Persistence is `sessionStorage`/`localStorage` under `workspace-template:`. Drafts are
-  namespaced per key; attachments are object URLs and never persist.
-- A clean clone boots with no `.env`. The starter's optional Convex/auth/AI/MCP transports
-  still exist and are still disabled by default; nothing in the product path calls them.
+To become backend-connected, replace the body of `src/lib/http.ts`. Call sites never move.
 
-## 5. Deliberate deviations from Laya
+## 4. Deliberate deviations from Laya
 
-| Area             | Here                                   | Laya                                     | Why                                                                              |
-| ---------------- | -------------------------------------- | ---------------------------------------- | -------------------------------------------------------------------------------- |
-| Chat surface     | Local stub with 3 rotating replies     | Real model/runtime bridge                | No backend in the template                                                       |
-| Settings surface | Lazy feature screen named `settings`   | Full grouped SettingsWindow component    | The template has no settings model to show; a second surface would be fake depth |
-| Rail             | 4 destinations from the registry       | 8+ including models, transcribe, explore | Product-specific destinations stay in the product                                |
-| Launcher         | `LAUNCHER` in the registry             | Laya's `LAUNCHER_CONFIG`                 | Same shape, different catalogue                                                  |
-| Runtime controls | Omitted (`runtimeControls` not passed) | Laya passes its NPU controls             | Nothing to control locally                                                       |
-| Hosted gate      | Omitted                                | Laya gates hosted pairing                | No hosted mode exists here                                                       |
+| Area        | Here                                      | Laya                      | Why                   |
+| ----------- | ----------------------------------------- | ------------------------- | --------------------- |
+| Transport   | in-browser store (`http.local.ts`)        | Python/OpenVINO server    | Zero-backend template |
+| Hosted gate | omitted (`hostedGate` not passed)         | Laya gates hosted pairing | Nothing to pair with  |
+| Integration | omitted (`installIntegration` not passed) | WebMCP page tools         | No executor to expose |
+| Identity    | `Workspace Template`, template repo link  | Laya NPU                  | Product-owned         |
+| Lint/format | bounded exceptions for vendored trees     | no linter at all          | See §6                |
 
-Omitted props are not mounted by the shell — that is the shell's documented behaviour, so
-these omissions cost nothing and add no dead branches.
+Everything else is Laya's: rail, sidebar, launcher, menubar, settings window, runtime
+controls, comparison tabs, approval selector, browser toolbar, all 21 views.
 
-## 6. Re-syncing with Laya later
+Omitted props are not mounted by the shell, so the omissions cost nothing and add no dead
+branches.
+
+## 5. Re-syncing with Laya later
 
 ```bash
-# 1. Record the current source commit in this file.
-git -C ~/projects/laya-npu-clean log --oneline -1
+git -C ~/projects/laya-npu-clean log --oneline -1     # record the SHA in §1
 
-# 2. Copy, then re-apply ONLY the alias rewrite.
-rm -rf slices/workspace-shell shared
+rm -rf slices/workspace-shell shared src/lib/views
 cp -r ~/projects/laya-npu-clean/slices/workspace-shell slices/
 cp -r ~/projects/laya-npu-clean/shared .
-grep -rl '\.\./\.\./\.\./\.\./shared' slices/workspace-shell shared \
-  | xargs sed -i 's|\.\./\.\./\.\./\.\./shared|$shared|g'
+cp -r ~/projects/laya-npu-clean/src/lib/views src/lib/
+cp ~/projects/laya-npu-clean/src/lib/*.svelte src/lib/
+cp ~/projects/laya-npu-clean/src/lib/*.ts src/lib/            # then restore http.ts + http.local.ts
+cp ~/projects/laya-npu-clean/src/app.css src/app-laya.css     # strip its @import line
+grep -rl '\.\./\.\./\.\./\.\./shared' slices shared src/lib | xargs sed -i 's|\.\./\.\./\.\./\.\./shared|$shared|g'
 
-# 3. Re-check the consumer contracts and the browser evidence.
-bun run verify && bunx playwright test && DEPLOY_TARGET=node node scripts/smoke-node.mjs
+bun run verify && bunx playwright test && bun run test:dev \
+  && DEPLOY_TARGET=node node scripts/smoke-node.mjs
 ```
 
-If a re-copy breaks the consumer, fix it in `slices/chat` / `slices/workspace-surface`, not in
-the copied shell. Patching the copy forks it and turns the next sync into a merge.
+If a re-copy breaks the consumer, fix it in `workspace-surface` / `workspace_routes.ts` /
+`http.local.ts`, never in the copied trees. Patching the copy forks it.
 
-## 7. Lint posture for the vendored trees
+## 6. Lint and format posture for the vendored trees
 
-`eslint.config.js` disables a bounded rule set for `slices/workspace-shell/**` and
-`shared/**`, with a `TODO(rr)` marker. Reason: the copy must stay diffable against upstream.
-Fixing those findings here would fork the source. The compliant shape (fix upstream in
-`laya-npu`, re-copy, delete the override) is written at the marker.
+Laya has **no linter**: its `package.json` has no ESLint dependency and no `lint` script. So
+"fix the findings upstream and re-copy" is not an available path, and adopting a stricter
+rule set here would fork 45 files.
 
-Consumer slices are **not** covered by that override and pass the full rule set.
+- `eslint.config.js` disables a bounded list of rules for the vendored paths only, with the
+  reasoning and the compliant shape written at the block.
+- `.prettierignore` excludes the same paths, because Laya's style is 2-space/double-quote.
+- Consumer code — `src/routes/**`, `slices/workspace-surface/**`, `src/lib/http.local.ts`,
+  `src/lib/registry.ts`, `src/lib/workspace_*.ts`, `src/lib/template_*.ts` — is **not**
+  covered and passes the full rule set.
 
-## 8. Evidence
+This is a recorded P1 deviation, not an oversight.
+
+## 7. Evidence
 
 Recorded 2026-10-29 on this repository:
 
-| Check         | Command                                          | Result                                                 |
-| ------------- | ------------------------------------------------ | ------------------------------------------------------ |
-| Types         | `bun run check`                                  | 0 errors, 0 warnings                                   |
-| Lint          | `bun run lint`                                   | prettier + eslint + Svelte-5 guard clean               |
-| Unit          | `bun run test:unit`                              | 59 passed                                              |
-| Build         | `bun run build`                                  | ok (Vercel adapter, `nodejs22.x` pinned)               |
-| Browser       | `bunx playwright test`                           | 6 passed (narrow-mobile/mobile/desktop)                |
-| Dev hydration | `bun run test:dev`                               | 2 passed                                               |
-| Node smoke    | `DEPLOY_TARGET=node node scripts/smoke-node.mjs` | routes, noindex, disabled capabilities ok              |
-| Manual        | 1440×900 / 768×1024 / 390×844                    | renders, zero console errors, zero horizontal overflow |
+| Check         | Command                                          | Result                                           |
+| ------------- | ------------------------------------------------ | ------------------------------------------------ |
+| Types         | `bun run check`                                  | 0 errors, 0 warnings                             |
+| Lint          | `bun run lint`                                   | prettier + eslint + Svelte-5 guard clean         |
+| Unit          | `bun run test:unit`                              | 59 passed                                        |
+| Build         | `bun run build`                                  | ok (Vercel adapter, `nodejs22.x` pinned)         |
+| Browser       | `bunx playwright test`                           | 12 passed (narrow-mobile/mobile/desktop)         |
+| Dev hydration | `bun run test:dev`                               | 4 passed                                         |
+| Node smoke    | `DEPLOY_TARGET=node node scripts/smoke-node.mjs` | routes, noindex, disabled capabilities ok        |
+| Manual        | 1440×900 / 768×1024 / 390×844                    | renders, 0 console errors, 0 horizontal overflow |
 
-Not yet verified: keyboard journeys beyond Escape/focus return, every resize bound,
-approval/effort selectors (not mounted here), and real backend behaviour (out of scope).
+Browser-verified flows: shell hydration, send → timeline → stub reply, settings
+destinations opening the settings window (not the primary region) with Escape closing it,
+rail navigation to a lazily loaded view, no horizontal overflow at all three widths.
+
+Not verified: model inference, transcription, embeddings, automation, MCP, hosted pairing
+(no backend exists), every resize bound, and the full keyboard matrix beyond Escape/focus
+return.

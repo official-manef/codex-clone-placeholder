@@ -25,7 +25,7 @@ application. Detailed implementation guidance lives in [architecture](docs/archi
 | Runtime and dependencies            | `package.json`, `bun.lock`, `.node-version`                             |
 | Release identity                    | `version.json`; synchronize with `bun run version:bump`                 |
 | Public brand and metadata           | `src/lib/config/app.ts`, `src/lib/config/metadata.ts`                   |
-| Feature definitions and navigation  | Slice definitions and `slices/app-shell/registry.ts`                    |
+| Feature definitions and navigation  | `src/lib/registry.ts`, `src/lib/workspace_routes.ts`                    |
 | Theme and reusable UI               | `src/routes/layout.css`, `src/lib/components/`                          |
 | Assets and generation inputs        | `assets.config.ts`; outputs follow [assets.md](docs/assets.md)          |
 | Backend schema and API              | `src/convex/`; `_generated/` is CLI-produced and committed              |
@@ -71,7 +71,7 @@ contracts, deliberate deviations and the re-sync procedure.
 | ------------------------------------------------ | ----------------------------------------------------------------------------- |
 | Shell UI, layout, menus, tabs                    | `slices/workspace-shell/**` (vendored from `rahmanef63/laya-npu` @ `9a893b2`) |
 | Shared shell modules and tokens                  | `shared/**`; token block merged into `src/routes/layout.css`                  |
-| Chat surface (consumer side)                     | `slices/chat/**`                                                              |
+| Chat surface                                     | `src/lib/views/Chat.svelte` (vendored)                                        |
 | Composition root: registry, runtime, persistence | `slices/workspace-surface/**`                                                 |
 | Route                                            | `src/routes/+page.svelte` (mounts `WorkspaceApp`; the shell owns navigation)  |
 | Product identity and metadata                    | `src/lib/config/app.ts`, `src/lib/config/metadata.ts`                         |

@@ -5,5 +5,5 @@ export default defineConfig({
 	...config,
 	webServer: { ...config.webServer, command: devServerCommand },
 	projects: config.projects?.filter((project) => project.name === 'desktop'),
-	grep: /fresh clone boots|a local send produces/
+	grep: /fresh clone boots|a local send produces|settings destinations open|rail navigation reaches/
 });

@@ -10,13 +10,14 @@ re-hosts it with a local stub backend so it boots with zero credentials.
 
 ## What this is
 
-| Part                                             | Source                                                        |
-| ------------------------------------------------ | ------------------------------------------------------------- |
-| Shell: regions, layout, menus, tabs, overlays    | `slices/workspace-shell/**` — vendored from Laya `9a893b2`    |
-| Shared modules: icons, layout math, base tokens  | `shared/**`                                                   |
-| Chat surface                                     | `slices/chat/**` — local stub behind the shell's own contract |
-| Composition root: registry, runtime, persistence | `slices/workspace-surface/**`                                 |
-| Route                                            | `src/routes/+page.svelte`                                     |
+| Part                                             | Source                                                      |
+| ------------------------------------------------ | ----------------------------------------------------------- |
+| Shell: regions, layout, menus, tabs, overlays    | `slices/workspace-shell/**` — vendored from Laya `9a893b2`  |
+| Shared modules: icons, layout math, base tokens  | `shared/**`                                                 |
+| Views and components                             | `src/lib/views/**`, `src/lib/*.svelte` — vendored from Laya |
+| Transport (swap point)                           | `src/lib/http.ts` → `src/lib/http.local.ts`                 |
+| Composition root: registry, runtime, persistence | `slices/workspace-surface/**`                               |
+| Route                                            | `src/routes/+page.svelte`                                   |
 
 The shell's own README (`slices/workspace-shell/README.md`) documents the consumer contract in
 full. This repository is one working consumer of it.
@@ -76,8 +77,7 @@ but are unused by the MVP shell.
 ## Project map
 
 ```text
-├── slices/                      # app-shell, workspace, composer, workbench,
-│                                # capabilities, settings-surface, placeholders
+├── slices/                      # workspace-shell (vendored) + workspace-surface
 ├── src/routes/                  # thin adapters for /workspace, /capabilities, /settings
 ├── src/lib/components/          # shadcn/ui + app-ui primitives
 ├── src/lib/config/              # public identity, locale, metadata

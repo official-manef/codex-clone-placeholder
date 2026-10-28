@@ -1,0 +1,618 @@
+/**
+ * In-browser implementation of Laya's API client.
+ *
+ * The files copied from `rahmanef63/laya-npu` import `#lib/http.js` and call `api.*`, `get`,
+ * `post`, `postAudio`. This module keeps that exact surface and serves it from a local
+ * store instead of a Python server, so the copied views and the real 3531-line Chat run
+ * unchanged in a zero-backend template.
+ *
+ * What is real: navigation, sessions, drafts, attachments, layout, the whole UI.
+ * What is stubbed: model inference, transcription, embeddings, automation, MCP and the
+ * hosted pairing handshake. Every stub names itself in its own answer; none claims a
+ * capability it does not have.
+ *
+ * `src/lib/http.ts` re-exports this file. Replacing that re-export with a real transport is
+ * the single change a product needs to become backend-connected: call sites never move.
+ */
+
+type RuntimeConnection = {
+	hosted: boolean;
+	connected: boolean;
+	baseUrl: string;
+	expiresAt: number;
+	allowActions: boolean;
+};
+
+export function isHostedWorkspace(): boolean {
+	// This template is never hosted: there is no local runtime to pair with.
+	return false;
+}
+
+export function runtimeConnection(): RuntimeConnection {
+	return { hosted: false, connected: true, baseUrl: '', expiresAt: 0, allowActions: false };
+}
+
+export function loopbackEndpoint(value: string): string {
+	const url = new URL(value);
+	if (
+		url.protocol !== 'http:' ||
+		!['127.0.0.1', 'localhost', '[::1]'].includes(url.hostname) ||
+		url.username ||
+		url.password ||
+		url.pathname !== '/' ||
+		url.search ||
+		url.hash
+	)
+		throw new Error('Choose the local runtime on localhost or 127.0.0.1, with its port.');
+	return url.origin;
+}
+
+export async function pairRuntime(base: string, code: string): Promise<RuntimeConnection> {
+	void base;
+	void code;
+	// TODO(rr): confirm — no pairing in a zero-backend template. A product that ships the
+	// hosted mode implements the portal handshake here and deletes this guard.
+	throw new Error('This build runs entirely in your browser; there is no runtime to pair.');
+}
+
+export async function disconnectRuntime(): Promise<void> {
+	if (typeof window !== 'undefined') window.dispatchEvent(new Event('laya:disconnected'));
+}
+
+export function headers(extra: Record<string, string> = {}): Record<string, string> {
+	return extra;
+}
+
+export async function runtimeFetch(path: string, init: RequestInit = {}): Promise<Response> {
+	// Kept for API compatibility: the copied attachment upload calls it directly. Nothing
+	// here reaches the network, so an unexpected path fails closed instead of hanging.
+	if (!path.startsWith('/api/')) throw new Error('Only local API paths are allowed.');
+	const handled = await dispatch(path, init);
+	return new Response(JSON.stringify(handled), {
+		status: 200,
+		headers: { 'content-type': 'application/json' }
+	});
+}
+
+export function configureEndpoint(url: string, key: string, model: string) {
+	void url;
+	void key;
+	void model;
+	// BYOK credentials have no consumer in this template; accepting them silently would
+	// suggest they were stored, so they are dropped with this explicit no-op.
+}
+
+// The copied views destructure response fields without declaring them, exactly as Laya's
+// client allows. Re-typing 21 vendored views is the drift the vendoring exists to avoid.
+/* eslint-disable @typescript-eslint/no-explicit-any */
+export async function get<T = any>(path: string, signal?: AbortSignal): Promise<T> {
+	void signal;
+	return (await dispatch(path, {})) as T;
+}
+
+export async function post<T = any>(path: string, body: unknown, signal?: AbortSignal): Promise<T> {
+	void signal;
+	return (await dispatch(path, { body: JSON.stringify(body), method: 'POST' })) as T;
+}
+
+export async function postAudio<T = any>(
+	path: string,
+	bytes: ArrayBuffer,
+	extra: Record<string, string> = {}
+): Promise<T> {
+	void extra;
+	return (await dispatch(path, { body: bytes as unknown as BodyInit, method: 'POST' })) as T;
+}
+/* eslint-enable @typescript-eslint/no-explicit-any */
+
+// ── in-browser store ────────────────────────────────────────────────────────────────────
+
+export type LocalReply = {
+	text: string;
+	model_id: string;
+	model_label: string;
+	device: string;
+	ms: number;
+	metrics?: Record<string, unknown>;
+	error?: string | null;
+	model_capabilities?: Record<string, unknown>;
+	tool_proposals?: unknown[];
+	comparison_id?: string | null;
+	comparison_timing?: unknown;
+	attachment_context?: unknown;
+	imported?: boolean;
+};
+
+export type LocalTurn = {
+	id: string;
+	content: string;
+	context?: unknown;
+	attachments: unknown[];
+	status: 'done' | 'error' | 'cancelled';
+	created_at: number;
+	error?: string | null;
+	replies: LocalReply[];
+};
+
+export type LocalSession = {
+	id: string;
+	title: string;
+	settings: Record<string, unknown>;
+	turns: LocalTurn[];
+	tool_events: unknown[];
+	created_at: number;
+	updated_at: number;
+};
+
+export type LocalJob = {
+	job_id: string;
+	state: 'queued' | 'running' | 'done' | 'error' | 'cancelled';
+	session_id: string;
+	started_at: number;
+};
+
+const REPLIES = [
+	'Local workspace. No model is attached, so this reply is a stub — the shell, the session, the draft and the layout around it are real.',
+	'Your message is stored in this browser session. Nothing was sent anywhere and no compute ran.',
+	'This template ships without a backend. Wire `src/lib/http.ts` to a real transport and this composer becomes a real chat.'
+] as const;
+
+const SESSIONS_KEY = 'workspace-template:sessions';
+const JOB_MS = 700;
+
+let sessions: LocalSession[] = load();
+const jobs = new Map<string, { job: LocalJob; startedAt: number }>();
+let sequence = 0;
+
+function nextId(prefix: string): string {
+	sequence += 1;
+	return `${prefix}-${Date.now().toString(36)}-${sequence}`;
+}
+
+function load(): LocalSession[] {
+	try {
+		if (typeof sessionStorage === 'undefined') return [];
+		const raw = sessionStorage.getItem(SESSIONS_KEY);
+		const parsed: unknown = raw ? JSON.parse(raw) : [];
+		return Array.isArray(parsed) ? (parsed as LocalSession[]) : [];
+	} catch {
+		return [];
+	}
+}
+
+function persist() {
+	try {
+		sessionStorage?.setItem(SESSIONS_KEY, JSON.stringify(sessions.slice(0, 50)));
+	} catch {
+		// Quota or private mode: losing persistence must not break the live session.
+	}
+}
+
+function findSession(id: string): LocalSession {
+	const found = sessions.find((item) => item.id === id);
+	if (!found) throw new Error('That chat is no longer available.');
+	return found;
+}
+
+function touch(session: LocalSession) {
+	session.updated_at = Date.now();
+	sessions = [session, ...sessions.filter((item) => item.id !== session.id)];
+	persist();
+}
+
+/**
+ * Chat derives the active device from the backend id (`local:NPU` → `NPU`) and requires
+ * `model.devices` to contain it before enabling send. The stub therefore reports a real
+ * backend id and a model that claims that device, or the composer stays inert.
+ */
+const STUB_DEVICE = 'BROWSER';
+
+function backendList() {
+	return [
+		{
+			id: `local:${STUB_DEVICE.toLowerCase()}`,
+			device: STUB_DEVICE,
+			label: 'This browser',
+			kind: 'local' as const,
+			present: true,
+			ready: true,
+			reason: null,
+			latency_ms: null,
+			compile_s: null,
+			description: 'Template stub. No model runs; replies are fixed text.',
+			url: null,
+			model: 'stub'
+		}
+	];
+}
+
+function catalogue() {
+	return {
+		backends: backendList(),
+		selected: `local:${STUB_DEVICE.toLowerCase()}`,
+		job: { state: 'idle' as const, progress: 0 },
+		// The view's default model id is `qwen3-npu` (hardcoded in the copied Chat), so the
+		// stub catalogue publishes that id. Otherwise `model` is undefined and the composer
+		// stays permanently disabled.
+		models: [
+			{
+				id: 'qwen3-npu',
+				label: 'Template stub',
+				installed: true,
+				ready: true,
+				present: true,
+				size: 0,
+				device: STUB_DEVICE,
+				devices: [STUB_DEVICE]
+			}
+		],
+		current_model: { label: 'Template stub', capabilities: {}, runtime_error: null },
+		capabilities: {
+			attachments: {
+				max_files_per_turn: 4,
+				max_bytes: 8 * 1024 * 1024,
+				kinds: ['image', 'pdf', 'text']
+			},
+			tools: [],
+			devices: ['Browser']
+		}
+	};
+}
+
+function reply(index: number): LocalReply {
+	return {
+		text: REPLIES[index % REPLIES.length],
+		model_id: 'stub',
+		model_label: 'Template stub',
+		device: STUB_DEVICE,
+		ms: JOB_MS,
+		metrics: {},
+		error: null,
+		model_capabilities: {},
+		tool_proposals: [],
+		comparison_id: null,
+		comparison_timing: null,
+		attachment_context: null,
+		imported: false
+	};
+}
+
+function settle(job: LocalJob): LocalJob {
+	if (job.state === 'cancelled' || job.state === 'done') return job;
+	const entry = jobs.get(job.job_id);
+	const elapsed = Date.now() - (entry?.startedAt ?? Date.now());
+	if (elapsed < JOB_MS) return { ...job, state: 'running' };
+	const session = sessions.find((item) => item.id === job.session_id);
+	const turn = session?.turns.at(-1);
+	if (session && turn) {
+		turn.replies = [reply(session.turns.length - 1)];
+		turn.status = 'done';
+		touch(session);
+	}
+	return { ...job, state: 'done' };
+}
+
+function bodyOf(init: RequestInit): Record<string, unknown> {
+	try {
+		return typeof init.body === 'string' && init.body
+			? (JSON.parse(init.body) as Record<string, unknown>)
+			: {};
+	} catch {
+		return {};
+	}
+}
+
+async function dispatch(rawPath: string, init: RequestInit): Promise<unknown> {
+	// Views append query strings (`/api/models/recommendations?task=…`); the route table is
+	// keyed by path only.
+	const path = rawPath.split('?')[0];
+	const body = bodyOf(init);
+
+	switch (path) {
+		// ── session lifecycle ────────────────────────────────────────────────────────────
+		case '/api/sessions':
+			return {
+				sessions: sessions.map((item) => ({
+					id: item.id,
+					title: item.title,
+					created_at: item.created_at,
+					updated_at: item.updated_at,
+					turns: item.turns.length,
+					json: null
+				}))
+			};
+
+		case '/api/sessions/create': {
+			const now = Date.now();
+			const session: LocalSession = {
+				id: nextId('session'),
+				title: 'New chat',
+				settings: (body.settings as Record<string, unknown>) ?? {},
+				turns: [],
+				tool_events: [],
+				created_at: now,
+				updated_at: now
+			};
+			touch(session);
+			return { session };
+		}
+
+		case '/api/sessions/read':
+			return { session: findSession(String(body.id)) };
+
+		case '/api/sessions/update': {
+			const session = findSession(String(body.id));
+			if (typeof body.title === 'string' && body.title.trim()) session.title = body.title.trim();
+			if (body.settings && typeof body.settings === 'object')
+				session.settings = { ...session.settings, ...(body.settings as Record<string, unknown>) };
+			touch(session);
+			return { session };
+		}
+
+		case '/api/sessions/clear': {
+			const session = findSession(String(body.id));
+			session.turns = [];
+			touch(session);
+			return { session };
+		}
+
+		case '/api/sessions/delete':
+			sessions = sessions.filter((item) => item.id !== body.id);
+			persist();
+			return { deleted: true };
+
+		case '/api/sessions/fork': {
+			const source = findSession(String(body.id));
+			const now = Date.now();
+			const fork: LocalSession = {
+				...source,
+				id: nextId('session'),
+				title: `${source.title} (fork)`,
+				turns: source.turns.map((turn) => ({ ...turn, replies: [...turn.replies] })),
+				created_at: now,
+				updated_at: now
+			};
+			touch(fork);
+			return { session: fork };
+		}
+
+		case '/api/sessions/export':
+			return { json: JSON.stringify(findSession(String(body.id)), null, 2) };
+
+		case '/api/sessions/message-delete':
+			return { ok: true };
+
+		// ── chat ─────────────────────────────────────────────────────────────────────────
+		case '/api/chat':
+			return catalogue();
+
+		case '/api/chat/start': {
+			const session = findSession(String(body.session_id));
+			const turn: LocalTurn = {
+				id: nextId('turn'),
+				content: String(body.content ?? ''),
+				context: body.context ?? null,
+				attachments: Array.isArray(body.attachment_ids) ? (body.attachment_ids as string[]) : [],
+				status: 'done',
+				created_at: Date.now(),
+				error: null,
+				replies: []
+			};
+			session.turns = [...session.turns, turn];
+			if (session.title === 'New chat') session.title = turn.content.slice(0, 60) || 'New chat';
+			touch(session);
+			const job: LocalJob = {
+				job_id: nextId('job'),
+				state: 'running',
+				session_id: session.id,
+				started_at: Date.now()
+			};
+			jobs.set(job.job_id, { job, startedAt: Date.now() });
+			return job;
+		}
+
+		case '/api/chat/job': {
+			const id = String(body.job_id);
+			const entry = jobs.get(id);
+			if (!entry) throw new Error('That generation is no longer available.');
+			entry.job = settle(entry.job);
+			const session = sessions.find((item) => item.id === entry.job.session_id);
+			return { ...entry.job, result: { session } };
+		}
+
+		case '/api/chat/cancel': {
+			const entry = jobs.get(String(body.job_id));
+			if (entry) {
+				entry.job = { ...entry.job, state: 'cancelled' };
+				const session = sessions.find((item) => item.id === entry.job.session_id);
+				const turn = session?.turns.at(-1);
+				if (session && turn) {
+					turn.status = 'cancelled';
+					touch(session);
+				}
+			}
+			return { state: 'cancelled' };
+		}
+
+		case '/api/chat/load':
+		case '/api/chat/download':
+			return catalogue();
+
+		case '/api/chat/resources':
+			return { resources: [] };
+
+		// ── attachments ──────────────────────────────────────────────────────────────────
+		case '/api/attachments':
+			return { id: nextId('attachment'), name: 'attachment', status: 'ready' };
+
+		case '/api/attachments/delete':
+			return { deleted: true };
+
+		// ── discovery ────────────────────────────────────────────────────────────────────
+		case '/api/backends':
+			return { backends: backendList(), current: `local:${STUB_DEVICE.toLowerCase()}` };
+
+		case '/api/device':
+			return { id: 'template', name: 'This browser', portal: '', stub: true };
+
+		case '/api/driver':
+		case '/api/runtime':
+			return { ok: true, runtime: 'browser-stub', backends: backendList() };
+
+		case '/api/health':
+			return { ok: true, runtime: 'browser-stub' };
+
+		case '/api/capabilities':
+			return catalogue().capabilities;
+
+		case '/api/tasks':
+			return { tasks: [] };
+
+		case '/api/pipeline':
+			return { pipeline: [] };
+
+		case '/api/runtime/restart':
+			return { ok: true };
+
+		// ── hosted pairing: impossible here, and it says so ───────────────────────────────
+		case '/api/portal/claim':
+		case '/api/portal/disconnect':
+			throw new Error('This build runs entirely in your browser; there is no runtime to pair.');
+
+		default:
+			// Every compute-backed endpoint answers with the right shape, a `stub` flag and a
+			// reason, so no view can present it as real output. Unknown paths fail closed.
+			return stubResponse(path);
+	}
+}
+
+/**
+ * One honest answer for every endpoint that would need a real server. Each shape matches
+ * what its view actually reads (verified against the copied views), and each carries
+ * `stub: true` plus a reason so nothing can be presented as real output.
+ */
+function stubResponse(path: string): Record<string, unknown> {
+	const reason = 'This template has no backend; wire src/lib/http.ts to a real transport.';
+
+	switch (path) {
+		// Deps.svelte reads `st.packages`, then filters. Without the array it throws.
+		case '/api/deps':
+			return {
+				python: 'unknown',
+				interpreter: 'none',
+				packages: [],
+				missing: [],
+				required_missing: [],
+				job: { state: 'idle' },
+				note: reason,
+				stub: true
+			};
+
+		// Models.svelte reads `d.catalogue ?? d` and `d.job`, then `cat.current_model.label`.
+		case '/api/models':
+			return {
+				catalogue: {
+					models: [],
+					device: 'Browser',
+					current_model: { label: 'Template stub', capabilities: {}, runtime_error: null }
+				},
+				job: { state: 'idle' },
+				stub: true,
+				reason
+			};
+
+		// Models.svelte reads `recommendations.hardware.devices.join(...)` and `tasks[]`.
+		case '/api/models/recommendations':
+			return {
+				hardware: { devices: [], runtime_error: null },
+				tasks: [],
+				stub: true,
+				reason
+			};
+
+		// Corpus.svelte reads `d.roots`, `d.dir`, `d.files`, `d.results`.
+		case '/api/corpus/list':
+			return { dir: '', files: [], entries: [], stub: true, reason };
+		case '/api/corpus/roots':
+			return { roots: [], stub: true, reason };
+
+		// Schema.svelte reads `d.ok`, `d.errors`, `d.warnings`, `d.spec`, `d.script`.
+		case '/api/schema/compile':
+		case '/api/schema/starter':
+		case '/api/schema/validate':
+			return { ok: false, errors: [], warnings: [], spec: null, script: '', stub: true, reason };
+
+		// Workflow views read `workflows`, `runs`, `catalogue`.
+		case '/api/workflows':
+		case '/api/workflows/catalogue':
+		case '/api/workflows/runs':
+			return { workflows: [], runs: [], catalogue: [], stub: true, reason };
+
+		// Snake/Performance read `data.benchmarks`.
+		case '/api/benchmarks':
+			return { benchmarks: [], stub: true, reason };
+
+		case '/api/mcp/status':
+			return { connections: [], stub: true, reason };
+		case '/api/mcp/tools':
+			return { tools: [], stub: true, reason };
+
+		case '/api/auth/session':
+			return { session: null, stub: true, reason };
+
+		case '/api/automation/status':
+			return { runs: [], stub: true, reason };
+
+		default:
+			return { error: reason, stub: true, reason };
+	}
+}
+
+// ── named endpoint map the copied views call ─────────────────────────────────────────────
+
+export const api = {
+	tasks: () => get('/api/tasks'),
+	backends: () => get('/api/backends'),
+	health: () => get('/api/health'),
+	driver: () => get('/api/driver'),
+	device: () => get('/api/device'),
+	pipeline: () => get('/api/pipeline'),
+	asr: () => get('/api/asr'),
+	analyse: (text: string, task: string, opts: Record<string, unknown> = {}, signal?: AbortSignal) =>
+		post('/api/analyse', { text, task, ...opts }, signal),
+	custom: (
+		state: string | Record<string, unknown>,
+		questions: unknown,
+		opts: Record<string, unknown> = {},
+		signal?: AbortSignal
+	) => post('/api/custom', { state, questions, ...opts }, signal),
+	rpa: (body: unknown) => post('/api/rpa', body),
+	chatStatus: () => get('/api/chat'),
+	chatLoad: (device: string, model_id?: string) => post('/api/chat/load', { device, model_id }),
+	chatDownload: (model_id?: string) => post('/api/chat/download', { model_id }),
+	chat: (body: unknown) => post('/api/chat', body),
+	chatStart: (body: unknown) => post('/api/chat/start', body),
+	chatJob: (job_id: string) => post('/api/chat/job', { job_id }),
+	chatCancel: (job_id: string) => post('/api/chat/cancel', { job_id }),
+	sessions: () => get('/api/sessions'),
+	sessionCreate: (body: unknown = {}) => post('/api/sessions/create', body),
+	sessionRead: (id: string) => post('/api/sessions/read', { id }),
+	sessionUpdate: (id: string, changes: Record<string, unknown>) =>
+		post('/api/sessions/update', { id, ...changes }),
+	sessionClear: (id: string) => post('/api/sessions/clear', { id, confirm: true }),
+	sessionDelete: (id: string) => post('/api/sessions/delete', { id, confirm: true }),
+	sessionExport: (id: string) => post('/api/sessions/export', { id }),
+	sessionFork: (id: string, options: Record<string, unknown> = {}) =>
+		post('/api/sessions/fork', { id, ...options }),
+	mcpStatus: () => get('/api/mcp/status'),
+	mcpConnect: (body: unknown) => post('/api/mcp/connect', body),
+	mcpTools: (connection_id: string) => post('/api/mcp/tools', { connection_id }),
+	mcpDelete: (connection_id: string) => post('/api/mcp/delete', { connection_id }),
+	mcpPrepare: (body: unknown) => post('/api/mcp/prepare', body),
+	mcpCall: (approval_id: string) => post('/api/mcp/call', { approval_id, confirm: true }),
+	capabilities: () => get('/api/capabilities'),
+	attachmentUpload: async (file: File) =>
+		post('/api/attachments', { name: file.name, type: file.type, size: file.size }),
+	attachmentDelete: (id: string) => post('/api/attachments/delete', { id, confirm: true }),
+	corpusClassify: (body: Record<string, unknown>) => post('/api/corpus/classify', body)
+};

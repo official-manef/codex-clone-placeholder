@@ -5,63 +5,48 @@ functions and persisted data. Root feature slices stay independent of framework 
 
 ## This product's shape
 
-The product is a placeholder workspace shell. Its MVP uses **no backend and no
-credentials**: Convex stays wired (schema, functions and committed generated types are
-untouched) but the shell reads and writes nothing. Enabled capabilities: none.
+The product is the shared workspace shell template. Its MVP uses **no backend and no
+credentials**: the shell renders Laya's UI, and the transport (`src/lib/http.ts`) is an
+in-browser store. Enabled capabilities: none.
 
 ```text
-/workspace                → app-shell (chrome) + workspace (primary) [+ workbench (secondary)]
-/workspace/[chatId]       → same regions, object id validated before render
-/capabilities/[slug]      → capabilities registry → detail pane; unknown slug → 404 boundary
-/settings/[section]       → settings-surface registry → grouped field rows; unknown → 404 boundary
+/                     → app-shell chrome + Chat (primary) + tabbed output region (secondary)
 
-slices/placeholders → t(key) → token string   (all visible copy)
-slices/app-shell    → DESTINATIONS registry → rail, sidebar kind, breadcrumb, page title
+hash routes           → #apps #transcribe #files #browser #chat … (rail/launcher destinations)
+                        → #models #setup #backends #providers #pricing #parameters #faq
+                          (navigationRole: settings → SettingsWindow, not the primary region)
+
+src/lib/http.ts       → re-exports src/lib/http.local.ts (in-browser store)
+slices/workspace-shell → navigation, region layout, tabs, menus, overlays
+src/lib/registry.ts   → feature catalogue: id, label, icon, group, placement, loadScreen
 ```
 
-Slice ownership for the MVP: `app-shell`, `workspace`, `composer`, `workbench`,
-`capabilities`, `settings-surface`, `placeholders`. The starter demo slices (`dashboard`,
-`live-data`, `notes`, `assistant`, `settings`) are removed in the first implementation step
-because leaving them in place would present fake features.
+Vendored, byte-identical to `rahmanef63/laya-npu` @ `84c1823`: `slices/workspace-shell/**`,
+`shared/**`, `src/lib/views/**`, the `src/lib/*` helpers those views import, and
+`src/app-laya.css`. Written here: `slices/workspace-surface/**` (composition root),
+`src/routes/**`, `src/lib/{registry,workspace_routes,workspace_persistence,
+template_runtime_adapter}.ts`, and the transport shim.
 
-### Shipped state
-
-All seven slices exist with a barrel and co-located specs. `composer` and `workbench` have no
-route of their own: they mount through snippets on `workspace-screen.svelte`, which the two
-workspace routes pass in. Convex stays wired (schema, functions, committed generated types)
-but the shell reads and writes nothing. The shell boots with zero credentials and no `.env`.
-
-The full specification set is [PRD](PRD.md), [implementation plan](implementation-plan.md),
-[UI spec](ui-spec.md), [state model](state-model.md) and
-[placeholder copy](placeholder-copy.md). Reference prototype and classification sources
-live in `docs/reference/`.
-
-```text
-/workspace, /workspace/[chatId] → chatId validated in the route loader → workspace slice
-                                → composer + workbench mounted as snippets
-/capabilities/[slug]            → registry lookup → detail pane; unknown slug → 404
-/settings/[section]             → registry lookup → grouped field rows; unknown → 404
-
-app config + asset catalog → page identity, icons, social metadata and manifests
-private environment → selected integration resolver → server transport
-```
+Re-sync procedure, deliberate deviations and the lint posture for the vendored trees:
+[docs/laya-parity.md](laya-parity.md).
 
 ## Sources of truth
 
-| Concern                                              | Source                                                         |
-| ---------------------------------------------------- | -------------------------------------------------------------- |
-| Product identity, locale and shared copy             | `src/lib/config/app.ts`                                        |
-| Canonical/social metadata                            | `src/lib/config/metadata.ts`, public origin and route metadata |
-| Asset paths, sizes, status and briefs                | `assets.config.ts`                                             |
-| Feature definitions and navigation                   | `slices/app-shell/registry.ts` and slice definitions           |
-| Feature UI and local state                           | `slices/<slug>/`                                               |
-| Framework loading, HTTP status and rendering         | `src/routes/`                                                  |
-| Schema, private-data authorization and durable state | `src/convex/`                                                  |
-| API/data types                                       | Committed `src/convex/_generated/`, produced by Convex codegen |
-| UI primitives / design tokens                        | `src/lib/components/` / `src/routes/layout.css`                |
-| Private integration choices                          | `src/lib/server/integrations/config.ts`                        |
-| Runtime/dependency versions                          | `package.json`, `bun.lock`, `.node-version`                    |
-| Release version                                      | `version.json`; version command synchronizes package metadata  |
+| Concern                                              | Source                                                                         |
+| ---------------------------------------------------- | ------------------------------------------------------------------------------ |
+| Product identity, locale and shared copy             | `src/lib/config/app.ts`                                                        |
+| Canonical/social metadata                            | `src/lib/config/metadata.ts`, public origin and route metadata                 |
+| Asset paths, sizes, status and briefs                | `assets.config.ts`                                                             |
+| Feature catalogue and navigation                     | `src/lib/registry.ts`, `src/lib/workspace_routes.ts`                           |
+| Shell UI, views and view components                  | `slices/workspace-shell/**`, `src/lib/views/**`, `src/lib/*.svelte` (vendored) |
+| Transport                                            | `src/lib/http.ts` → `src/lib/http.local.ts`                                    |
+| Framework loading, HTTP status and rendering         | `src/routes/`                                                                  |
+| Schema, private-data authorization and durable state | `src/convex/`                                                                  |
+| API/data types                                       | Committed `src/convex/_generated/`, produced by Convex codegen                 |
+| UI primitives / design tokens                        | `src/lib/components/` / `src/routes/layout.css`, `src/app-laya.css`            |
+| Private integration choices                          | `src/lib/server/integrations/config.ts`                                        |
+| Runtime/dependency versions                          | `package.json`, `bun.lock`, `.node-version`                                    |
+| Release version                                      | `version.json`; version command synchronizes package metadata                  |
 
 Immutable config is safe to share. Request identity, authenticated clients, drafts and
 mutable user state must not live in a shared server singleton. Public config, asset
@@ -69,16 +54,18 @@ briefs and loader output must never contain secrets.
 
 ## Add a feature
 
-1. Create `slices/<slug>/components/<slug>-screen.svelte` using Svelte 5 Runes.
-2. Export its metadata and `loadScreen` dynamic import from the slice's `index.ts`; follow an existing slice.
-3. Add one entry to `APP_REGISTRY`; the existing page family derives navigation and metadata.
-4. Add the required Convex schema/functions for persistent data and regenerate types.
-5. Implement success, empty, denied, failure and recovery paths; verify behavior and accessibility.
+1. Add an entry to `src/lib/registry.ts`: `id`, `label`, `icon`, `group`, optional
+   `placement` / `navigationRole` and a lazy `loadScreen`.
+2. Create the view under `src/lib/views/` and compose the shell's chat-ui primitives
+   (`ChatSurface`, `ChatComposer`, `ChatHeader`, …) rather than new ones.
+3. If it needs data, add a route to `src/lib/http.local.ts`'s switch. That file is the only
+   place that knows the wire shape; a real product replaces `src/lib/http.ts` instead.
+4. Implement success, empty, denied, failure and recovery states, then verify in a browser
+   at phone, tablet and desktop widths.
 
-Cross-slice imports use `$features/<slug>` barrels. Thin SvelteKit routes adapt params,
-loading and rendering; reusable behavior stays in its slice. A different page family
-can have a different route. Shared facts belong in config, while feature-specific copy
-and behavior stay local. See [Svelte best practices](svelte-best-practices.md).
+Routes stay thin: `src/routes/+page.svelte` mounts the composition root and nothing else.
+The shell owns navigation, so a feature does **not** get its own SvelteKit route; it gets a
+registry entry and a hash destination. See [docs/laya-parity.md](laya-parity.md).
 
 ## Convex and authorization
 
