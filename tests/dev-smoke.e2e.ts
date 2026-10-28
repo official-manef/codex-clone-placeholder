@@ -16,7 +16,7 @@ function collectErrors(page: Page): string[] {
  * honest instead of racing the dev server's module graph.
  */
 async function waitForShellHydration(page: Page): Promise<void> {
-	const mode = page.getByRole('group', { name: '{workspace_name}' });
+	const mode = page.getByRole('group', { name: 'Workspace' });
 	await expect(mode.getByRole('button').first()).toBeEnabled();
 }
 
@@ -28,11 +28,11 @@ test('fresh clone boots without credentials and hydrates the workspace shell', a
 
 	await expect(page.getByRole('navigation')).toBeVisible();
 	await expect(page.getByRole('main')).toBeVisible();
-	await expect(page.getByRole('heading', { name: '{entry_heading}' })).toBeVisible();
+	await expect(page.getByRole('heading', { name: 'Open local chat' })).toBeVisible();
 	await waitForShellHydration(page);
 
 	// No credentials configured: the composer is usable, nothing is disabled by config.
-	const textarea = page.getByRole('textbox', { name: '{entry_heading}' });
+	const textarea = page.getByRole('textbox', { name: 'Open local chat' });
 	await expect(textarea).toBeVisible();
 	await expect(textarea).toBeEnabled();
 
@@ -43,7 +43,7 @@ test('client controls wait for hydration before they accept input', async ({ pag
 	await page.goto('/workspace');
 	await waitForShellHydration(page);
 
-	const textarea = page.getByRole('textbox', { name: '{entry_heading}' });
+	const textarea = page.getByRole('textbox', { name: 'Open local chat' });
 	await textarea.fill('draft-before-hydration');
 	await expect(textarea).toHaveValue('draft-before-hydration');
 
@@ -52,16 +52,18 @@ test('client controls wait for hydration before they accept input', async ({ pag
 	// derivation can do once text exists after hydration.
 	const reason = page.locator('#composer-submit-reason');
 	await expect(reason).toBeVisible();
-	await expect(reason).toHaveText('{submit_disabled_reason_invalid}');
-	await expect(page.getByRole('button', { name: '{entry_heading}' })).toBeDisabled();
+	await expect(reason).toHaveText('Submit is disabled because sending is not allowed here.');
+	await expect(page.getByRole('button', { name: 'Open local chat' })).toBeDisabled();
 
 	// Client-side round trip: the mounted draft store mirrors to sessionStorage and back.
-	await page.getByRole('button', { name: '{rail_secondary_destination}' }).click();
+	// "Capabilities" and "Workspace" also name composer controls, so scope to the rail nav.
+	const rail = page.getByRole('navigation', { name: 'More destinations' });
+	await rail.getByRole('button', { name: 'Capabilities' }).click();
 	await expect(page).toHaveURL(/\/capabilities$/);
-	await page.getByRole('button', { name: '{rail_primary_destination}' }).click();
+	await rail.getByRole('button', { name: 'Workspace' }).click();
 	await expect(page).toHaveURL(/\/workspace$/);
 
-	await expect(page.getByRole('textbox', { name: '{entry_heading}' })).toHaveValue(
+	await expect(page.getByRole('textbox', { name: 'Open local chat' })).toHaveValue(
 		'draft-before-hydration'
 	);
 });

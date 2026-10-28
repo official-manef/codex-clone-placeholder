@@ -21,7 +21,7 @@ describe('destination registry', () => {
 		for (const destination of DESTINATIONS) {
 			expect(destination.route.startsWith('/')).toBe(true);
 			expect(AREAS).toContain(destination.area);
-			expect(t(destination.labelKey)).toBe(`{${destination.labelKey}}`);
+			expect(t(destination.labelKey)).not.toMatch(/[{}]/);
 		}
 	});
 

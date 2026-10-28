@@ -36,12 +36,12 @@ async function open(page: Page, url: string): Promise<void> {
 async function openWorkbench(page: Page): Promise<void> {
 	const tablist = page.getByRole('tablist');
 	if (await tablist.isVisible().catch(() => false)) return;
-	await page.getByRole('button', { name: '{resource_show}' }).click();
+	await page.getByRole('button', { name: 'Show panel' }).click();
 	await expect(tablist).toBeVisible();
 }
 
 function composerTextarea(page: Page) {
-	return page.getByRole('textbox', { name: '{entry_heading}' });
+	return page.getByRole('textbox', { name: 'Open local chat' });
 }
 
 /**
@@ -51,7 +51,7 @@ function composerTextarea(page: Page) {
 async function sendMessage(page: Page, text: string): Promise<void> {
 	const textarea = composerTextarea(page);
 	await textarea.fill(text);
-	await page.getByRole('button', { name: '{entry_heading}' }).click();
+	await page.getByRole('button', { name: 'Open local chat' }).click();
 	await expect(textarea).toHaveValue('');
 }
 
@@ -73,17 +73,17 @@ test.describe('composer acceptance', () => {
 		await expect(ready).toHaveCount(1);
 
 		// Per-file reason lives on the failed chip; the ready chip is untouched by it.
-		await expect(failed.getByText('{attachment_failed_reason}', { exact: true })).toBeVisible();
+		await expect(failed.getByText('File type is not supported.', { exact: true })).toBeVisible();
 		await expect(ready.getByText('ready.png', { exact: true })).toBeVisible();
 
 		// The blocked send names its reason and the ready file was not dropped.
-		const submit = page.getByRole('button', { name: '{entry_heading}' });
+		const submit = page.getByRole('button', { name: 'Open local chat' });
 		await expect(submit).toBeDisabled();
 		await expect(submit).toHaveAttribute('aria-disabled', 'true');
 		const reason = page.locator('#composer-submit-reason');
 		await expect(reason).toBeVisible();
 		await expect(reason).not.toBeEmpty();
-		await expect(reason).toHaveText('{attachment_failed_reason}');
+		await expect(reason).toHaveText('File type is not supported.');
 	});
 
 	// AC05: Request not yet accepted → connection lost → draft retained, retry does not
@@ -101,8 +101,8 @@ test.describe('composer acceptance', () => {
 		await page.evaluate(() => window.dispatchEvent(new Event('offline')));
 
 		await expect(textarea).toHaveValue('survives the drop');
-		await expect(page.getByText('{error_state}', { exact: true })).toBeVisible();
-		const retry = page.getByRole('button', { name: '{constraint_notice.recovery}' });
+		await expect(page.getByText('Something went wrong.', { exact: true })).toBeVisible();
+		const retry = page.getByRole('button', { name: 'Try again' });
 		await expect(retry).toBeVisible();
 
 		await page.context().setOffline(false);
@@ -122,12 +122,12 @@ test.describe('composer acceptance', () => {
 		// Text typed after the accepted send is unsent draft state; cancel owns neither.
 		await textarea.fill('typed while running');
 
-		await page.getByRole('button', { name: '{cancel_running}' }).click();
+		await page.getByRole('button', { name: 'Stop' }).click();
 
 		const partial = page.locator('[data-partial-output]');
 		await expect(partial).toBeVisible();
 		await expect(partial.locator('p').first()).toHaveText('streamed body');
-		await expect(partial.getByText('{cancel_running}', { exact: true })).toBeVisible();
+		await expect(partial.getByText('Stop', { exact: true })).toBeVisible();
 		await expect(textarea).toHaveValue('typed while running');
 	});
 });
@@ -146,7 +146,7 @@ test.describe('workbench acceptance', () => {
 
 		// The resource body edit surface is the only local edit hook; the toolbar location input
 		// shares its accessible name, so the strip must expose two textboxes once a tab exists.
-		const editors = aside.getByRole('textbox', { name: '{resource_location}' });
+		const editors = aside.getByRole('textbox', { name: 'Resource location' });
 		await expect(editors).toHaveCount(2);
 		await editors.last().fill('edited resource');
 
@@ -154,8 +154,8 @@ test.describe('workbench acceptance', () => {
 		await expect(tab).toHaveAttribute('data-dirty', 'true');
 
 		await tab.getByRole('button', { name: 'Close' }).click();
-		await expect(page.getByText('{tab_close_dirty_prompt}', { exact: true })).toBeVisible();
-		await page.getByRole('button', { name: '{tab_close_dirty_cancel}' }).click();
+		await expect(page.getByText('This tab has unsaved changes.', { exact: true })).toBeVisible();
+		await page.getByRole('button', { name: 'Cancel' }).click();
 		await expect(page.getByRole('tab')).toHaveCount(1);
 
 		// Second half: the same edit path against the forced failure outcome.
@@ -163,18 +163,18 @@ test.describe('workbench acceptance', () => {
 		await openWorkbench(page);
 		const failedAside = page.locator('#workbench-region');
 		await page.getByRole('tablist').getByRole('button', { name: 'Add' }).click();
-		await expect(failedAside.getByRole('textbox', { name: '{resource_location}' })).toHaveCount(2);
+		await expect(failedAside.getByRole('textbox', { name: 'Resource location' })).toHaveCount(2);
 		await failedAside
-			.getByRole('textbox', { name: '{resource_location}' })
+			.getByRole('textbox', { name: 'Resource location' })
 			.last()
 			.fill('save must fail');
 
 		const failedTab = page.locator('[role="tab"]');
 		await expect(failedTab).toHaveAttribute('data-dirty', 'true');
 		await failedTab.getByRole('button', { name: 'Close' }).click();
-		await page.getByRole('button', { name: '{settings_saved}' }).click();
+		await page.getByRole('button', { name: 'Saved' }).click();
 
-		await expect(page.getByText('{settings_save_error}', { exact: true })).toBeVisible();
+		await expect(page.getByText('Could not save the change.', { exact: true })).toBeVisible();
 		await expect(page.getByRole('tab')).toHaveCount(1);
 		await expect(page.locator('[role="tab"]')).toHaveAttribute('data-dirty', 'true');
 		await expect(page.locator('[role="tab"]')).toHaveAttribute('data-tab-status', 'error');
@@ -206,7 +206,7 @@ test.describe('settings acceptance', () => {
 
 		const restored = page.locator('[data-field="permission_field_01"] [data-slot="switch"]');
 		await expect(restored).toHaveAttribute('aria-checked', 'true');
-		await expect(page.getByText('{settings_save_error}', { exact: true })).toHaveCount(0);
+		await expect(page.getByText('Could not save the change.', { exact: true })).toHaveCount(0);
 		expect(await page.evaluate(() => sessionStorage.getItem('settings:permission_field_01'))).toBe(
 			'true'
 		);
@@ -217,13 +217,13 @@ test.describe('settings acceptance', () => {
 		await open(page, '/settings/configuration_category_01');
 		// Scope to the category list: the sidebar region renders its own `{empty_state}` on a
 		// non-workspace area, so a document-level assertion would count the wrong copy.
-		const search = page.getByRole('searchbox', { name: '{settings_search_placeholder}' });
+		const search = page.getByRole('searchbox', { name: 'Search' });
 		const list = page.locator('nav').filter({ has: search });
 		await expect(list).toHaveCount(1);
 		await search.fill('zzz');
 
-		await expect(list.getByText('{no_match_state}', { exact: true })).toBeVisible();
-		await expect(list.getByText('{empty_state}', { exact: true })).toHaveCount(0);
+		await expect(list.getByText('No results match your search.', { exact: true })).toBeVisible();
+		await expect(list.getByText('Nothing to show yet.', { exact: true })).toHaveCount(0);
 	});
 });
 
@@ -233,18 +233,18 @@ test.describe('capabilities acceptance', () => {
 		page
 	}) => {
 		await open(page, '/capabilities');
-		const list = page.getByRole('navigation', { name: '{capabilities}' });
+		const list = page.getByRole('navigation', { name: 'Capabilities' });
 		const row = list.locator('button[data-connection]').first();
 
 		await expect(row).toHaveAttribute('data-connection', 'not_connected');
-		await expect(row).toContainText('{capability_connection_none}');
-		await expect(row).not.toContainText('{capability_connection_ready}');
+		await expect(row).toContainText('Connect');
+		await expect(row).not.toContainText('Connected');
 
 		await row.click();
 
 		const detail = page.locator('article[data-connection]');
 		await expect(detail).toHaveAttribute('data-connection', 'not_connected');
-		await expect(detail.getByText('{capability_connection_ready}', { exact: true })).toHaveCount(0);
+		await expect(detail.getByText('Connected', { exact: true })).toHaveCount(0);
 
 		// The pending marker lasts one stub tick; record the attribute transitions before the
 		// click so the short-lived state cannot be missed by a polling race.
@@ -259,7 +259,7 @@ test.describe('capabilities acceptance', () => {
 			}).observe(target, { attributes: true, attributeFilter: ['data-connection'] });
 		});
 
-		await detail.getByRole('button', { name: '{capability_connection_none}' }).click();
+		await detail.getByRole('button', { name: 'Connect' }).click();
 
 		await expect
 			.poll(async () =>
@@ -269,7 +269,7 @@ test.describe('capabilities acceptance', () => {
 			)
 			.toContain('pending');
 		await expect(detail).toHaveAttribute('data-connection', 'connected');
-		await expect(detail).toContainText('{capability_connection_ready}');
+		await expect(detail).toContainText('Connected');
 	});
 
 	// AC18: Tab landing present but related-tab list empty → copy scopes the emptiness to that
@@ -277,27 +277,27 @@ test.describe('capabilities acceptance', () => {
 	test('AC18 the empty related-list copy is scoped to the related list', async ({ page }) => {
 		await open(page, '/capabilities');
 		await page
-			.getByRole('navigation', { name: '{capabilities}' })
+			.getByRole('navigation', { name: 'Capabilities' })
 			.locator('button[data-connection]')
 			.first()
 			.click();
 
 		const detail = page.locator('article[data-connection]');
-		const related = detail.locator('section').filter({ hasText: '{related_records}' });
+		const related = detail.locator('section').filter({ hasText: 'Related records' });
 		await expect(related).toHaveCount(1);
-		await expect(related.getByText('{no_match_state}', { exact: true })).toBeVisible();
+		await expect(related.getByText('No results match your search.', { exact: true })).toBeVisible();
 
 		// The landing itself is populated, so the no-match string exists exactly once and only
 		// inside the related-list section (the slice has no section-level data attribute).
-		await expect(detail.getByText('{no_match_state}', { exact: true })).toHaveCount(1);
-		await expect(page.getByText('{no_match_state}', { exact: true })).toHaveCount(1);
-		await expect(detail.getByText('{empty_state}', { exact: true })).toHaveCount(0);
+		await expect(detail.getByText('No results match your search.', { exact: true })).toHaveCount(1);
+		await expect(page.getByText('No results match your search.', { exact: true })).toHaveCount(1);
+		await expect(detail.getByText('Nothing to show yet.', { exact: true })).toHaveCount(0);
 	});
 
 	// AC15 (second surface): the capability catalog separates no-match from empty.
 	test('AC15 capability search renders no_match rather than empty', async ({ page }) => {
 		await open(page, '/capabilities');
-		await page.getByRole('searchbox', { name: '{settings_search_placeholder}' }).fill('zzz');
+		await page.getByRole('searchbox', { name: 'Search' }).fill('zzz');
 
 		await expect(page.locator('[data-list-state="no_match"]')).toBeVisible();
 		await expect(page.locator('[data-list-state="empty"]')).toHaveCount(0);
@@ -314,7 +314,7 @@ test.describe('workspace and overlay acceptance', () => {
 		await page.getByRole('tablist').getByRole('button', { name: 'Add' }).click();
 		await expect(page.getByRole('tab')).toHaveCount(1);
 
-		await page.getByRole('button', { name: '{rail_tertiary_destination}' }).click();
+		await page.getByRole('button', { name: 'Settings' }).click();
 		await expect(page).toHaveURL(/\/settings\/configuration_category_01$/);
 
 		await open(page, '/workspace/chat-1');
@@ -352,7 +352,8 @@ test.describe('workspace and overlay acceptance', () => {
 		page
 	}) => {
 		await open(page, '/workspace/chat-1');
-		await openWorkbench(page);
+		// No workbench: below 850px the secondary region takes over and hides the primary
+		// timeline. AC17 needs the timeline and composer visible, so leave the panel closed.
 		const scroller = page.locator('[data-slot="timeline-scroller"]');
 		await expect(scroller).toBeVisible();
 
@@ -360,7 +361,7 @@ test.describe('workspace and overlay acceptance', () => {
 		// is what lets the timeline grow past one screen.
 		for (let index = 0; index < 24; index += 1) {
 			await sendMessage(page, `old message ${index}`);
-			await page.getByRole('button', { name: '{cancel_running}' }).click();
+			await page.getByRole('button', { name: 'Stop' }).click();
 			await expect(page.locator('[data-partial-output]')).toBeVisible();
 		}
 

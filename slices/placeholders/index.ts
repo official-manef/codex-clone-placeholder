@@ -1,5 +1,6 @@
+import { COPY } from './copy';
 import { PLACEHOLDER_FAMILIES, PLACEHOLDER_KEYS } from './keys';
-import { tokenFor } from './resolve';
+import { copyFor } from './resolve';
 
 const DECLARED = new Set(PLACEHOLDER_KEYS);
 const FAMILY_ROOTS = new Set(PLACEHOLDER_FAMILIES.map(({ root }) => root));
@@ -19,21 +20,22 @@ function inFamily(key: string): boolean {
 	return /^\d+$/.test(suffix) && FAMILY_ROOTS.has(key.slice(0, cut));
 }
 
-/** `{key}`; unknown keys still resolve, but warn once per key in dev. */
+/** Human-readable copy for a key; unknown keys still resolve, but warn once per key in dev. */
 export function t(key: string): string {
 	if (!DECLARED.has(key) && !inFamily(key)) {
 		warnOnce(`t:${key}`, `Unknown placeholder key "${key}".`);
 	}
-	return tokenFor(key);
+	return copyFor(key, COPY);
 }
 
-/** `{root_nn}`; unknown family roots warn once per root in dev. */
+/** Copy for `${root}_${nn}`; unknown family roots warn once per root in dev. */
 export function tp(root: string, n: number): string {
 	if (!FAMILY_ROOTS.has(root)) {
 		warnOnce(`tp:${root}`, `Unknown placeholder family "${root}".`);
 	}
-	return tokenFor(`${root}_${String(Math.max(1, Math.trunc(n))).padStart(2, '0')}`);
+	return copyFor(`${root}_${String(Math.max(1, Math.trunc(n))).padStart(2, '0')}`, COPY);
 }
 
+export { COPY };
 export { PLACEHOLDER_KEYS };
 export { PLACEHOLDER_FAMILIES, GENERIC_LABELS } from './keys';
