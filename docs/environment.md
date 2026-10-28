@@ -6,14 +6,22 @@ have separate environments. No secret belongs in a `PUBLIC_` variable or loader 
 
 ## Public settings
 
-| Setting                           | Default | Actual consumer                                                                                                                                    |
-| --------------------------------- | ------- | -------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `PUBLIC_CONVEX_URL`               | Empty   | Root layout connects the browser to the selected Convex deployment.                                                                                |
-| `PUBLIC_SITE_URL`                 | Empty   | Canonical/social URLs, auth redirect and API origin checks. HTTPS origin, no path; HTTP loopback allowed locally. Required for auth/AI/MCP client. |
-| `PUBLIC_SEO_INDEXABLE`            | `false` | Metadata and crawler endpoints; true requires an origin. Demo app routes remain noindex.                                                           |
-| `PUBLIC_GOOGLE_SITE_VERIFICATION` | Empty   | Google verification meta content only.                                                                                                             |
-| `PUBLIC_BING_SITE_VERIFICATION`   | Empty   | Bing verification meta content only.                                                                                                               |
-| `PUBLIC_TWITTER_SITE`             | Empty   | Optional `@handle` in Twitter/X metadata.                                                                                                          |
+| Setting                           | Default | Actual consumer                                                                                                                                                                  |
+| --------------------------------- | ------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `PUBLIC_CONVEX_URL`               | Empty   | Root layout connects the browser to the selected Convex deployment.                                                                                                              |
+| `PUBLIC_SITE_URL`                 | Empty   | Canonical/social URLs, auth redirect and API origin checks. HTTPS origin, no path; HTTP loopback allowed locally. Required for auth/AI/MCP client.                               |
+| `PUBLIC_SEO_INDEXABLE`            | `false` | Metadata and crawler endpoints; true requires an origin. Demo app routes remain noindex.                                                                                         |
+| `PUBLIC_SURFACE`                  | Empty   | `src/lib/config/surface.ts` via `$lib/feature_settings.svelte.ts`: pins the surface to `local` or `cloud` instead of inferring it from the page URL. Any other value is ignored. |
+| `PUBLIC_GOOGLE_SITE_VERIFICATION` | Empty   | Google verification meta content only.                                                                                                                                           |
+| `PUBLIC_BING_SITE_VERIFICATION`   | Empty   | Bing verification meta content only.                                                                                                                                             |
+| `PUBLIC_TWITTER_SITE`             | Empty   | Optional `@handle` in Twitter/X metadata.                                                                                                                                        |
+
+The surface decides which tools start enabled. On `cloud`, tools that need the runtime on
+the user's own machine (`src/lib/feature_access.ts`, requirement `local-runtime`) start
+unchecked and stay available behind Settings → Tools. Leave `PUBLIC_SURFACE` empty unless a
+deployment is served from a host the inference cannot classify, such as a reverse proxy on
+an internal name. It is presentation only: it never grants or removes authority, and no
+server handler reads it.
 
 `src/lib/config/metadata.ts` validates public settings. Preview environments stay noindex.
 Google/Bing tokens are verification content, not API credentials. See
