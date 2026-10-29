@@ -52,6 +52,30 @@ bun run test:dev         # dev hydration smoke
 DEPLOY_TARGET=node node scripts/smoke-node.mjs
 ```
 
+## MANEF AI console
+
+This template is the console for the MANEF AI integration workspace
+(`official-manef/manef-ai`). The **MANEF AI** screen lists the four declared products
+(Models, MCP Builder/Connectors Gateway, Connectors, Agent@Manef) with their exact source
+pins, declared effects and required scopes, and composes a preview plan against them.
+
+The hub that owns that registry is a separate loopback process. Point the console at it:
+
+```bash
+# terminal 1 — the integration workspace
+cd ../manef-ai && pnpm install --frozen-lockfile --ignore-scripts && pnpm run dev
+
+# terminal 2 — this console
+echo 'MANEF_HUB_URL=http://127.0.0.1:3210' > .env.local
+bun run dev
+```
+
+Leave `MANEF_HUB_URL` unset and the screen says so instead of guessing. The bridge in
+`src/lib/server/manef.ts` forwards three hub paths and nothing else; it holds no credential
+and grants no authority. Every declared capability is `read` or `none`, and a plan is a
+preview: no product is started, called or billed. See [environment](docs/environment.md)
+and [AI/MCP](docs/ai-mcp.md).
+
 ## Routes
 
 | Route         | What renders                                                       |

@@ -66,6 +66,24 @@ The application relays them to the selected provider, so use a trusted HTTPS dep
 Do not enable request-body logging for these routes. Instance-local burst counters protect
 small deployments; use an edge/distributed limiter before scaling replicas.
 
+## MANEF AI hub bridge: optional
+
+`src/lib/server/manef.ts` forwards exactly three paths to a loopback MANEF AI hub and
+nothing else. The hub (`manef-ai/apps/hub`) only answers `Host: 127.0.0.1|localhost|[::1]`
+and same-origin requests, so a browser on this console's origin cannot reach it directly;
+the SvelteKit server makes the call instead. The incoming `Origin` is never forwarded.
+
+| Setting         | Default | Actual consumer                                                                       |
+| --------------- | ------- | ------------------------------------------------------------------------------------- |
+| `MANEF_HUB_URL` | Empty   | Loopback base URL, `http` only. Unset = the MANEF AI screen says "no hub configured". |
+
+Only `/api/modules`, `/api/plan` and `/ready` are reachable through `/api/manef/*`. The
+bridge adds no principal, scope or credential, cannot be widened by a request URL, and
+never executes anything: every capability the registry declares is `read` or `none`, and a
+plan is a preview. `/ready` answers `503 unconfigured` until a real authorized adapter
+exists, and the bridge treats that status as a real answer rather than a failure. Run the
+hub with `pnpm run dev` in `manef-ai`; it binds loopback on port 3210.
+
 ## Payment and email: transport adapters
 
 `src/lib/server/integrations/config.ts` consumes only the requested capability.

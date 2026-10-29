@@ -26,6 +26,7 @@ export const FEATURE_ACCESS: Readonly<Record<string, FeatureRequirement>> = Obje
 	terminal: 'local-runtime',
 	// Works in a hosted build.
 	chat: 'any',
+	manef: 'any',
 	providers: 'any',
 	keys: 'any',
 	pricing: 'any',
@@ -43,6 +44,7 @@ export const FEATURE_ACCESS: Readonly<Record<string, FeatureRequirement>> = Obje
 /** Navigation that must stay reachable, including the Tools screen that re-enables the rest. */
 export const ALWAYS_ENABLED: readonly string[] = [
 	'chat',
+	'manef',
 	'providers',
 	'keys',
 	'faq',

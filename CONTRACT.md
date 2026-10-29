@@ -111,6 +111,18 @@ contracts, deliberate deviations and the re-sync procedure.
 - `DEPLOY_TARGET=node node scripts/smoke-node.mjs` asserts the shipped route family. Any
   route change must update it in the same commit.
 
+### MANEF AI console seam
+
+- **The hub is reached server-side only.** `/api/manef/*` forwards `/api/modules`,
+  `/api/plan` and `/ready` to `MANEF_HUB_URL`, which must be loopback `http`. A browser
+  never talks to the hub, and an incoming `Origin` is never forwarded. Widening the route
+  table means editing `src/lib/server/manef.ts`; a request URL cannot do it.
+- **The screen is read-only by construction.** The hub has no execution endpoint and every
+  declared capability is `read` or `none`. Nothing on this screen starts a product,
+  resolves a secret or grants authority. `unconfigured` readiness is shown as such.
+- **This seam adds no identity.** It has no principal, tenant, scope or approval. Those are
+  the owning product's job at call time, never fields in a plan.
+
 ### Superseded documents
 
 `docs/PRD.md`, `docs/ui-spec.md`, `docs/implementation-plan.md`, `docs/state-model.md` and
