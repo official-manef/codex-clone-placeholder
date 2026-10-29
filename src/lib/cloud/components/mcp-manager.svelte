@@ -2,6 +2,8 @@
 	import { useAuth } from 'convex-svelte';
 	import { engineAvailability } from '$features/cloud';
 	import { env } from '$env/dynamic/public';
+	import { page } from '$app/state';
+	import { authCopy } from '$lib/auth_state';
 	import { Button } from '$lib/components/ui/button/index.js';
 	import { Input } from '$lib/components/ui/input/index.js';
 	import { Switch } from '$lib/components/ui/switch/index.js';
@@ -42,12 +44,23 @@
 			signedIn: auth?.isAuthenticated === true
 		})
 	);
+	const authState = $derived(
+		authCopy({
+			configured: page.data.auth?.enabled === true,
+			signedIn: auth?.isAuthenticated === true,
+			isLoading: auth?.isLoading === true
+		})
+	);
 	const cloudReason = $derived(
 		!cloudUrl
 			? 'Cloud mode is not configured. Set PUBLIC_CONVEX_URL to your own Convex deployment to connect a server; this build has no per-user MCP.'
 			: !cloudMcpAvailable()
 				? 'Cloud mode did not finish starting, so MCP servers cannot be managed in this tab yet.'
-				: 'Sign in to connect your own MCP server. Local mode and the operator-configured servers keep working without an account.'
+				: authState.tone === 'unavailable'
+					? `${authState.title}. ${authState.detail}`
+					: authState.tone === 'ready' && authState.title
+						? authState.title
+						: 'Sign in to connect your own MCP server. Local mode and the operator-configured servers keep working without an account.'
 	);
 	type Found = { reachable: boolean; error: string | null; tools: string[] };
 

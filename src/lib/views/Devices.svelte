@@ -5,12 +5,14 @@
   import { Input } from "#lib/components/ui/input/index.js";
   import { env } from "$env/dynamic/public";
   import { onMount } from "svelte";
-  import { useMutation, useQuery } from "convex-svelte";
+  import { useMutation, useQuery, useAuth } from "convex-svelte";
   import { api } from "../../convex/_generated/api.js";
   import type { Id } from "../../convex/_generated/dataModel.js";
   import { detectSurface } from "#lib/config/surface.js";
   import { classifyEndpoint, displayEndpoint } from "#lib/runtime/endpoint.js";
   import { deviceTools } from "#lib/device_tools.svelte.js";
+  import { page } from "$app/state";
+  import { isSignInError } from "#lib/auth_state.js";
 
   /**
    * Paired devices.
@@ -33,6 +35,10 @@
   };
 
   const paired = cloudUrl ? useQuery(api.devices.list, () => ({})) : null;
+  // `useAuth()` throws without `setupAuth()`, which only runs when a deployment URL exists.
+  const auth = cloudUrl ? useAuth() : null;
+  // A missing session also explains an auth-shaped error whose wording we do not recognise.
+  const signInBlocked = $derived(isSignInError(paired?.error) || auth?.isAuthenticated !== true);
   const registerDevice = cloudUrl ? useMutation(api.devices.register) : null;
   const revokeDevice = cloudUrl ? useMutation(api.devices.revoke) : null;
 
@@ -210,9 +216,18 @@
         deployment to pair a device; this build keeps everything in this browser.
       </p>
     {:else if paired?.error}
-      <p class="text-[12.5px] leading-relaxed text-ink-2" role="alert">
-        Could not read paired devices: {paired.error.message}
-      </p>
+      {#if signInBlocked}
+        <p class="text-[12.5px] leading-relaxed text-ink-2" role="status">
+          Sign in to read your paired devices.
+          {#if page.data.auth?.enabled === true}
+            <a class="underline" href="/auth/login">Sign in</a>
+          {/if}
+        </p>
+      {:else}
+        <p class="text-[12.5px] leading-relaxed text-ink-2" role="alert">
+          Could not read paired devices: {paired.error.message}
+        </p>
+      {/if}
     {:else if paired?.isLoading}
       <p class="text-[12.5px] text-ink-3">Loading paired devices…</p>
     {:else if devices.length === 0}

@@ -4,10 +4,12 @@
   import { Input } from "#lib/components/ui/input/index.js";
   import { env } from "$env/dynamic/public";
   import { onDestroy, onMount } from "svelte";
-  import { useQuery } from "convex-svelte";
+  import { useQuery, useAuth } from "convex-svelte";
   import { api } from "../../convex/_generated/api.js";
   import { deviceTools } from "#lib/device_tools.svelte.js";
   import { classifyEndpoint } from "#lib/runtime/endpoint.js";
+  import { page } from "$app/state";
+  import { isSignInError } from "#lib/auth_state.js";
   import {
     createTerminal,
     type Terminal,
@@ -41,6 +43,12 @@
   };
 
   const paired = cloudUrl ? useQuery(api.devices.list, () => ({})) : null;
+  // `useAuth()` throws without `setupAuth()`, which only runs when a deployment URL exists.
+  const auth = cloudUrl ? useAuth() : null;
+  // A missing session also explains an auth-shaped error whose wording we do not recognise.
+  const signInBlocked = $derived(
+    isSignInError(paired?.error) || auth?.isAuthenticated !== true,
+  );
   const terminalDevices = $derived(
     ((paired?.data ?? []) as DeviceRow[]).filter(
       (row) => row.kind === "terminal" && !row.revokedAt,
@@ -292,9 +300,18 @@
       {/if}
     </p>
     {#if paired?.error}
-      <p class="mt-2 text-[12px] leading-relaxed text-red-400" role="alert">
-        Could not read paired devices: {paired.error.message}
-      </p>
+      {#if signInBlocked}
+        <p class="mt-2 text-[12px] leading-relaxed text-ink-2" role="status">
+          Sign in to read your paired devices.
+          {#if page.data.auth?.enabled === true}
+            <a class="underline" href="/auth/login">Sign in</a>
+          {/if}
+        </p>
+      {:else}
+        <p class="mt-2 text-[12px] leading-relaxed text-red-400" role="alert">
+          Could not read paired devices: {paired.error.message}
+        </p>
+      {/if}
     {/if}
   {:else}
     <div class="flex min-w-0 flex-col gap-3">

@@ -30,7 +30,9 @@ reconnect. Rotating it is a migration, not a restart.
 
 **Identity.** `owner` is `identity.tokenIdentifier` from the signed-in session. It is derived
 inside every handler (`requireUser`), never sent by the client. A session id is not authority:
-every read of a session or message also checks `owner`.
+every read of a session or message also checks `owner`. A signed-in owner is required to store a
+key, so a deployment with `AUTH_ENABLED=false` cannot use the cloud engine at all — it stays on
+local/device mode.
 
 **Host gate.** A built-in provider's key is pinned to the baseURL in `src/convex/providers.ts`.
 A caller-supplied endpoint is honoured only for a custom slug, and only over HTTPS with no

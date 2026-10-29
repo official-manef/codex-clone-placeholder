@@ -7,6 +7,8 @@ roles, account linking, invitations or an account-deletion workflow.
 
 ## Enable a project
 
+Without these values, provider keys and MCP servers cannot be stored, and `/auth/login` returns 404.
+
 1. Create a Google OAuth **web application** client for your own project. Configure its
    consent screen, audience and test users. Register the exact redirect URI
    `https://your-domain.example/auth/callback`; local development may use
