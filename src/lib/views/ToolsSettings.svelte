@@ -22,9 +22,11 @@
    * here and still stay off until the user turns it on, and it needs a paired device of its
    * kind before it can do anything.
    */
-  type PairedRow = { kind: string };
+  type PairedRow = { kind: string; revokedAt?: number };
   const paired = cloudUrl ? useQuery(api.devices.list, () => ({})) : null;
-  const deviceRows = $derived(((paired?.data ?? []) as PairedRow[]).filter((row) => row));
+  const deviceRows = $derived(
+    ((paired?.data ?? []) as PairedRow[]).filter((row) => !row.revokedAt),
+  );
   const deviceToolRows = $derived([
     {
       id: "terminal" as const,
@@ -48,7 +50,9 @@
   const hasDevice = (kind: string) => pairedKinds.has(kind);
   const surface = $derived(featureSettings.surface);
   const rows = $derived(
-    WORKSPACE_VIEWS.filter((view) => Object.hasOwn(FEATURE_ACCESS, view.id)).map((view) => ({
+    WORKSPACE_VIEWS.filter(
+      (view) => Object.hasOwn(FEATURE_ACCESS, view.id) && view.id !== "terminal",
+    ).map((view) => ({
       id: view.id,
       label: view.label,
       icon: view.icon,
@@ -157,6 +161,17 @@
               {row.reason}
             {/if}
           </p>
+          {#if toolsStarted && row.id === "terminal" && hasDevice("terminal")}
+            <p class="mt-1 text-[11px] leading-relaxed text-ink-3">
+              {#if deviceTools.isEnabled("terminal")}
+                A terminal device is paired and this switch is on.
+                <a class="underline" href="#terminal">Open terminal</a>.
+              {:else}
+                A terminal device is paired. Turn this switch on, then
+                <a class="underline" href="#terminal">open terminal</a>.
+              {/if}
+            </p>
+          {/if}
         </div>
       </li>
     {/each}

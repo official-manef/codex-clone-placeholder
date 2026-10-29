@@ -70,6 +70,17 @@ test('defaults hide local-runtime features only on the cloud surface', () => {
 	expect(isHiddenBySurface('files', 'local')).toBe(false);
 });
 
+test('terminal tab is present by default on every surface, only the connection is gated', () => {
+	expect(defaultEnabled('local')).toContain('terminal');
+	expect(defaultEnabled('cloud')).toContain('terminal');
+	// Stored selection keeps it on both surfaces.
+	expect(resolveEnabled([...ALWAYS_ENABLED, 'terminal'], 'local')).toContain('terminal');
+	expect(resolveEnabled([...ALWAYS_ENABLED, 'terminal'], 'cloud')).toContain('terminal');
+	// A corrupt or missing selection falls back to defaults, which include terminal.
+	expect(resolveEnabled(null, 'local')).toContain('terminal');
+	expect(resolveEnabled(['bogus'], 'cloud')).toContain('terminal');
+});
+
 test('resolveEnabled drops unknown ids, unions always-enabled and falls back when corrupt', () => {
 	const resolved = resolveEnabled(['chat', 'bogus', 'bogus', 'files', 'chat'], 'cloud');
 	expect(resolved).toContain('files');

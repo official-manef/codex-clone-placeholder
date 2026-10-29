@@ -1,6 +1,8 @@
 <script lang="ts">
 	import { useAction, useMutation, useQuery } from 'convex-svelte';
+	import { env } from '$env/dynamic/public';
 	import { api } from '../../../src/convex/_generated/api';
+	import { safeDocsLink } from '../state/docs_link';
 
 	/**
 	 * Provider connection manager.
@@ -24,38 +26,78 @@
 
 	let { signedIn = false }: { signedIn?: boolean } = $props();
 
-	const catalog = useAction(api.chat.providers);
-	const connected = useQuery(api.credentials.listProviders, () => (signedIn ? {} : 'skip'));
-	const connect = useAction(api.credentials.connect);
-	const disconnect = useMutation(api.credentials.disconnect);
+	// Calling these hooks without a deployment throws: the Convex client context is only set
+	// up when PUBLIC_CONVEX_URL exists. Keep every call behind that check.
+	const cloudUrl = env.PUBLIC_CONVEX_URL;
+	const catalog = cloudUrl ? useAction(api.chat.providers) : null;
+	const connected = cloudUrl
+		? useQuery(api.credentials.listProviders, () => (signedIn ? {} : 'skip'))
+		: null;
+	const connect = cloudUrl ? useAction(api.credentials.connect) : null;
+	const disconnect = cloudUrl ? useMutation(api.credentials.disconnect) : null;
 
 	let providers = $state<CatalogEntry[]>([]);
+	// Signed-in screens start in the loading state: the effect that fetches the catalogue runs
+	// right after mount, and an empty `<select>` before it would look like an empty registry.
+	let catalogLoading = $state(true);
+	let catalogError = $state('');
 	let busy = $state<string | null>(null);
 	let message = $state('');
 	let error = $state('');
 
 	let selected = $state('openrouter');
+	// A custom endpoint needs its own slug: binding the Slug field to `selected` would end the
+	// custom branch on the first keystroke.
+	let customSlug = $state('');
 	let apiKey = $state('');
 	let customName = $state('');
 	let customEndpoint = $state('');
 	let customModels = $state('');
 	let customProtocol = $state<'openai' | 'anthropic'>('openai');
 
-	const connectedMap = $derived(
-		new Map((connected.data ?? []).map((row: Connected) => [row.provider, row]))
-	);
+	const connectedRows = $derived<Connected[]>((connected?.data ?? []) as Connected[]);
+	const connectedLoading = $derived(connected?.isLoading ?? false);
+	const connectedError = $derived(connected?.error ?? null);
+	const connectedMap = $derived(new Map(connectedRows.map((row) => [row.provider, row])));
 	const current = $derived(providers.find((entry) => entry.slug === selected));
+	const docsHref = $derived(safeDocsLink(current?.docsUrl));
+
+	/**
+	 * A connected row's key page: only a registry slug has one. A custom endpoint carries its own
+	 * `endpoint`, so it never gets a provider key link.
+	 */
+	function keyPage(row: Connected): string | null {
+		if (row.endpoint) return null;
+		return safeDocsLink(providers.find((entry) => entry.slug === row.provider)?.docsUrl);
+	}
+
+	async function loadCatalog(): Promise<void> {
+		if (!catalog) return;
+		catalogLoading = true;
+		catalogError = '';
+		try {
+			const rows = await catalog({});
+			providers = rows as CatalogEntry[];
+		} catch (cause) {
+			// The real server message, not a generic "failed" line: an unauthenticated or
+			// unconfigured deployment says something the user can act on.
+			catalogError =
+				cause instanceof Error && cause.message
+					? cause.message
+					: 'Could not load the provider list.';
+		} finally {
+			catalogLoading = false;
+		}
+	}
 
 	$effect(() => {
-		if (!signedIn) return;
-		catalog({}).then(
-			(rows) => (providers = rows as CatalogEntry[]),
-			() => (error = 'Could not load the provider list.')
-		);
+		if (!cloudUrl || !signedIn || !catalog) return;
+		loadCatalog().catch(() => (catalogError = 'Could not load the provider list.'));
 	});
 
 	function reset() {
 		apiKey = '';
+		customSlug = '';
 		customName = '';
 		customEndpoint = '';
 		customModels = '';
@@ -64,7 +106,11 @@
 
 	async function submitKey() {
 		if (!signedIn || busy) return;
-		const provider = selected.trim();
+		if (!connect) {
+			error = 'Cloud mode is not configured, so there is nowhere to store a key.';
+			return;
+		}
+		const provider = (selected === 'custom' ? customSlug : selected).trim();
 		if (!/^[a-z0-9][a-z0-9-]{0,63}$/.test(provider)) {
 			error = 'Provider slugs are lowercase letters, digits and dashes.';
 			return;
@@ -103,6 +149,10 @@
 
 	async function remove(provider: string) {
 		if (busy) return;
+		if (!disconnect) {
+			error = 'Cloud mode is not configured, so there is nothing to disconnect.';
+			return;
+		}
 		busy = provider;
 		error = '';
 		try {
@@ -119,9 +169,16 @@
 <section class="providers" aria-labelledby="providers-heading">
 	<h2 id="providers-heading">Providers</h2>
 
-	{#if !signedIn}
+	{#if !cloudUrl}
 		<p class="providers-note" role="status">
-			Sign in to connect a provider key. Local mode keeps working without an account.
+			Cloud mode is not configured. Set <code>PUBLIC_CONVEX_URL</code> to your own Convex deployment to
+			store provider keys; this build has no key storage, so Model keys has nothing to save. Local and
+			device engines keep working without an account.
+		</p>
+	{:else if !signedIn}
+		<p class="providers-note" role="status">
+			Sign in to connect a provider key. The key is encrypted server-side under your Convex
+			identity, so a session is required; local and device engines keep working without an account.
 		</p>
 	{:else}
 		<div class="providers-grid">
@@ -132,6 +189,17 @@
 					submitKey().catch(() => (error = 'Could not save the key.'));
 				}}
 			>
+				{#if catalogLoading}
+					<p class="providers-note" role="status">Loading provider catalogue…</p>
+				{:else if catalogError}
+					<p class="providers-error" role="alert">{catalogError}</p>
+				{:else if providers.length === 0}
+					<p class="providers-note" role="status">
+						The deployment returned no built-in providers. A custom endpoint is still available
+						below.
+					</p>
+				{/if}
+
 				<label class="providers-field">
 					<span>Provider</span>
 					<select bind:value={selected}>
@@ -142,13 +210,28 @@
 					</select>
 				</label>
 
-				{#if current?.docsUrl}
+				{#if selected === 'custom'}
 					<p class="providers-help">
-						Create a key at
-						<!-- An external provider page, not an app route: resolve() does not apply. -->
-						<span class="providers-docs">{current.docsUrl}</span>
-						>. The provider shows it once — paste it here; it is encrypted and cannot be read back.
+						A custom endpoint has no registry key page; the key comes from that endpoint's own
+						operator.
 					</p>
+				{:else if current?.docsUrl}
+					<p class="providers-help">
+						Create a key on the provider's page, then paste it here. The provider shows it once — it
+						is encrypted and cannot be read back.
+					</p>
+					{#if docsHref}
+						<!-- An external provider page, not an app route: `rel="external"` marks it for SvelteKit. -->
+						<a
+							class="providers-docs"
+							href={docsHref}
+							target="_blank"
+							rel="external noopener noreferrer">Open the {current.slug} key page</a
+						>
+						<code class="providers-docs-url">{current.docsUrl}</code>
+					{:else}
+						<code class="providers-docs-url">{current.docsUrl}</code>
+					{/if}
 				{/if}
 
 				<label class="providers-field">
@@ -162,10 +245,10 @@
 					/>
 				</label>
 
-				{#if customEndpoint !== undefined && selected === 'custom'}
+				{#if selected === 'custom'}
 					<label class="providers-field">
 						<span>Slug</span>
-						<input bind:value={selected} placeholder="my-endpoint" pattern="[a-z0-9-]+" />
+						<input bind:value={customSlug} placeholder="my-endpoint" pattern="[a-z0-9-]+" />
 					</label>
 					<label class="providers-field">
 						<span>Base URL</span>
@@ -203,19 +286,33 @@
 
 			<div class="providers-list">
 				<h3>Connected</h3>
-				{#if connected.isLoading}
+				{#if connectedError}
+					<p class="providers-error" role="alert">
+						Could not read your connections: {connectedError.message}
+					</p>
+				{:else if connectedLoading}
 					<p class="providers-note" role="status">Checking your connections…</p>
-				{:else if (connected.data ?? []).length === 0}
+				{:else if connectedRows.length === 0}
 					<p class="providers-note">No provider connected yet.</p>
 				{:else}
 					<ul>
-						{#each connected.data ?? [] as row (row.provider)}
+						{#each connectedRows as row (row.provider)}
 							{@const entry = connectedMap.get(row.provider)}
+							{@const href = keyPage(row)}
 							<li>
 								<span class="providers-row">
 									<strong>{row.provider}</strong>
 									<small>{entry?.endpoint ?? 'built-in endpoint'}</small>
 								</span>
+								{#if href}
+									<a
+										class="providers-docs"
+										{href}
+										target="_blank"
+										rel="external noopener noreferrer"
+										aria-label={`Get an API key for ${row.provider}`}>Get API key</a
+									>
+								{/if}
 								<button
 									type="button"
 									disabled={busy !== null}
@@ -282,6 +379,18 @@
 		font-size: 12px;
 		line-height: 1.6;
 		color: var(--color-ink-2);
+	}
+	.providers-docs {
+		font-size: 12px;
+		color: var(--color-ink);
+		text-decoration: underline;
+		text-underline-offset: 2px;
+	}
+	.providers-docs-url {
+		display: block;
+		overflow-wrap: anywhere;
+		font-size: 11px;
+		color: var(--color-ink-3);
 	}
 	.providers-actions {
 		display: flex;

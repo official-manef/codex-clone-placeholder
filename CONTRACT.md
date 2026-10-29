@@ -100,7 +100,9 @@ contracts, deliberate deviations and the re-sync procedure.
   `src/lib/runtime/endpoint.ts`; Convex validates the same origin shape independently in
   `src/convex/_shared/endpoint.ts` and never imports `src/lib/runtime/**`. Terminal and remote
   browser view stay off until a device of that kind is paired and the user enables the tool in
-  Tools.
+  Tools. The `terminal` tab itself is always reachable (`ALWAYS_ENABLED`) so the screen
+  that explains "pair a terminal device first" can be found; only the connection is gated.
+  The bridge it talks to is documented in [terminal](docs/terminal.md).
 - **Do not fake OAuth readiness.** The OAuth path is not configured in this template, so the UI
   offers the documented manual-key flow instead of a dead button.
 - **Omitted optional props stay omitted.** `runtimeControls`, `hostedGate`, `settingsWindow`,

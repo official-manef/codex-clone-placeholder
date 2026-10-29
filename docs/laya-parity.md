@@ -78,13 +78,14 @@ To become backend-connected, replace the body of `src/lib/http.ts`. Call sites n
 
 ## 4. Deliberate deviations from Laya
 
-| Area        | Here                                      | Laya                      | Why                   |
-| ----------- | ----------------------------------------- | ------------------------- | --------------------- |
-| Transport   | in-browser store (`http.local.ts`)        | Python/OpenVINO server    | Zero-backend template |
-| Hosted gate | omitted (`hostedGate` not passed)         | Laya gates hosted pairing | Nothing to pair with  |
-| Integration | omitted (`installIntegration` not passed) | WebMCP page tools         | No executor to expose |
-| Identity    | `Workspace Template`, template repo link  | Laya NPU                  | Product-owned         |
-| Lint/format | bounded exceptions for vendored trees     | no linter at all          | See §6                |
+| Area        | Here                                      | Laya                      | Why                                                         |
+| ----------- | ----------------------------------------- | ------------------------- | ----------------------------------------------------------- |
+| Transport   | in-browser store (`http.local.ts`)        | Python/OpenVINO server    | Zero-backend template                                       |
+| Hosted gate | omitted (`hostedGate` not passed)         | Laya gates hosted pairing | Nothing to pair with                                        |
+| Integration | omitted (`installIntegration` not passed) | WebMCP page tools         | No executor to expose                                       |
+| Terminal    | `src/lib/views/Terminal.svelte` (added)   | no terminal output        | Client half of a device bridge; see [terminal](terminal.md) |
+| Identity    | `Workspace Template`, template repo link  | Laya NPU                  | Product-owned                                               |
+| Lint/format | bounded exceptions for vendored trees     | no linter at all          | See §6                                                      |
 
 Everything else is Laya's: rail, sidebar, launcher, menubar, settings window, runtime
 controls, comparison tabs, approval selector, browser toolbar, all 21 views.

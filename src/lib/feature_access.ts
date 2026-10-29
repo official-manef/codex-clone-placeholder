@@ -23,6 +23,7 @@ export const FEATURE_ACCESS: Readonly<Record<string, FeatureRequirement>> = Obje
 	performance: 'local-runtime',
 	files: 'local-runtime',
 	browser: 'local-runtime',
+	terminal: 'local-runtime',
 	// Works in a hosted build.
 	chat: 'any',
 	providers: 'any',
@@ -46,7 +47,10 @@ export const ALWAYS_ENABLED: readonly string[] = [
 	'keys',
 	'faq',
 	'tools',
-	'devices'
+	'devices',
+	// The tab stays so its "pair a terminal device first" screen is reachable; connecting is
+	// still gated by the paired device and the Tools switch.
+	'terminal'
 ];
 
 const ALL_IDS = Object.keys(FEATURE_ACCESS);
@@ -55,10 +59,14 @@ function normalize(ids: readonly string[]): string[] {
 	return [...new Set(ids)].sort();
 }
 
-/** Defaults per surface; always-enabled navigation stays in the set. */
+/**
+ * Defaults per surface; always-enabled navigation stays in the set.
+ *
+ * The terminal tab is present by default so the screen that explains "pair a terminal device
+ * first" is discoverable. Connecting stays gated by the paired device and the Tools switch.
+ */
 export function defaultEnabled(surface: Surface): string[] {
-	const ids =
-		surface === 'cloud' ? ALL_IDS.filter((id) => FEATURE_ACCESS[id] !== 'local-runtime') : ALL_IDS;
+	const ids = ALL_IDS.filter((id) => surface !== 'cloud' || FEATURE_ACCESS[id] !== 'local-runtime');
 	return normalize([...ids, ...ALWAYS_ENABLED]);
 }
 
