@@ -38,6 +38,18 @@ local/device mode.
 A caller-supplied endpoint is honoured only for a custom slug, and only over HTTPS with no
 embedded credentials. Provider A's key can therefore never be redirected to provider B.
 
+**Self-hosted gateways are built-in, not custom.** `nine-router` is registered in
+`PROVIDERS` with its own pinned baseURL (`https://router.antinrml.com/v1`, OpenAI protocol)
+rather than being connected as a custom slug. That matters: a custom slug accepts a
+caller-supplied endpoint, so a 9router key stored that way could be pointed anywhere. As a
+built-in it is pinned like OpenAI itself.
+
+The same slug also exists in `src/lib/server/ai/config.ts` for the SvelteKit route, which
+serves four providers against eleven on the Convex path. `src/convex/` cannot import from
+`src/lib/` — the Convex runtime bundles its own module graph — so the two files duplicate the
+host on purpose. Drift shows up as a key sent to the wrong origin, and
+`vitest run src/convex src/lib/server/ai` is what catches it.
+
 **Manual-key fallback is a flow, not a field.** The connect form shows, for every built-in
 provider: the official key page (`docsUrl`), an instruction to create a key there, the fact
 that the key is shown once, the exact field to paste it into, that it is encrypted
@@ -125,13 +137,18 @@ command in the UI has been run here.
 
 ## 7. Verification
 
-| Check        | Command                      | Result                                                                         |
-| ------------ | ---------------------------- | ------------------------------------------------------------------------------ |
-| Convex types | `tsc --noEmit -p src/convex` | clean                                                                          |
-| App types    | `bun run check`              | 0 errors, 0 warnings                                                           |
-| Unit         | `bun run test:unit`          | 95 passed (21 new: endpoint classification, terminal client, server validator) |
-| Build        | `bun run build`              | ok                                                                             |
-| Browser      | `bunx playwright test`       | 12 passed                                                                      |
+| Check        | Command                      | Result                                       |
+| ------------ | ---------------------------- | -------------------------------------------- |
+| Convex types | `tsc --noEmit -p src/convex` | clean                                        |
+| App types    | `bun run check`              | 0 errors, 0 warnings                         |
+| Unit         | `bun run test:unit`          | 138 passed (27 files)                        |
+| Build        | `bun run build`              | ok                                           |
+| Browser      | `bunx playwright test`       | **not run** — see [progress.md](progress.md) |
+
+> The unit count above was 95 when this table was written and the browser row claimed 12
+> passed. Both went stale: `6ed1f3e` deleted the acceptance suites with the route family
+> they targeted, so there is no browser proof of AC01–AC18 today. Numbers here are measured
+> on `d839f75`; `docs/progress.md` is the authoritative gate list.
 
 Not verified: a live Convex deployment, a real provider call, a real NPU device, a real
 bridge, and every `ssh -L` / `tailscale serve` / `tailscale funnel` command shown in the
