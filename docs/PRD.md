@@ -155,6 +155,14 @@ All AC01–AC18 now have a browser test: `tests/workspace.e2e.ts` covers AC01, A
 AC07, AC08, AC10 and AC16, and `tests/acceptance.e2e.ts` covers AC03, AC05, AC06, AC09,
 AC11–AC15, AC17 and AC18.
 
+> **Corrigendum (2026-10-30, `cc33ef0`).** Those two files no longer exist. `6ed1f3e`
+> ("rebuild on the Laya NPU workspace template") removed the `/workspace`, `/capabilities`
+> and `/settings` route family together with their acceptance suites, and this section was
+> not updated. Today the only browser test is `tests/dev-smoke.e2e.ts` (four tests:
+> hydration and navigation), and nothing in `src/` or `slices/` references an AC id — so
+> **none of AC01–AC18 currently has a browser test**. The scenario text above is still the
+> acceptance bar; see [progress.md](progress.md) for what closing it costs.
+
 ## 8. Release evidence
 
 ```bash

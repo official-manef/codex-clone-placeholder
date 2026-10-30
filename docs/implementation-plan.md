@@ -190,6 +190,13 @@ AC coverage: `tests/workspace.e2e.ts` covers AC01, AC02, AC04, AC07, AC08, AC10 
 `tests/acceptance.e2e.ts` covers AC03, AC05, AC06, AC09, AC11–AC15, AC17 and AC18. Every
 acceptance criterion therefore has a browser test.
 
+> **Corrigendum (2026-10-30, `cc33ef0`).** Both files were deleted by `6ed1f3e` along with
+> the route family they targeted, and this table was not updated. The E2E row above is now
+> inaccurate: the only browser suite is `tests/dev-smoke.e2e.ts`, and no AC id appears
+> anywhere in `src/` or `slices/`. Recover the scenario list from history
+> (`git show ad4a909:tests/acceptance.e2e.ts`) and re-point it at current selectors before
+> claiming the AC; see [progress.md](progress.md).
+
 Playwright selects by role/name. No snapshot-only assertions. Add one test per AC that is
 not already covered by unit tests.
 

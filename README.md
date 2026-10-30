@@ -137,6 +137,7 @@ boundaries and [implementation-plan.md](docs/implementation-plan.md) for the bui
 | Start in the cloud                  | [Cloud handoff](docs/cloud-handoff.md)                                           |
 | ChatGPT desktop parity (handoff)    | [Parity brief](docs/chatgpt-desktop-parity.md)                                   |
 | ChatGPT desktop parity (evidence)   | [Windows host evidence](docs/chatgpt-desktop-parity-windows.md)                  |
+| Current progress                    | [Progress tracker](docs/progress.md)                                             |
 | Shared invariants and file map      | [CONTRACT.md](CONTRACT.md)                                                       |
 | Agent entry                         | [AGENTS.md](AGENTS.md), [agent start](docs/agent-start.md)                       |
 | Svelte / Convex practice            | [Svelte](docs/svelte-best-practices.md), [Convex](docs/convex-best-practices.md) |
