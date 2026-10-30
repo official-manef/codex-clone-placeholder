@@ -3,7 +3,7 @@
 Living status for this repository. Correct only when a command below was run on the
 commit named at the top. If a line here disagrees with the code, the code wins — fix the line.
 
-Baseline: `ae28043` (squash of #3), `main`, 2026-10-30.
+Baseline: `d839f75`, `main`, 2026-10-31.
 
 ## Where we are
 
@@ -13,13 +13,30 @@ Baseline: `ae28043` (squash of #3), `main`, 2026-10-30.
 | Chat surface + composer    | shipped                     | `slices/chat`, local runtime adapter                           |
 | Terminal panel             | shipped                     | `src/lib/runtime/terminal.ts`, `src/lib/views/Terminal.svelte` |
 | Device pairing             | shipped                     | `src/lib/views/Devices.svelte`, `src/lib/auth_state.ts`        |
-| BYOK providers (cloud)     | shipped, 4 providers        | `src/convex/providers.ts`; `nine-router` added in `cc33ef0`    |
+| BYOK providers (`cloud`)   | shipped, 11 providers       | `src/convex/providers.ts`                                      |
+| BYOK providers (SvelteKit) | shipped, 4 providers        | `src/lib/server/ai/config.ts`                                  |
+| `nine-router` provider     | shipped on both paths       | both files above; see the note below                           |
 | BYOK chat (SvelteKit path) | shipped                     | `src/lib/server/ai/{chat,config}.ts`                           |
 | Outbound MCP client        | shipped                     | `src/lib/cloud/mcp.ts`, allowlist + manual confirm             |
 | Inbound MCP server         | shipped, read-only          | `/api/mcp/server`, one `starter_status` tool                   |
 | MANEF AI hub bridge        | shipped, loopback allowlist | `src/routes/api/manef/[...path]`, three paths only             |
 | Feature access + toggles   | shipped                     | `src/lib/feature_access.ts`, `src/lib/config/surface.ts`       |
 | ChatGPT parity evidence    | shipped                     | `docs/chatgpt-desktop-parity-windows.md`                       |
+
+### `nine-router` on both paths, deliberately duplicated
+
+The slug exists twice, and that is not an oversight:
+
+| path            | file                          | providers |
+| --------------- | ----------------------------- | --------- |
+| `cloud` engine  | `src/convex/providers.ts`     | 11        |
+| SvelteKit route | `src/lib/server/ai/config.ts` | 4         |
+
+`src/convex/` cannot import from `src/lib/` — the Convex runtime bundles its own module
+graph, so a shared constant is not an option without a build step. Both files pin the same
+host (`https://router.antinrml.com/v1`) and both are host-pinned, so a mismatch would be
+visible as a key sent to the wrong origin. Change one, change the other, and run
+`vitest run src/convex src/lib/server/ai`.
 
 ## Gates, measured on this commit
 

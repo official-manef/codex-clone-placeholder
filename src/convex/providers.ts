@@ -64,6 +64,16 @@ export const PROVIDERS: Readonly<Record<string, ProviderEntry>> = {
 		baseUrl: 'https://ollama.com/v1',
 		protocol: 'openai',
 		docsUrl: 'https://ollama.com/settings/keys'
+	},
+	// 9router: self-hosted OpenAI-compatible gateway. Pinned like every built-in provider so
+	// an OpenAI key cannot be redirected here, and a 9router key cannot leave it.
+	// Must stay in step with the 'nine-router' entry in `src/lib/server/ai/config.ts`, which
+	// serves the same slug on the SvelteKit path. Two files, one name, on purpose: convex/
+	// cannot import from src/lib because the Convex runtime bundles its own graph.
+	'nine-router': {
+		baseUrl: 'https://router.antinrml.com/v1',
+		protocol: 'openai',
+		docsUrl: 'https://9router.com'
 	}
 };
 
