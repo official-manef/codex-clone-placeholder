@@ -10,6 +10,7 @@ export function providerFetch(
 		| 'https://api.openai.com'
 		| 'https://api.anthropic.com'
 		| 'https://generativelanguage.googleapis.com'
+		| 'https://router.antinrml.com'
 ): typeof fetch {
 	return (input, init) => {
 		const url = new URL(input instanceof Request ? input.url : String(input));
@@ -40,6 +41,14 @@ export function chatResponse(input: ReturnType<typeof parseChat>, requestSignal:
 				apiKey: input.apiKey,
 				baseURL: 'https://generativelanguage.googleapis.com/v1beta',
 				fetch: providerFetch('https://generativelanguage.googleapis.com')
+			})(input.model),
+		// 9router is OpenAI-compatible; the host is fixed like every other provider so a
+		// caller-supplied endpoint can never receive this key.
+		'nine-router': () =>
+			createOpenAI({
+				apiKey: input.apiKey,
+				baseURL: 'https://router.antinrml.com/v1',
+				fetch: providerFetch('https://router.antinrml.com')
 			})(input.model)
 	};
 	let cancelled = false;
