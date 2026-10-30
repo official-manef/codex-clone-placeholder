@@ -7,7 +7,7 @@ vi.mock('ai', () => ({ streamText: vi.fn() }));
 const env = {
 	AI_ENABLED: 'true',
 	AI_MODELS_JSON:
-		'{"openai":["approved-model"],"anthropic":["approved-model"],"google":["approved-model"]}'
+		'{"openai":["approved-model"],"anthropic":["approved-model"],"google":["approved-model"],"nine-router":["approved-router-model"]}'
 };
 const input = {
 	provider: 'openai' as const,
@@ -57,16 +57,16 @@ function parts(events: { type: string; text?: string; error?: unknown }[]) {
 	} as unknown as ReturnType<typeof streamText>;
 }
 
-test('all official provider selections stream text with bounded requests and no tools', async () => {
+test('all provider selections, including 9router, stream text with bounded requests and no tools', async () => {
 	vi.mocked(streamText).mockImplementation(() =>
 		parts([{ type: 'text-delta', text: 'A response' }])
 	);
-	for (const provider of ['openai', 'anthropic', 'google'] as const) {
+	for (const provider of ['openai', 'anthropic', 'google', 'nine-router'] as const) {
 		const response = chatResponse({ ...input, provider }, new AbortController().signal);
 		expect(response.headers.get('cache-control')).toBe('no-store');
 		expect(await response.text()).toContain('A response');
 	}
-	expect(streamText).toHaveBeenCalledTimes(3);
+	expect(streamText).toHaveBeenCalledTimes(4);
 	const options = vi.mocked(streamText).mock.calls[0][0];
 	expect(options).toMatchObject({
 		maxOutputTokens: 4096,
@@ -74,6 +74,17 @@ test('all official provider selections stream text with bounded requests and no 
 		telemetry: { isEnabled: false }
 	});
 	expect(options).not.toHaveProperty('tools');
+});
+
+test('9router is accepted as an approved provider and is still host-pinned', () => {
+	expect(
+		parseChat(env, { ...input, provider: 'nine-router', model: 'approved-router-model' }).provider
+	).toBe('nine-router');
+	expect(() =>
+		parseChat(env, { ...input, provider: 'nine-router', model: 'openai-only-model' })
+	).toThrow('not approved');
+	const pinned = providerFetch('https://router.antinrml.com');
+	expect(() => pinned('https://api.openai.com/v1/chat/completions')).toThrow('fixed endpoint');
 });
 
 test('stream redacts split credentials and emits generic failure instead of provider payload', async () => {

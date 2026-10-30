@@ -7,7 +7,10 @@ const modelsSchema = z
 	.object({
 		openai: z.array(modelName).max(20).default([]),
 		anthropic: z.array(modelName).max(20).default([]),
-		google: z.array(modelName).max(20).default([])
+		google: z.array(modelName).max(20).default([]),
+		// 9router speaks the OpenAI protocol; it is a separate entry because its host and
+		// catalog are not OpenAI's, and the key must never be sent to api.openai.com.
+		'nine-router': z.array(modelName).max(40).default([])
 	})
 	.strict();
 const keySchema = z
@@ -17,7 +20,7 @@ const keySchema = z
 	.regex(/^[!-~]+$/);
 const chatSchema = z
 	.object({
-		provider: z.enum(['openai', 'anthropic', 'google']),
+		provider: z.enum(['openai', 'anthropic', 'google', 'nine-router']),
 		model: modelName,
 		apiKey: keySchema,
 		messages: z
@@ -43,7 +46,12 @@ export function aiSettings(env: IntegrationEnv) {
 	if (!env.AI_MODELS_JSON || env.AI_MODELS_JSON.length > 16000)
 		throw new Error('Configure AI_MODELS_JSON');
 	const models = modelsSchema.parse(JSON.parse(env.AI_MODELS_JSON));
-	const labels = { openai: 'OpenAI', anthropic: 'Anthropic', google: 'Google' };
+	const labels = {
+		openai: 'OpenAI',
+		anthropic: 'Anthropic',
+		google: 'Google',
+		'nine-router': '9router'
+	};
 	const providers = (Object.keys(labels) as AiProvider[])
 		.filter((id) => models[id].length)
 		.map((id) => ({ id, label: labels[id], models: [...new Set(models[id])] }));

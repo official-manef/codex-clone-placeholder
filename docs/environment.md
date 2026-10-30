@@ -45,7 +45,7 @@ The SvelteKit server validates selection in `src/lib/server/ai/config.ts` and
 | Setting                   | Default | Actual consumer                                                                                                                |
 | ------------------------- | ------- | ------------------------------------------------------------------------------------------------------------------------------ |
 | `AI_ENABLED`              | `false` | Enables bounded BYOK chat streaming.                                                                                           |
-| `AI_MODELS_JSON`          | Empty   | Approved model IDs grouped by `openai`, `anthropic`, `google`; no automatically selected model.                                |
+| `AI_MODELS_JSON`          | Empty   | Approved model IDs grouped by `openai`, `anthropic`, `google`, `nine-router`; no automatically selected model.                 |
 | `CAPABILITY_ACCESS_TOKEN` | Empty   | Optional private operator bearer credential, at least 32 characters. Google sessions are the normal per-user alternative.      |
 | `MCP_CLIENT_ENABLED`      | `false` | Enables discovery and manually confirmed calls to configured remote servers.                                                   |
 | `MCP_SERVERS_JSON`        | Empty   | Private aliases, fixed public HTTPS URLs, `bearer`/`x-api-key`, exact tool allowlists. Never put credentials in endpoint URLs. |

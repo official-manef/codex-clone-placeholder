@@ -31,17 +31,26 @@ application authorization.
 ## Enable chat
 
 Set `AI_ENABLED=true` and `AI_MODELS_JSON` on the SvelteKit server. The JSON object accepts
-the keys `openai`, `anthropic` and `google`, each with an array of approved model IDs.
-Include only models verified against your provider account and current provider docs.
-There is no automatic model choice or fallback when a selected model is unavailable.
+the keys `openai`, `anthropic`, `google` and `nine-router`, each with an array of approved
+model IDs. Include only models verified against your provider account and current provider
+docs. There is no automatic model choice or fallback when a selected model is unavailable.
 
 ```json
 {
 	"openai": ["replace-with-approved-model-id"],
 	"anthropic": [],
-	"google": []
+	"google": [],
+	"nine-router": ["replace-with-approved-router-model-id"]
 }
 ```
+
+`nine-router` targets a self-hosted 9router gateway (`https://router.antinrml.com/v1`,
+OpenAI-compatible) and is host-pinned like every built-in provider: the key entered for it
+can never be sent to a different origin. Its catalog is whatever that gateway serves; run
+`codex-9router-catalog` to generate the matching Codex model catalog. Tool calling through
+9router requires `tool_mode="code_mode_only"` and `use_responses_lite=false` in that catalog;
+with Responses-Lite enabled the gateway mangles tool names and every call fails with
+`unsupported call`.
 
 This example is configuration structure, not a working model ID. After replacing it,
 open the Assistant screen, check setup, select the provider/model, enter your own key,
