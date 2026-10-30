@@ -93,9 +93,11 @@ test('session cookies are encrypted, bounded and separate from the safe server s
 		httpOnly: true,
 		secure: true,
 		sameSite: 'lax',
-		path: '/',
-		maxAge: 3600
+		path: '/'
 	});
+	// maxAge is a wall-clock difference, so assert a bounded window rather than a frozen number.
+	expect(options.maxAge).toBeGreaterThanOrEqual(3599);
+	expect(options.maxAge).toBeLessThanOrEqual(3600);
 	expect(await readSession(current)).toEqual({
 		subject: 'member-1',
 		tokenIdentifier: 'https://accounts.google.com|member-1',

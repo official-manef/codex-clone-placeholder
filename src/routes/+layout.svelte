@@ -5,10 +5,10 @@
 	import { pageMetadata, pageIndexable, seoSettings } from '$lib/config/metadata';
 	import { page } from '$app/state';
 	import { env } from '$env/dynamic/public';
-	import { onMount } from 'svelte';
 	import { setupConvex, setupAuth, useConvexClient } from 'convex-svelte';
 	import { api } from '../convex/_generated/api';
 	import { configureCloudChat } from '$lib/cloud/chat';
+	import { configureCloudMcp } from '$lib/cloud/mcp';
 	import type { LayoutProps } from './$types';
 
 	let { children, data }: LayoutProps = $props();
@@ -44,12 +44,12 @@
 	}
 
 	/**
-	 * Wire the cloud transport once the Convex client exists. Without a deployment URL nothing
-	 * is configured, the adapter reports "unsupported", and the workspace stays on local mode.
+	 * Wire the cloud transports once the Convex client exists. Without a deployment URL nothing
+	 * is configured, the adapters report "unsupported", and the workspace stays on local mode.
+	 * This runs during init (not `onMount`) so a child screen's `onMount` already sees them.
 	 */
-	onMount(() => {
-		if (!convexUrl) return;
-		const client = useConvexClient();
+	const client = convexUrl ? useConvexClient() : null;
+	if (client) {
 		configureCloudChat((turn) =>
 			client.action(api.chat.send, {
 				ref: turn.ref,
@@ -57,7 +57,16 @@
 				decisionNote: turn.decisionNote
 			})
 		);
-	});
+		configureCloudMcp({
+			list: () => client.query(api.mcp.list, {}),
+			connect: (input) => client.action(api.mcp.connect, input),
+			disconnect: (input) => client.mutation(api.mcp.disconnect, input),
+			setEnabled: (input) => client.mutation(api.mcp.setEnabled, input),
+			discover: (input) => client.action(api.mcp.discover, input),
+			prepare: (input) => client.action(api.mcp.prepare, input),
+			call: (input) => client.action(api.mcp.call, input)
+		});
+	}
 
 	const seo = seoSettings(env);
 	const metadata = $derived(

@@ -9,11 +9,15 @@
  */
 
 import type * as _shared_auth from "../_shared/auth.js";
+import type * as _shared_endpoint from "../_shared/endpoint.js";
+import type * as _shared_mcp_rules from "../_shared/mcp_rules.js";
+import type * as _shared_mcp_transport from "../_shared/mcp_transport.js";
 import type * as chat from "../chat.js";
 import type * as credentials from "../credentials.js";
 import type * as crypto from "../crypto.js";
 import type * as decisions from "../decisions.js";
 import type * as devices from "../devices.js";
+import type * as mcp from "../mcp.js";
 import type * as providers from "../providers.js";
 import type * as starter from "../starter.js";
 import type * as threads from "../threads.js";
@@ -26,11 +30,15 @@ import type {
 
 declare const fullApi: ApiFromModules<{
   "_shared/auth": typeof _shared_auth;
+  "_shared/endpoint": typeof _shared_endpoint;
+  "_shared/mcp_rules": typeof _shared_mcp_rules;
+  "_shared/mcp_transport": typeof _shared_mcp_transport;
   chat: typeof chat;
   credentials: typeof credentials;
   crypto: typeof crypto;
   decisions: typeof decisions;
   devices: typeof devices;
+  mcp: typeof mcp;
   providers: typeof providers;
   starter: typeof starter;
   threads: typeof threads;

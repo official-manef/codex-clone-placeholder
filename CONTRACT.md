@@ -51,9 +51,12 @@ configuration is allowed; mutable user/session state shared across server reques
 The bounded burst limiter is a documented exception for hashed counters only, not a session
 or credential store; multi-instance deployments need an external rate limit.
 SvelteKit server modules and Convex actions use the environment of their executing runtime.
-Convex imports cannot depend on SvelteKit aliases or environment modules. BYOK keys and
-chat history stay in current request/tab memory. Tool output is untrusted data; MCP calls
-require configured endpoint/tool allowlists and explicit review, never automatic model execution. See the focused
+Convex imports cannot depend on SvelteKit aliases or environment modules. SvelteKit request
+keys and chat history stay in current request/tab memory. A BYOK credential is posted once to
+Convex and stored only as an AES-256-GCM blob under `MODELS_ENC_KEY` (`modelCreds`, and
+`mcpConnections` for a user-owned MCP server); every read re-derives `owner` and never returns
+the plaintext. Tool output is untrusted data; MCP calls
+require configured or per-user endpoint/tool allowlists and explicit review, never automatic model execution. See the focused
 [Svelte](docs/svelte-best-practices.md) and [Convex](docs/convex-best-practices.md) rules.
 
 ## This product
@@ -92,6 +95,14 @@ contracts, deliberate deviations and the re-sync procedure.
   in `src/convex/providers.ts`; only a custom slug may carry its own HTTPS endpoint.
 - **A disabled control names its reason.** `slices/cloud/state/engine.ts` returns the reason a
   cloud or device turn is unavailable, and the UI shows it.
+- **A paired device is an execution target, not a credential store.** Only `SHA-256(token)` and
+  a validated `http(s)` origin are stored. The browser classifies an endpoint in
+  `src/lib/runtime/endpoint.ts`; Convex validates the same origin shape independently in
+  `src/convex/_shared/endpoint.ts` and never imports `src/lib/runtime/**`. Terminal and remote
+  browser view stay off until a device of that kind is paired and the user enables the tool in
+  Tools. The `terminal` tab itself is always reachable (`ALWAYS_ENABLED`) so the screen
+  that explains "pair a terminal device first" can be found; only the connection is gated.
+  The bridge it talks to is documented in [terminal](docs/terminal.md).
 - **Do not fake OAuth readiness.** The OAuth path is not configured in this template, so the UI
   offers the documented manual-key flow instead of a dead button.
 - **Omitted optional props stay omitted.** `runtimeControls`, `hostedGate`, `settingsWindow`,

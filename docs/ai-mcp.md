@@ -13,13 +13,19 @@ requests require either the [Google session](auth.md) or a private
 for a controlled installation, not a tenant permission model. A user enters it into the
 page only when session sign-in is unavailable. Never put it in a `PUBLIC_` variable.
 
-Provider API keys and MCP credentials are supplied separately by the user, with every
-request. Password inputs and chat history live only in the mounted page's memory;
+Provider API keys and operator MCP credentials are supplied separately by the user, with
+every request. Password inputs and chat history live only in the mounted page's memory;
 clearing the page or navigating away removes them. The starter does not write these
-values to cookies, browser storage, Convex, analytics or logs. Requests pass through the
+values to cookies, browser storage, analytics or logs. Requests pass through the
 application server to the selected service. Use a trusted HTTPS deployment and disable
 request-body/authorization-header logging in hosting, proxies and observability tools.
 The remote provider's own retention and billing policies still apply.
+
+The one exception is optional per-user MCP, described under
+[Per-user MCP (BYOK)](#per-user-mcp-byok) below: there `src/convex/mcp.ts` stores the
+user's own MCP credential encrypted with AES-256-GCM under `MODELS_ENC_KEY`, because a
+stored connection cannot be re-supplied on every discovery. The plaintext is never
+returned to a browser, and deleting the row makes it unrecoverable.
 
 POST routes compare `Origin` against configuration, not an incoming `Host` header.
 The shared guard accepts no anonymous fallback and applies 20 requests per minute per
@@ -153,6 +159,44 @@ accounts. Generated URLs can identify a particular connected user: use them only
 controlled installation, or add authenticated per-user connection ownership and encrypted
 credential storage before offering a multi-tenant connected-account product. An alias
 alone does not establish that ownership.
+
+## Per-user MCP (BYOK)
+
+The panel above is the operator path: servers and their one credential come from
+`MCP_SERVERS_JSON`. A signed-in user can also connect **their own** MCP server from the
+**MCP servers** section of Tools, with their own credential. That path is
+`src/convex/mcp.ts` plus the browser adapter `src/lib/cloud/mcp.ts`; the operator path is
+untouched and keeps working exactly as before.
+
+- **Storage.** The credential is encrypted at rest with AES-256-GCM under the same
+  `MODELS_ENC_KEY` as model keys (one master key, one rotation procedure). A row holds the
+  alias, the validated public HTTPS endpoint, the header convention, the tool allowlist, the
+  ciphertext and an enable flag — never the plaintext.
+- **The browser posts the secret once** to `mcp.connect`. Every later action works from an
+  alias alone. `mcp.list` returns rows without `ciphertext`, and every read derives `owner`
+  from the session and checks it before touching a row.
+- **Allowlist, twice.** Discovery returns only the intersection of what the server advertises
+  and what the user stored. `prepare` and `call` each re-discover and re-check the allowlist
+  server-side, so a UI change alone cannot reach an unnamed tool.
+- **Approvals are single-use with a 120-second TTL.** `prepare` freezes the exact
+  alias/tool/arguments snapshot, stores only `SHA-256(token)` in `mcpApprovals`, and returns
+  the plaintext token once. `call` looks the hash up, checks owner and expiry, deletes the row
+  before the network request, and executes once.
+- **No automatic tool execution.** The model has no access to these connections; a call
+  happens only after the confirmation step. Single-use is not exactly-once: a failed or
+  cancelled call may still have completed remotely, so inspect the external state before
+  retrying.
+- **Bounds.** Same as the operator client: 8 discovery pages, 128 tools, 15-second deadline,
+  2 MiB per response, 16 000 argument characters, 64 000 result characters, 16 connections per
+  owner. The Convex module speaks the Streamable HTTP protocol with plain `fetch`
+  (`src/convex/_shared/mcp_transport.ts`) instead of importing the MCP SDK, because a
+  `'use node'` module may only export actions and `list` has to stay a query.
+
+**Not implemented.** OAuth for MCP servers (only a bearer or `x-api-key` header value can be
+stored), multi-tenant sharing of a connection (a row belongs to one owner, with no team or
+delegation model), streaming results (the result is rendered after the call returns), and
+exactly-once semantics (the approval is single-use, but retry/idempotency is the remote
+server's responsibility).
 
 ## Expose the read-only MCP server
 

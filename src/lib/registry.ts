@@ -155,9 +155,9 @@ export const SECTIONS = [
 		icon: 'shield',
 		group: 'Settings & help',
 		navigationRole: 'settings',
-		// BYOK: the template's own surface, not a vendored Laya view.
-		loadScreen: () =>
-			import('$features/cloud').then((module) => ({ default: module.ProviderManager }))
+		// BYOK: the template's own surface, not a vendored Laya view. The view reads the Convex
+		// session itself; the shell's fixed `screenProps` never carries `signedIn`.
+		loadScreen: () => import('#lib/views/ModelKeys.svelte')
 	},
 	{
 		id: 'faq',
@@ -166,6 +166,22 @@ export const SECTIONS = [
 		group: 'Settings & help',
 		navigationRole: 'settings',
 		loadScreen: () => import('#lib/views/Faq.svelte')
+	},
+	{
+		id: 'tools',
+		label: 'Tools',
+		icon: 'sliders',
+		group: 'Settings & help',
+		navigationRole: 'settings',
+		loadScreen: () => import('#lib/views/ToolsSettings.svelte')
+	},
+	{
+		id: 'devices',
+		label: 'Devices & compute',
+		icon: 'cpu',
+		group: 'Settings & help',
+		navigationRole: 'settings',
+		loadScreen: () => import('#lib/views/Devices.svelte')
 	}
 ] as const;
 
@@ -200,6 +216,13 @@ export const CHAT_OUTPUTS = [
 		icon: 'globe',
 		placement: 'canvas',
 		loadScreen: () => import('#lib/views/BrowserCanvas.svelte')
+	},
+	{
+		id: 'terminal',
+		label: 'Terminal',
+		icon: 'code',
+		placement: 'canvas',
+		loadScreen: () => import('#lib/views/Terminal.svelte')
 	}
 ] as const;
 

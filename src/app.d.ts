@@ -11,6 +11,16 @@ declare global {
 		}
 		interface PageData {
 			meta?: { title?: string; description?: string; indexable?: boolean };
+			// Returned by `src/routes/+layout.server.ts`; `enabled` is whether `/auth/login` exists.
+			auth?: {
+				enabled: boolean;
+				session: {
+					subject: string;
+					tokenIdentifier: string;
+					email?: string;
+					expiresAt: number;
+				} | null;
+			};
 		}
 		// interface PageState {}
 		// interface Platform {}

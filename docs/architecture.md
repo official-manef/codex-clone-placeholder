@@ -12,7 +12,7 @@ in-browser store. Enabled capabilities: none.
 ```text
 /                     → app-shell chrome + Chat (primary) + tabbed output region (secondary)
 
-hash routes           → #apps #transcribe #files #browser #chat … (rail/launcher destinations)
+hash routes           → #apps #transcribe #files #browser #terminal #chat … (rail/launcher destinations)
                         → #models #setup #backends #providers #pricing #parameters #faq
                           (navigationRole: settings → SettingsWindow, not the primary region)
 
@@ -30,6 +30,10 @@ template_runtime_adapter}.ts`, and the transport shim.
 Re-sync procedure, deliberate deviations and the lint posture for the vendored trees:
 [docs/laya-parity.md](laya-parity.md).
 
+Device-bound tools stay off until a device of that kind is paired and the user turns the tool
+on in Tools. The terminal panel's client behaviour and the bridge contract it expects are in
+[terminal](terminal.md).
+
 ## Sources of truth
 
 | Concern                                              | Source                                                                         |
@@ -40,6 +44,7 @@ Re-sync procedure, deliberate deviations and the lint posture for the vendored t
 | Feature catalogue and navigation                     | `src/lib/registry.ts`, `src/lib/workspace_routes.ts`                           |
 | Shell UI, views and view components                  | `slices/workspace-shell/**`, `src/lib/views/**`, `src/lib/*.svelte` (vendored) |
 | Transport                                            | `src/lib/http.ts` → `src/lib/http.local.ts`                                    |
+| Device terminal panel and bridge contract            | `src/lib/views/Terminal.svelte`, [terminal](terminal.md)                       |
 | Framework loading, HTTP status and rendering         | `src/routes/`                                                                  |
 | Schema, private-data authorization and durable state | `src/convex/`                                                                  |
 | API/data types                                       | Committed `src/convex/_generated/`, produced by Convex codegen                 |

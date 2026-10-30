@@ -7,8 +7,38 @@
     WORKSPACE_RESOURCE_CONTEXT,
     type WorkspaceResourceContext,
   } from "../../../slices/workspace-shell/shared/runtime/index.js";
+  import { env } from "$env/dynamic/public";
+  import { useQuery } from "convex-svelte";
+  import { api } from "../../convex/_generated/api.js";
+  import { deviceTools } from "#lib/device_tools.svelte.js";
+  import { displayEndpoint } from "#lib/runtime/endpoint.js";
   const resource = getContext<WorkspaceResourceContext | undefined>(WORKSPACE_RESOURCE_CONTEXT);
   onMount(() => resource?.register("browser", { toolbar: resourceToolbar }));
+
+  /**
+   * Remote browser view. Off by default: the selector appears only when the user turned the
+   * tool on in Tools and a browser-kind device is paired. A remote view cannot be framed
+   * with a token in a URL, so selecting one shows an honest note instead of a broken iframe.
+   */
+  type RemoteDevice = { _id: string; name: string; kind: string; endpoint?: string };
+  const cloudUrl = env.PUBLIC_CONVEX_URL;
+  let toolsEnabled = $state(false);
+  let pairingLoaded = $state(false);
+  onMount(() => {
+    deviceTools.start();
+    toolsEnabled = deviceTools.isEnabled("browser");
+    pairingLoaded = true;
+  });
+  const remoteEnabled = $derived(Boolean(cloudUrl) && toolsEnabled && pairingLoaded);
+  // One hook per component: subscribe only when this build has a backend at all.
+  const paired = cloudUrl ? useQuery(api.devices.list, () => (remoteEnabled ? {} : "skip")) : null;
+  const remoteDevices = $derived(
+    remoteEnabled
+      ? ((paired?.data ?? []) as RemoteDevice[]).filter((row) => row.kind === "browser")
+      : [],
+  );
+  let target = $state("this-browser");
+  const activeRemote = $derived(remoteDevices.find((row) => row._id === target) ?? null);
   let { onNavigate = (_id: string) => {} }: { onNavigate?: (id: string) => void } = $props();
   let address = $state("");
   let error = $state("");
@@ -236,6 +266,30 @@
       >
       <DropdownMenu.Portal
         ><DropdownMenu.Content class="browser-menu" align="end" sideOffset={6}>
+          {#if remoteDevices.length}
+            <DropdownMenu.Group>
+              <DropdownMenu.GroupHeading class="menu-note"
+                >View target</DropdownMenu.GroupHeading
+              >
+              <DropdownMenu.RadioGroup
+                value={target}
+                onValueChange={(value) => {
+                  target = value;
+                  resetPageState();
+                }}
+              >
+                <DropdownMenu.RadioItem class="browser-menu-item" value="this-browser"
+                  >This browser</DropdownMenu.RadioItem
+                >
+                {#each remoteDevices as row (row._id)}
+                  <DropdownMenu.RadioItem class="browser-menu-item" value={row._id}
+                    >{row.name}</DropdownMenu.RadioItem
+                  >
+                {/each}
+              </DropdownMenu.RadioGroup>
+            </DropdownMenu.Group>
+            <DropdownMenu.Separator class="browser-menu-separator" />
+          {/if}
           <DropdownMenu.CheckboxItem
             class="browser-menu-item"
             checked={deviceToolbar}
@@ -320,7 +374,20 @@
 <section class="browser-canvas" aria-label="Browser preview">
   {#if !resource}{@render resourceToolbar()}{/if}
   {#if error}<p class="browser-error" role="alert">{error}</p>{/if}
-  {#if url}
+  {#if activeRemote}
+    <div class="remote-note" role="status">
+      <p>
+        <strong>{activeRemote.name}</strong>{#if activeRemote.endpoint}
+          · {displayEndpoint(activeRemote.endpoint)}{/if}
+      </p>
+      <p>
+        The remote browser view opens over this device's own authenticated session. Pairing
+        tokens are not accepted in a frame URL, so the preview stays closed here until a
+        token-backed URL scheme exists.
+      </p>
+      <button onclick={() => (target = "this-browser")}>Use this browser</button>
+    </div>
+  {:else if url}
     <div class="preview-note">
       Sandboxed preview · sites may block embedding. Back/Forward track addresses entered here; page
       links are not tracked. <button
@@ -467,6 +534,39 @@
     font-size: 11px;
     color: var(--color-ink-2);
     border-top: 1px solid var(--color-line);
+  }
+  :global(.browser-menu-separator) {
+    height: 1px;
+    margin: 4px 0;
+    background: var(--color-line);
+  }
+  .remote-note {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 6px;
+    margin: 8px 12px;
+    padding: 10px 12px;
+    border: 1px solid var(--color-line);
+    border-radius: 8px;
+    font-size: 12px;
+    line-height: 1.6;
+    color: var(--color-ink-2);
+  }
+  .remote-note strong {
+    color: var(--color-ink);
+  }
+  .remote-note p {
+    margin: 0;
+  }
+  .remote-note button {
+    padding: 6px 9px;
+    border-radius: 16px;
+    font-size: 12px;
+    color: var(--color-ink);
+  }
+  .remote-note button:hover {
+    background: var(--color-hover);
   }
   .device-toolbar {
     display: flex;
