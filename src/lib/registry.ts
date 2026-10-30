@@ -40,6 +40,13 @@ export const PROJECT = {
 export const SECTIONS = [
 	{ id: 'chat', label: 'Chat', icon: 'message', group: 'Workspace' },
 	{
+		id: 'manef',
+		label: 'MANEF AI',
+		icon: 'layers',
+		group: 'Workspace',
+		loadScreen: () => import('#lib/views/Manef.svelte')
+	},
+	{
 		id: 'apps',
 		label: 'Automation',
 		icon: 'workflow',
@@ -196,7 +203,7 @@ export const LAUNCHER_CONFIG = {
 } as const;
 
 /** Primary shortcuts; all remaining registered views stay available through menus. */
-export const RAIL_VIEWS = ['chat', 'apps', 'transcribe', 'files', 'browser'] as const;
+export const RAIL_VIEWS = ['chat', 'manef', 'apps', 'transcribe', 'files', 'browser'] as const;
 
 export const CHAT_OUTPUTS = [
 	{ id: 'chat-tools', label: 'Integrations', icon: 'workflow', placement: 'settings' },

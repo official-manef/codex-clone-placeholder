@@ -34,6 +34,19 @@ add an edge/distributed limiter, product quotas and tenant policy before scaling
 The operator credential grants capability access; a provider key is never treated as
 application authorization.
 
+## MANEF AI module registry (local only)
+
+The **MANEF AI** screen reads the module registry of a local `manef-ai` checkout through
+`/api/manef/*`. That bridge is not part of the AI/MCP surface above: it holds no key, it
+authenticates nobody, and it exposes three paths only — `/api/modules`, `/api/plan` and
+`/ready`. Configure `MANEF_HUB_URL` with a loopback base URL (see
+[environment](environment.md#manef-ai-hub-bridge-optional)).
+
+Every capability the registry declares is `read` or `none`; the hub has no execution
+endpoint. A preview states the declared effects, required scopes and pinned source
+revision, and never calls a product. A descriptor conformance result is metadata evidence,
+not live readiness or permission to run native code.
+
 ## Enable chat
 
 Set `AI_ENABLED=true` and `AI_MODELS_JSON` on the SvelteKit server. The JSON object accepts
