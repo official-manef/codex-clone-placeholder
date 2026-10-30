@@ -3,7 +3,7 @@
 Living status for this repository. Correct only when a command below was run on the
 commit named at the top. If a line here disagrees with the code, the code wins — fix the line.
 
-Baseline: `cc33ef0` (squash of #2), `main`, 2026-10-30.
+Baseline: `ae28043` (squash of #3), `main`, 2026-10-30.
 
 ## Where we are
 
