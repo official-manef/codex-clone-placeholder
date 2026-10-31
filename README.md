@@ -5,8 +5,10 @@ with a tabbed output region, lazy feature screens, layout persistence. The shell
 verbatim from [`rahmanef63/laya-npu`](https://github.com/rahmanef63/laya-npu); this repository
 re-hosts it with a local stub backend so it boots with zero credentials.
 
+Live: **https://ai.manef.dev**
+
 [Laya parity and provenance](docs/laya-parity.md) · [Rebuild plan](docs/REBUILD-PLAN-laya-parity.md)
-· [Contract](CONTRACT.md) · [UI/UX](UIUX.md) · [Changelog](CHANGELOG.md)
+· [Contract](CONTRACT.md) · [UI/UX](UIUX.md) · [Changelog](CHANGELOG.md) · [Progress](docs/progress.md)
 
 ## What this is
 
@@ -101,9 +103,11 @@ through state, not routes. There is deliberately no `/workspace`, `/capabilities
 | `bun run assets:generate`         | Generate placeholders/manifest, keep custom art      |
 | `bun run assets:check`            | Validate asset outputs                               |
 
-`bunx playwright test` runs `tests/workspace.e2e.ts` (AC01, AC02, AC04, AC07, AC08, AC10,
-AC16) and `tests/acceptance.e2e.ts` (AC03, AC05, AC06, AC09, AC11–AC15, AC17, AC18);
-`bun run test:dev` runs `tests/dev-smoke.e2e.ts`.
+`bun run test:dev` runs `tests/dev-smoke.e2e.ts`. `bunx playwright test` has no suite to
+run: `tests/workspace.e2e.ts` and `tests/acceptance.e2e.ts` were removed together with the
+`/workspace`, `/capabilities` and `/settings` route family in `6ed1f3e`. No AC01–AC18
+scenario currently has a browser test, and [progress.md](docs/progress.md) records that
+rather than leaving the older claim standing.
 
 Optional Convex commands (`bun run convex:dev`, `bun run convex:codegen`) stay available
 but are unused by the MVP shell.
@@ -112,7 +116,7 @@ but are unused by the MVP shell.
 
 ```text
 ├── slices/                      # workspace-shell (vendored) + workspace-surface
-├── src/routes/                  # thin adapters for /workspace, /capabilities, /settings
+├── src/routes/                  # thin adapters: page, auth, API, crawler documents
 ├── src/lib/components/          # shadcn/ui + app-ui primitives
 ├── src/lib/config/              # public identity, locale, metadata
 ├── src/convex/                  # backend (wired, unused by the MVP shell)
